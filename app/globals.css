@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@keyframes notification-progress-fill {
+	to {
+		transform: scaleX(1);
+	}
+}
+
+.notification-progress-fill {
+	transform: scaleX(0);
+	transform-origin: left;
+	animation: notification-progress-fill 3s linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.notification-progress-track {
+		display: none;
+	}
+}
