@@ -51,7 +51,7 @@ export default function UserManagement() {
         prev.map((u) => (u.id === targetUserId ? { ...u, role: newRole } : u))
       );
     } catch (err) {
-      alert(`Could not change role: ${normalizeApiError(err).message}`);
+      alert(`تعذر تغيير الصلاحية: ${normalizeApiError(err).message}`);
     } finally {
       setRoleChangeLoadingId(null);
     }
@@ -65,7 +65,7 @@ export default function UserManagement() {
         prev.map((u) => (u.id === targetUserId ? { ...u, is_active: nextIsActive } : u))
       );
     } catch (err) {
-      alert(`Could not update status: ${normalizeApiError(err).message}`);
+      alert(`تعذر تحديث الحالة: ${normalizeApiError(err).message}`);
     } finally {
       setStatusChangeLoadingId(null);
     }
@@ -76,7 +76,7 @@ export default function UserManagement() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-            Registered Users & Access Roles
+            المستخدمون والصلاحيات
           </h3>
         </div>
 
@@ -85,13 +85,13 @@ export default function UserManagement() {
             type="text"
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
-            placeholder="Search users..."
+            placeholder="ابحث عن مستخدم..."
             className="text-xs px-3 py-1.5 rounded-lg border border-[#D8CEBF] bg-white focus:outline-none"
           />
           <button
             onClick={() => loadUsers(userSearchQuery.trim())}
             className="p-2 rounded-lg border border-[#D8CEBF] bg-white text-[#736B63] hover:text-[#1C1A19]"
-            title="Refresh User Directory"
+            title="تحديث قائمة المستخدمين"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${usersLoading ? 'animate-spin' : ''}`} />
           </button>
@@ -108,11 +108,11 @@ export default function UserManagement() {
       {usersLoading ? (
         <div className="py-12 text-center text-xs uppercase tracking-wider text-[#736B63]">
           <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#643D26]" />
-          Fetching user records...
+          جارٍ تحميل المستخدمين...
         </div>
       ) : userList.length === 0 ? (
         <div className="py-12 bg-white rounded-xl border border-[#EAE4DC] text-center text-xs text-[#736B63]">
-          No user accounts found.
+          لا توجد حسابات مستخدمين.
         </div>
       ) : (
         <div className="bg-white rounded-xl sm:rounded-2xl border border-[#EAE4DC] shadow-sm overflow-hidden">
@@ -120,12 +120,12 @@ export default function UserManagement() {
             <table className="w-full text-left text-xs">
               <thead className="bg-[#FAF8F5] border-b border-[#EAE4DC] text-[10px] uppercase tracking-wider text-[#736B63]">
                 <tr>
-                  <th className="py-3 px-4">User</th>
-                  <th className="py-3 px-4">Email</th>
-                  <th className="py-3 px-4">Phone</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Role Access</th>
-                  <th className="py-3 px-4">Registered</th>
+                  <th className="py-3 px-4">المستخدم</th>
+                  <th className="py-3 px-4">البريد الإلكتروني</th>
+                  <th className="py-3 px-4">الهاتف</th>
+                  <th className="py-3 px-4">الحالة</th>
+                  <th className="py-3 px-4">الصلاحية</th>
+                  <th className="py-3 px-4">تاريخ التسجيل</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#FAF8F5]">
@@ -135,7 +135,7 @@ export default function UserManagement() {
                       {u.first_name} {u.last_name}
                       {u.id === user?.id && (
                         <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded bg-[#EFEBE3] text-[#643D26]">
-                          You
+                          أنت
                         </span>
                       )}
                     </td>
@@ -150,7 +150,7 @@ export default function UserManagement() {
                               : 'bg-[#FDF3F2] text-[#9E4A2B]'
                           }`}
                         >
-                          {u.is_active ? 'Active' : 'Inactive'}
+                          {u.is_active ? 'نشط' : 'غير نشط'}
                         </span>
                         {user?.role === 'ADMIN' && u.id !== user?.id && (
                           <button
@@ -161,9 +161,9 @@ export default function UserManagement() {
                             {statusChangeLoadingId === u.id ? (
                               <RefreshCw className="w-3 h-3 animate-spin" />
                             ) : u.is_active ? (
-                              'Deactivate'
+                              'إيقاف'
                             ) : (
-                              'Activate'
+                              'تفعيل'
                             )}
                           </button>
                         )}
@@ -180,9 +180,9 @@ export default function UserManagement() {
                             }
                             className="text-[11px] p-1.5 rounded border border-[#D8CEBF] bg-[#FAF8F5] text-[#1C1A19] focus:outline-none focus:border-[#1C1A19]"
                           >
-                            <option value="CUSTOMER">CUSTOMER</option>
-                            <option value="MODERATOR">MODERATOR</option>
-                            <option value="ADMIN">ADMIN</option>
+                            <option value="CUSTOMER">عميل</option>
+                            <option value="MODERATOR">مشرف</option>
+                            <option value="ADMIN">مدير</option>
                           </select>
                           {roleChangeLoadingId === u.id && (
                             <RefreshCw className="w-3 h-3 animate-spin text-[#643D26]" />
@@ -190,12 +190,12 @@ export default function UserManagement() {
                         </div>
                       ) : (
                         <span className="text-[11px] font-semibold text-[#1C1A19]">
-                          {u.role}
+                          {u.role === 'ADMIN' ? 'مدير' : u.role === 'MODERATOR' ? 'مشرف' : 'عميل'}
                         </span>
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-[#8F8880] text-[11px]">
-                      {new Date(u.created_at).toLocaleDateString('en-GB', {
+                      {new Date(u.created_at).toLocaleDateString('ar-EG', {
                         day: 'numeric',
                         month: 'short',
                         year: 'numeric',

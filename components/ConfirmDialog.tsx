@@ -24,7 +24,7 @@ export default function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = 'Cancel',
+  cancelLabel = 'إلغاء',
   variant = 'danger',
   icon = 'delete',
   confirmDisabled = false,
@@ -74,7 +74,7 @@ export default function ConfirmDialog({
               isDanger ? 'bg-rose-700 hover:bg-rose-800' : 'bg-amber-700 hover:bg-amber-800'
             }`}
           >
-            {isLoading ? 'Processing...' : confirmLabel}
+            {isLoading ? 'جارٍ التنفيذ...' : confirmLabel}
           </button>
         </div>
       </div>

@@ -61,7 +61,7 @@ export default function CheckoutView() {
   const setSelectedAddressId = (id: number | 'new') => setUserSelectedAddressId(id);
 
   // Address fields for new address or fallback (mirrors the backend Address model exactly)
-  const [addressTitle, setAddressTitle] = useState('Delivery Residence');
+  const [addressTitle, setAddressTitle] = useState('عنوان التوصيل');
   const [city, setCity] = useState(
     () => defaultAddr?.city || legacyUser?.savedAddresses?.[0]?.city || ''
   );
@@ -93,13 +93,13 @@ export default function CheckoutView() {
 
   if (cart.length === 0) {
     return (
-      <div className="pt-32 pb-24 text-center min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <p className="text-lg text-[#1C1A19]">Your bag is currently empty</p>
+      <div dir="rtl" className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 pt-32 pb-24 text-center">
+        <p className="text-lg text-[#17324A]">السلة فارغة</p>
         <button
           onClick={() => navigateTo('shop')}
-          className="px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-widest"
+          className="bg-[#17324A] px-6 py-2.5 text-sm font-medium text-white"
         >
-          Explore Catalog
+          تصفح المنتجات
         </button>
       </div>
     );
@@ -111,7 +111,7 @@ export default function CheckoutView() {
     setApiFieldErrors({});
 
     if (!authUser) {
-      setApiError('Please sign in to place your order.');
+      setApiError('سجّل الدخول لإتمام الطلب.');
       return;
     }
 
@@ -119,13 +119,13 @@ export default function CheckoutView() {
     try {
       const guestCartSynced = await syncGuestCart();
       if (!guestCartSynced) {
-        setApiError('Some bag items could not be transferred to your account. Retry the transfer before placing the order.');
+        setApiError('تعذر نقل بعض المنتجات إلى حسابك. أعد المحاولة قبل تأكيد الطلب.');
         return;
       }
 
       const backendCart = await cartService.getCart();
       if (!Array.isArray(backendCart.items) || backendCart.items.length === 0) {
-        setApiError('Your account bag is empty. Review the bag and try again before placing the order.');
+        setApiError('سلة حسابك فارغة. راجع السلة ثم حاول مرة أخرى.');
         return;
       }
 
@@ -133,13 +133,13 @@ export default function CheckoutView() {
 
       if (selectedAddressId === 'new' || authAddresses.length === 0) {
         if (!city.trim() || !street.trim()) {
-          setApiError('Please specify the delivery city and street address.');
+          setApiError('أدخل المدينة وعنوان الشارع للتوصيل.');
           setIsSubmitting(false);
           return;
         }
 
         const newAddr = await createAddress({
-          title: addressTitle.trim() || 'Delivery Residence',
+          title: addressTitle.trim() || 'عنوان التوصيل',
           country: 'Egypt',
           city: city.trim(),
           street: street.trim(),
@@ -197,71 +197,70 @@ export default function CheckoutView() {
   };
 
   return (
-    <div id="checkout-page" className="pt-20 sm:pt-28 pb-24 sm:pb-24 bg-[#FAF8F5] min-h-screen">
-      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+    <div id="checkout-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
         {/* Navigation back */}
-        <div className="py-2.5 sm:py-4">
+        <div className="flex items-center justify-between border-b border-[#DED5C9] py-4 sm:py-5">
           <button
             onClick={() => navigateTo('shop')}
-            className="inline-flex items-center gap-1 text-xs uppercase tracking-wider text-[#736B63] hover:text-[#1C1A19]"
+            className="inline-flex items-center gap-2 text-xs text-[#625E57] hover:text-[#17324A]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Continue Shopping</span>
+            <span>متابعة التسوق</span>
           </button>
+          <span className="font-[family-name:var(--font-brand)] text-[10px] text-[#9A9185]">MODERN HOME · ORDER</span>
         </div>
 
-        <div className="pb-5 sm:pb-8 border-b border-[#EAE4DC] space-y-1.5 sm:space-y-2">
-          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#B85D38]">
-            Artisanal Commission
-          </span>
-          <h1 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-            Order Checkout & {settings.depositPercentage}% Deposit
-          </h1>
-          <p className="text-xs sm:text-sm text-[#736B63] font-light leading-relaxed">
-            Review your delivery destination and transfer details to begin production in our workshop.
+        <div className="grid grid-cols-1 gap-5 border-b border-[#DED5C9] py-7 sm:py-10 lg:grid-cols-12 lg:items-end lg:gap-8">
+          <div className="space-y-2 lg:col-span-8">
+            <p className="text-xs font-semibold text-[#A36046]">خطوة أخيرة · تفاصيل الطلب</p>
+            <h1 className="font-[family-name:var(--font-display)] text-3xl leading-relaxed text-[#17324A] sm:text-4xl">لنرتّب وصول قطعتك.</h1>
+          </div>
+          <p className="max-w-md text-sm leading-7 text-[#625E57] lg:col-span-4">
+            راجع عنوان التوصيل وطريقة دفع المقدم ({settings.depositPercentage}%) قبل تأكيد طلبك.
           </p>
         </div>
 
         {!isAuthLoading && !authUser && (
-          <div className="mt-5 flex flex-col gap-4 rounded-xl border border-[#D8CEBF] bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="mt-5 flex flex-col gap-4 border-r-2 border-[#A36046] bg-[#EEE7DC] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
             <div className="flex items-start gap-3">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F5F2EB] text-[#643D26]">
+              <div className="grid h-9 w-9 shrink-0 place-items-center bg-[#F7F3EC] text-[#A36046]">
                 <AlertCircle className="h-4 w-4" />
               </div>
               <div className="space-y-1">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Sign in to continue checkout
+                <h2 className="text-sm font-semibold text-[#17324A]">
+                  سجّل الدخول لمتابعة الطلب
                 </h2>
-                <p className="max-w-2xl text-xs leading-relaxed text-[#736B63]">
-                  Your delivery details and order information are linked to your account. Sign in or create an account to unlock checkout and place your order.
+                <p className="max-w-2xl text-sm leading-7 text-[#6D6A64]">
+                  بيانات التوصيل والطلب مرتبطة بحسابك. سجّل الدخول أو أنشئ حسابًا لإتمام الطلب.
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => navigateTo('account')}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#1C1A19] px-5 py-2.5 text-xs font-medium uppercase tracking-wider text-white hover:bg-[#332F2D]"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 bg-[#17324A] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#24445E]"
             >
-              Sign In / Create Account
+              تسجيل الدخول أو إنشاء حساب
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>
         )}
 
         {isAuthLoading && (
-          <div className="mt-5 flex items-center gap-2 rounded-xl border border-[#EAE4DC] bg-white p-4 text-xs text-[#736B63]">
+          <div className="mt-5 flex items-center gap-2 border-y border-[#DED5C9] p-4 text-xs text-[#6D6A64]">
             <Loader2 className="h-4 w-4 animate-spin text-[#643D26]" />
-            Checking your account...
+            جارٍ التحقق من حسابك...
           </div>
         )}
 
-        <form onSubmit={handlePlaceOrder} className="py-6 sm:py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 gap-8 py-6 sm:py-10 lg:grid-cols-12 lg:gap-12">
           {/* Left: Customer & Address Information (7 cols) */}
           <div className="lg:col-span-7 space-y-6 sm:space-y-10">
             {/* Customer Details */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-xs sm:text-sm uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                1. Customer Details
+              <h3 className="border-b border-[#DED5C9] pb-3 font-[family-name:var(--font-display)] text-lg font-semibold text-[#17324A] sm:text-xl">
+                ١. بيانات العميل
               </h3>
 
               {authUser ? (
@@ -270,7 +269,7 @@ export default function CheckoutView() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-1.5">
                       <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                        Full Name
+                        الاسم بالكامل
                       </label>
                       <div className="w-full text-xs px-3.5 py-3 rounded-lg bg-[#F5F2EB] border border-[#E8E1D5] text-[#1C1A19]">
                         {`${authUser.first_name} ${authUser.last_name}`.trim()}
@@ -279,17 +278,17 @@ export default function CheckoutView() {
 
                     <div className="space-y-1.5">
                       <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                        Mobile Phone (WhatsApp Active)
+                        رقم الهاتف
                       </label>
                       <div className="w-full text-xs px-3.5 py-3 rounded-lg bg-[#F5F2EB] border border-[#E8E1D5] text-[#1C1A19]">
-                        {authUser.phone || 'Not provided'}
+                        {authUser.phone || 'غير مسجل'}
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                      Email Address (For Order Receipts & Updates)
+                        البريد الإلكتروني
                     </label>
                     <div className="w-full text-xs px-3.5 py-3 rounded-lg bg-[#F5F2EB] border border-[#E8E1D5] text-[#1C1A19]">
                       {authUser.email}
@@ -301,21 +300,21 @@ export default function CheckoutView() {
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#643D26]" />
                   <p className="text-xs leading-relaxed text-[#736B63]">
                     {isAuthLoading
-                      ? 'Checking your account details...'
-                      : 'Customer details are locked until you sign in. Your name, phone, and email will load from your account.'}
+                      ? 'جارٍ تحميل بيانات حسابك...'
+                      : 'سجّل الدخول لعرض بيانات الاسم والهاتف والبريد الإلكتروني.'}
                   </p>
                 </div>
               )}
 
               {authUser && (
                 <p className="text-[11px] text-[#736B63]">
-                  Registered on your account. To update these details, visit{' '}
+                  هذه البيانات مسجلة في حسابك. لتحديثها، انتقل إلى{' '}
                   <button
                     type="button"
                     onClick={() => navigateTo('account')}
                     className="underline underline-offset-2 hover:text-[#1C1A19]"
                   >
-                    Account Settings
+                    إعدادات الحساب
                   </button>
                   .
                 </p>
@@ -324,15 +323,15 @@ export default function CheckoutView() {
 
             {/* Delivery Destination */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-xs sm:text-sm uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                2. Delivery Destination
+              <h3 className="border-b border-[#DED5C9] pb-3 font-[family-name:var(--font-display)] text-lg font-semibold text-[#17324A] sm:text-xl">
+                ٢. عنوان التوصيل
               </h3>
 
               {!authUser ? (
                 <div className="flex items-start gap-3 rounded-lg border border-[#EAE4DC] bg-white p-4">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#643D26]" />
                   <p className="text-xs leading-relaxed text-[#736B63]">
-                    Delivery details are locked until you sign in. Use the account button above to continue.
+                    سجّل الدخول لإضافة عنوان التوصيل ومتابعة الطلب.
                   </p>
                 </div>
               ) : (
@@ -340,7 +339,7 @@ export default function CheckoutView() {
                   {authAddresses.length > 0 && (
                     <div className="space-y-2.5">
                       <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                        Select Delivery Residence
+                        اختر عنوان التوصيل
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {authAddresses.map((addr) => (
@@ -361,12 +360,12 @@ export default function CheckoutView() {
                               <span className="text-xs font-semibold text-[#1C1A19] uppercase">{addr.title}</span>
                               {addr.is_default && (
                                 <span className="text-[10px] bg-[#EAE4DC] text-[#643D26] px-1.5 py-0.5 rounded font-semibold">
-                                  Default
+                                  أساسي
                                 </span>
                               )}
                             </div>
                             <p className="text-xs text-[#736B63] mt-1 line-clamp-1">
-                              {addr.street}, Bldg {addr.building_number}
+                              {addr.street}، مبنى {addr.building_number}
                             </p>
                             <p className="text-xs text-[#8F8880]">{addr.city}, {addr.country}</p>
                           </button>
@@ -384,7 +383,7 @@ export default function CheckoutView() {
                           }`}
                         >
                           <Plus className="w-4 h-4" />
-                          <span>Add New Delivery Residence</span>
+                          <span>إضافة عنوان جديد</span>
                         </button>
                       </div>
                     </div>
@@ -394,14 +393,14 @@ export default function CheckoutView() {
                     <div className="space-y-3 pt-2">
                       <div className="space-y-1.5">
                         <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                          Residence Label (e.g. Sahel Villa, Katameya Heights) *
+                          اسم العنوان *
                         </label>
                         <input
                           type="text"
                           required
                           value={addressTitle}
                           onChange={(e) => setAddressTitle(e.target.value)}
-                          placeholder="e.g. North Coast Summer Villa"
+                          placeholder="مثال: المنزل، المكتب"
                           className="w-full text-xs px-3.5 py-3 rounded-lg bg-white border border-[#D8CEBF] text-[#1C1A19] focus:outline-none focus:border-[#643D26]"
                         />
                       </div>
@@ -409,14 +408,14 @@ export default function CheckoutView() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div className="space-y-1.5">
                           <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                            City / Compound / Area *
+                            المدينة أو المنطقة *
                           </label>
                           <input
                             type="text"
                             required
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
-                            placeholder="e.g. Marassi Sidi Abdel Rahman or New Cairo"
+                            placeholder="مثال: القاهرة الجديدة"
                             className="w-full text-xs px-3.5 py-3 rounded-lg bg-white border border-[#D8CEBF] text-[#1C1A19] focus:outline-none focus:border-[#643D26]"
                           />
                         </div>
@@ -424,14 +423,14 @@ export default function CheckoutView() {
 
                       <div className="space-y-1.5">
                         <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                          Street Address / Village Name *
+                          الشارع أو اسم القرية *
                         </label>
                         <input
                           type="text"
                           required
                           value={street}
                           onChange={(e) => setStreet(e.target.value)}
-                          placeholder="e.g. Catania Village, Coastal Road"
+                          placeholder="اسم الشارع أو المنطقة"
                           className="w-full text-xs px-3.5 py-3 rounded-lg bg-white border border-[#D8CEBF] text-[#1C1A19] focus:outline-none focus:border-[#643D26]"
                         />
                       </div>
@@ -439,27 +438,27 @@ export default function CheckoutView() {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                           <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                            Building / Villa No. *
+                            رقم المبنى أو الفيلا *
                           </label>
                           <input
                             type="text"
                             required
                             value={buildingNumber}
                             onChange={(e) => setBuildingNumber(e.target.value)}
-                            placeholder="e.g. 42"
+                            placeholder="مثال: ٤٢"
                             className="w-full text-xs px-3.5 py-3 rounded-lg bg-white border border-[#D8CEBF] text-[#1C1A19] focus:outline-none focus:border-[#643D26]"
                           />
                         </div>
                         <div className="space-y-1.5">
                           <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                            Apartment / Unit No. *
+                            رقم الشقة أو الوحدة *
                           </label>
                           <input
                             type="text"
                             required
                             value={apartmentNumber}
                             onChange={(e) => setApartmentNumber(e.target.value)}
-                            placeholder="e.g. 1"
+                            placeholder="مثال: ١"
                             className="w-full text-xs px-3.5 py-3 rounded-lg bg-white border border-[#D8CEBF] text-[#1C1A19] focus:outline-none focus:border-[#643D26]"
                           />
                         </div>
@@ -469,13 +468,13 @@ export default function CheckoutView() {
 
                   <div className="space-y-1.5">
                     <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
-                      Order Notes / Special Delivery Instructions (Optional)
+                      ملاحظات التوصيل (اختياري)
                     </label>
                     <textarea
                       rows={2}
                       value={orderNote}
                       onChange={(e) => setOrderNote(e.target.value)}
-                      placeholder="e.g. Gate 3, ground floor terrace with freight elevator access..."
+                      placeholder="أضف أي تفاصيل تساعدنا في الوصول إليك."
                       className="w-full text-xs p-3 rounded-lg bg-white border border-[#D8CEBF] text-[#1C1A19] focus:outline-none"
                     />
                   </div>
@@ -486,7 +485,7 @@ export default function CheckoutView() {
             {/* Payment Method Selector */}
             <div className="space-y-3 sm:space-y-4">
               <h3 className="text-xs sm:text-sm uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                3. Choose {settings.depositPercentage}% Deposit Payment Channel
+                ٣. اختر طريقة دفع المقدم ({settings.depositPercentage}%)
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
@@ -505,14 +504,14 @@ export default function CheckoutView() {
                       <span className="block text-xs font-semibold uppercase text-[#1C1A19]">
                         InstaPay
                       </span>
-                      <span className="text-[10px] text-[#736B63]">Instant Egyptian Bank Pay</span>
+                        <span className="text-[10px] text-[#6D6A64]">تحويل فوري عبر إنستا باي</span>
                     </div>
                   </div>
                   <div className="hidden sm:block mt-3">
                     <span className="block text-xs font-semibold uppercase text-[#1C1A19]">
                       InstaPay
                     </span>
-                    <span className="text-[10px] text-[#736B63]">Instant Egyptian Bank Pay</span>
+                    <span className="text-[10px] text-[#6D6A64]">تحويل فوري عبر إنستا باي</span>
                   </div>
                   {paymentMethod === 'instapay' && (
                     <Check className="w-4 h-4 text-[#643D26] shrink-0" />
@@ -534,14 +533,14 @@ export default function CheckoutView() {
                       <span className="block text-xs font-semibold uppercase text-[#1C1A19]">
                         Mobile Wallet
                       </span>
-                      <span className="text-[10px] text-[#736B63]">Vodafone / E&amp; / We / Orange</span>
+                        <span className="text-[10px] text-[#6D6A64]">فودافون، إي آند، وي، أورنج</span>
                     </div>
                   </div>
                   <div className="hidden sm:block mt-3">
                     <span className="block text-xs font-semibold uppercase text-[#1C1A19]">
                       Mobile Wallet
                     </span>
-                    <span className="text-[10px] text-[#736B63]">Vodafone / E&amp; / We / Orange</span>
+                    <span className="text-[10px] text-[#6D6A64]">فودافون، إي آند، وي، أورنج</span>
                   </div>
                   {paymentMethod === 'vodafone_cash' && (
                     <Check className="w-4 h-4 text-[#643D26] shrink-0" />
@@ -563,7 +562,7 @@ export default function CheckoutView() {
                     <div className="p-3 bg-white rounded-lg border border-[#D8CEBF] flex items-center justify-between">
                       <div>
                         <span className="text-[10px] uppercase tracking-wider text-[#736B63] block">
-                          InstaPay IPA / Address:
+                          عنوان إنستا باي:
                         </span>
                         <span className="text-xs font-mono font-bold text-[#1C1A19]">
                           {settings.paymentMethods.instapay.address}
@@ -579,12 +578,12 @@ export default function CheckoutView() {
                         {copiedField === 'instapay' ? (
                           <>
                             <Check className="w-3 h-3 text-[#25D366]" />
-                            <span>Copied</span>
+                            <span>تم النسخ</span>
                           </>
                         ) : (
                           <>
                             <Copy className="w-3 h-3" />
-                            <span>Copy</span>
+                            <span>نسخ</span>
                           </>
                         )}
                       </button>
@@ -601,8 +600,8 @@ export default function CheckoutView() {
 
                     <div className="p-3 bg-white rounded-lg border border-[#D8CEBF] flex items-center justify-between">
                       <div>
-                        <span className="text-[10px] uppercase tracking-wider text-[#736B63] block">
-                          Number:
+                        <span className="text-[10px] text-[#6D6A64] block">
+                          الرقم:
                         </span>
                         <span className="text-xs font-mono font-bold text-[#1C1A19]">
                           {mobileWalletNumber}
@@ -617,12 +616,12 @@ export default function CheckoutView() {
                           {copiedField === 'wallet' ? (
                             <>
                               <Check className="w-3 h-3 text-[#25D366]" />
-                              <span>Copied</span>
+                              <span>تم النسخ</span>
                             </>
                           ) : (
                             <>
                               <Copy className="w-3 h-3" />
-                              <span>Copy</span>
+                              <span>نسخ</span>
                             </>
                           )}
                         </button>
@@ -636,17 +635,17 @@ export default function CheckoutView() {
           </div>
 
           {/* Right: Order Summary & Placement (5 cols) */}
-          <div className="lg:col-span-5 space-y-4 sm:space-y-6">
-            <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-[#EAE4DC] shadow-sm space-y-4 sm:space-y-6">
-              <h3 className="text-xs uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                Commission Summary ({cart.length} Pieces)
+          <div className="space-y-4 sm:space-y-6 lg:col-span-5">
+            <div className="space-y-4 border-t-2 border-[#17324A] bg-[#FBF9F4] p-4 sm:space-y-6 sm:p-6">
+              <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-[#17324A] sm:text-xl">
+                ملخص الطلب ({cart.length} قطع)
               </h3>
 
               {/* Items List */}
-              <div className="space-y-3 sm:space-y-4 max-h-64 overflow-y-auto pr-1">
+              <div className="max-h-64 space-y-3 overflow-y-auto pe-1 sm:space-y-4">
                 {cart.map((item) => (
-                  <div key={item.id} className="flex gap-2.5 sm:gap-3 pb-3 border-b border-[#EAE4DC] text-xs">
-                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-[#EFEBE3] shrink-0 border border-[#E0D8CB]">
+                  <div key={item.id} className="flex gap-2.5 border-b border-[#DED5C9] pb-3 text-xs sm:gap-3">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden bg-[#E6DED2] sm:h-16 sm:w-16">
                       <Image
                         src={
                           primaryImagesByProductId.has(item.productId)
@@ -662,7 +661,7 @@ export default function CheckoutView() {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-[#1C1A19] truncate">{item.productName}</h4>
                       <p className="text-[10px] sm:text-[11px] text-[#736B63]">
-                        {item.selectedFinish} · {item.selectedColor.name} · Qty: {item.quantity}
+                        {item.selectedFinish === 'MATTE' ? 'مطفأ' : 'لامع'} · {item.selectedColor.name} · الكمية: {item.quantity}
                       </p>
                     </div>
                     <div className="font-semibold text-xs text-[#1C1A19]">
@@ -682,27 +681,26 @@ export default function CheckoutView() {
               </div>
 
               {/* Calculations */}
-              <div className="space-y-1.5 sm:space-y-2 pt-2 text-xs text-[#524B45] border-t border-[#EAE4DC]">
+              <div className="space-y-1.5 border-t border-[#DED5C9] pt-3 text-xs text-[#625E57] sm:space-y-2">
                 <div className="flex justify-between">
-                  <span>Total Piece Value</span>
-                  <span className="font-medium text-[#1C1A19]">{cartSubtotal.toLocaleString()} EGP</span>
+                  <span>إجمالي المنتجات</span>
+                  <span className="font-medium text-[#17324A]">{cartSubtotal.toLocaleString()} جنيه</span>
                 </div>
-                <div className="flex justify-between text-xs sm:text-sm font-semibold text-[#643D26] pt-1">
-                  <span>{settings.depositPercentage}% Handcrafted Deposit Due</span>
-                  <span>{cartDepositAmount.toLocaleString()} EGP</span>
+                <div className="flex justify-between pt-1 text-xs font-semibold text-[#A36046] sm:text-sm">
+                  <span>المقدم المستحق ({settings.depositPercentage}%)</span>
+                  <span>{cartDepositAmount.toLocaleString()} جنيه</span>
                 </div>
                 <div className="flex justify-between text-[10px] sm:text-[11px] text-[#736B63]">
-                  <span>Remaining {100 - settings.depositPercentage}% upon delivery</span>
-                  <span>{cartRemainingAmount.toLocaleString()} EGP</span>
+                  <span>المتبقي عند التسليم</span>
+                  <span>{cartRemainingAmount.toLocaleString()} جنيه</span>
                 </div>
               </div>
 
               {/* Deposit Guarantee Note */}
-              <div className="p-3 sm:p-3.5 rounded-lg bg-[#F5F0E8] border border-[#E6DDCE] flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#643D26] shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 border-r-2 border-[#C8A77D] bg-[#EEE7DC] p-3 sm:p-3.5">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#17324A]" />
                 <p className="text-[10px] sm:text-[11px] text-[#524B45] leading-relaxed">
-                  Upon placing this order, you will receive an official Order Reference. You may submit
-                  your deposit confirmation on the next screen or via WhatsApp.
+                  بعد تأكيد الطلب سيظهر رقم مرجعي. يمكنك إرسال إثبات دفع المقدم عبر واتساب في الخطوة التالية.
                 </p>
               </div>
 
@@ -731,16 +729,16 @@ export default function CheckoutView() {
                   id="place-order-submit-btn"
                   type="submit"
                   disabled={isSubmitting || isGuestCartSyncing}
-                  className="w-full py-3.5 sm:py-4 rounded-full bg-[#1C1A19] text-white text-[11px] sm:text-xs uppercase tracking-[0.22em] sm:tracking-[0.25em] font-medium hover:bg-[#332F2D] active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex min-h-12 w-full items-center justify-center gap-2 bg-[#17324A] px-4 py-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Transmitting Commission...</span>
+                      <span>جارٍ تأكيد الطلب...</span>
                     </>
                   ) : (
                     <>
-                      <span>Confirm Order & Proceed to Deposit</span>
+                      <span>تأكيد الطلب ومتابعة المقدم</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -750,9 +748,9 @@ export default function CheckoutView() {
                   type="button"
                   onClick={() => navigateTo('account')}
                   disabled={isAuthLoading}
-                  className="w-full py-3.5 sm:py-4 rounded-full bg-[#1C1A19] text-white text-[11px] sm:text-xs uppercase tracking-[0.22em] sm:tracking-[0.25em] font-medium hover:bg-[#332F2D] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex min-h-12 w-full items-center justify-center gap-2 bg-[#17324A] px-4 py-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
                 >
-                  {isAuthLoading ? 'Checking Account...' : 'Sign In / Create Account to Continue'}
+                  {isAuthLoading ? 'جارٍ التحقق من الحساب...' : 'سجّل الدخول لمتابعة الطلب'}
                   {!isAuthLoading && <ArrowRight className="w-4 h-4" />}
                 </button>
               )}

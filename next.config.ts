@@ -1,5 +1,11 @@
 import type {NextConfig} from 'next';
 
+// Set when building for GitHub Pages (see .github/workflows/deploy-pages.yml).
+// GitHub Pages serves project sites under /<repo-name>/, so assets/routes
+// need that prefix baked in at build time.
+const GH_PAGES_BASE_PATH = process.env.GITHUB_PAGES_BASE_PATH || '';
+const isStaticExport = process.env.BUILD_TARGET === 'github-pages';
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   eslint: {
@@ -10,6 +16,9 @@ const nextConfig: NextConfig = {
   },
   // Allow access to remote image placeholder.
   images: {
+    // next/image's optimization API needs a server, which GitHub Pages
+    // (static hosting only) doesn't have.
+    unoptimized: isStaticExport,
     remotePatterns: [
       {
         protocol: 'https',
@@ -31,7 +40,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'standalone',
+  ...(isStaticExport
+    ? {
+        output: 'export',
+        basePath: GH_PAGES_BASE_PATH,
+        assetPrefix: GH_PAGES_BASE_PATH,
+        trailingSlash: true,
+      }
+    : {output: 'standalone'}),
   transpilePackages: ['motion'],
   // Django backend endpoints require a trailing slash (APPEND_SLASH). Next.js
   // normally 308-redirects "/api/x/" -> "/api/x" before app/api/[...path]/route.ts

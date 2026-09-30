@@ -8,13 +8,7 @@ interface ToccoLogoProps {
   showSubtitle?: boolean;
 }
 
-/**
- * Authentic Tocco House Brand Mark & Logo Component
- * Based on the original Egyptian design studio identity:
- * - Circular brown seal
- * - Overhead architectural lintel beam
- * - Fluid sculptural arch / portal with flared feet
- */
+/** Modern Home wordmark and architectural emblem. */
 export function ToccoMark({
   size = 40,
   fillColor = '#FFFFFF',
@@ -36,36 +30,25 @@ export function ToccoMark({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`inline-block transition-transform duration-300 ${className}`}
-      aria-label="Tocco House Mark"
+      aria-label="Modern Home mark"
     >
       {hasCircle && (
         <circle cx="50" cy="50" r="50" fill={circleBg} />
       )}
-      
-      {/* Upper Lintel Beam */}
-      <rect
-        x="41"
-        y="30"
-        width="18"
-        height="2.2"
-        rx="0.5"
-        fill={fillColor}
-      />
-
-      {/* Architectural Sculptural Arch with flared feet */}
       <path
-        d="M 35 69.5 
-           C 36.5 69.5 41.5 69 41.8 68
-           C 41 64 34.5 57 34.5 49
-           C 34.5 40 41 38 50 38
-           C 59 38 65.5 40 65.5 49
-           C 65.5 57 59 64 58.2 68
-           C 58.5 69 63.5 69.5 65 69.5
-           C 68.5 69.5 67 65 67.8 61
-           C 68.6 52 61.5 41.5 50 41.5
-           C 38.5 41.5 31.4 52 32.2 61
-           C 33 65 31.5 69.5 35 69.5 Z"
-        fill={fillColor}
+        d="M20 46 50 22 80 46v32H20V46Z"
+        fill="none"
+        stroke={fillColor}
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M39 53v11h22V53M35 64h30M42 64v12M58 64v12"
+        fill="none"
+        stroke={fillColor}
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -79,10 +62,10 @@ export default function ToccoLogo({
   showSubtitle = false,
 }: ToccoLogoProps) {
   const sizeMap = {
-    sm: { markSize: 28, textClass: 'text-sm tracking-[0.25em]', subTextClass: 'text-[9px] tracking-[0.25em]' },
-    md: { markSize: 36, textClass: 'text-base tracking-[0.3em]', subTextClass: 'text-[10px] tracking-[0.3em]' },
-    lg: { markSize: 48, textClass: 'text-xl tracking-[0.35em]', subTextClass: 'text-[11px] tracking-[0.35em]' },
-    xl: { markSize: 64, textClass: 'text-3xl tracking-[0.4em]', subTextClass: 'text-[13px] tracking-[0.4em]' },
+    sm: { markSize: 30, textClass: 'text-[8px] tracking-[0.18em]', subTextClass: 'text-[8px]' },
+    md: { markSize: 40, textClass: 'text-[9px] tracking-[0.2em]', subTextClass: 'text-[9px]' },
+    lg: { markSize: 52, textClass: 'text-[10px] tracking-[0.22em]', subTextClass: 'text-[10px]' },
+    xl: { markSize: 68, textClass: 'text-xs tracking-[0.24em]', subTextClass: 'text-[11px]' },
   };
 
   const currentSize = sizeMap[size];
@@ -92,23 +75,23 @@ export default function ToccoLogo({
     theme === 'light'
       ? 'text-white'
       : theme === 'terracotta'
-      ? 'text-[#643D26]'
-      : 'text-[#1C1A19]';
+      ? 'text-[#A36046]'
+      : 'text-[#17324A]';
 
   const subTextColor =
     theme === 'light'
       ? 'text-[#F5F2EB]/70'
       : theme === 'terracotta'
-      ? 'text-[#8A5636]'
-      : 'text-[#736B63]';
+      ? 'text-[#6D6A64]'
+      : 'text-[#6D6A64]';
 
   const markFill = theme === 'light' ? '#FFFFFF' : '#FFFFFF';
   const circleBg =
     theme === 'light'
-      ? '#442817'
+      ? '#17324A'
       : theme === 'terracotta'
-      ? '#8A5636'
-      : '#5E3B26';
+      ? '#A36046'
+      : '#17324A';
 
   if (variant === 'symbol-only') {
     return (
@@ -123,13 +106,16 @@ export default function ToccoLogo({
 
   if (variant === 'wordmark-only') {
     return (
-      <div className={`flex flex-col items-start leading-none ${className}`}>
-        <span className={`font-medium uppercase select-none ${currentSize.textClass} ${textColor}`}>
-          TOCCO HOUSE
+      <div className={`flex flex-col items-start gap-0.5 leading-none ${className}`}>
+        <span dir="rtl" className={`font-semibold select-none ${textColor}`}>
+          مودرن هوم
+        </span>
+        <span dir="ltr" className={`font-[family-name:var(--font-brand)] font-semibold uppercase select-none ${currentSize.textClass} ${textColor}`}>
+          MODERN HOME
         </span>
         {showSubtitle && (
-          <span className={`uppercase font-light mt-1 select-none ${currentSize.subTextClass} ${subTextColor}`}>
-            The Touch That Elevates
+          <span dir="rtl" className={`font-normal mt-1 select-none ${currentSize.subTextClass} ${subTextColor}`}>
+            للأثاث والديكور العصري
           </span>
         )}
       </div>
@@ -137,19 +123,22 @@ export default function ToccoLogo({
   }
 
   return (
-    <div className={`flex items-center gap-3 select-none ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-3 select-none ${className}`}>
       <ToccoMark
         size={currentSize.markSize}
         circleBg={circleBg}
         fillColor={markFill}
       />
-      <div className="flex flex-col leading-none">
-        <span className={`font-medium uppercase tracking-[0.28em] ${currentSize.textClass} ${textColor}`}>
-          TOCCO HOUSE
+      <div className="flex flex-col items-start gap-0.5 leading-none">
+        <span dir="rtl" className={`font-semibold ${size === 'sm' ? 'text-xs' : 'text-sm sm:text-base'} ${textColor}`}>
+          مودرن هوم
+        </span>
+        <span dir="ltr" className={`font-[family-name:var(--font-brand)] font-semibold uppercase ${currentSize.textClass} ${textColor}`}>
+          MODERN HOME
         </span>
         {showSubtitle && (
-          <span className={`uppercase font-light tracking-[0.28em] mt-1 ${currentSize.subTextClass} ${subTextColor}`}>
-            The Touch That Elevates
+          <span dir="rtl" className={`font-normal mt-1 ${currentSize.subTextClass} ${subTextColor}`}>
+            للأثاث والديكور العصري
           </span>
         )}
       </div>

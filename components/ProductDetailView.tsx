@@ -10,19 +10,19 @@ import { BackendColor } from '@/types/product';
 import Image from '@/components/SafeImage';
 import {
   ArrowLeft,
+  ChevronRight,
   MessageCircle,
   ShieldCheck,
   Truck,
-  Sparkles,
   Check,
   Layers,
   Ruler,
-  Maximize2,
   Clock,
   AlertCircle,
   Loader2,
   Plus,
 } from 'lucide-react';
+import { useModernHomeContent } from './modern-home/useModernHomeContent';
 
 export default function ProductDetailView() {
   const {
@@ -30,17 +30,21 @@ export default function ProductDetailView() {
     getProductById,
     navigateTo,
     addToCart,
-    categories,
+    categories: storeCategories,
     subcategories,
     settings,
     isCatalogLoading,
     storeDataErrors,
     reloadStoreData,
   } = useToccoStore();
+  const { products, categories, usingPreviewCatalog } = useModernHomeContent();
 
   const product = useMemo(() => {
-    return selectedProductId ? getProductById(selectedProductId) : null;
-  }, [selectedProductId, getProductById]);
+    if (!selectedProductId) return null;
+    return usingPreviewCatalog
+      ? products.find((item) => item.id === selectedProductId) || null
+      : getProductById(selectedProductId) || null;
+  }, [selectedProductId, getProductById, products, usingPreviewCatalog]);
 
   // Active state for configurable attributes
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
@@ -72,7 +76,7 @@ export default function ProductDetailView() {
       return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 pt-28 text-center" role="status" aria-live="polite">
           <Loader2 className="h-6 w-6 animate-spin text-[#643D26]" aria-hidden="true" />
-          <p className="text-sm text-[#736B63]">Loading this piece...</p>
+          <p className="text-sm text-[#6D6A64]">جارٍ تحميل تفاصيل القطعة...</p>
         </div>
       );
     }
@@ -80,10 +84,10 @@ export default function ProductDetailView() {
     if (storeDataErrors.catalog) {
       return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 pt-28 text-center" role="alert">
-          <p className="text-sm text-[#1C1A19]">This piece could not be loaded.</p>
-          <p className="max-w-md text-xs text-[#736B63]">{storeDataErrors.catalog}</p>
-          <button type="button" onClick={() => void reloadStoreData()} className="rounded-full bg-[#1C1A19] px-5 py-2.5 text-xs uppercase tracking-wider text-white">
-            Retry
+          <p className="text-sm text-[#17324A]">تعذر تحميل تفاصيل القطعة</p>
+          <p className="max-w-md text-xs text-[#6D6A64]">{storeDataErrors.catalog}</p>
+          <button type="button" onClick={() => void reloadStoreData()} className="bg-[#17324A] px-5 py-2.5 text-sm font-medium text-white">
+            إعادة المحاولة
           </button>
         </div>
       );
@@ -91,18 +95,19 @@ export default function ProductDetailView() {
 
     return (
       <div className="pt-32 pb-24 text-center min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <p className="text-lg text-[#1C1A19]">Piece not found</p>
+        <p className="text-lg text-[#17324A]">لم نعثر على هذه القطعة</p>
         <button
           onClick={() => navigateTo('shop')}
-          className="px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-widest"
+          className="bg-[#17324A] px-6 py-2.5 text-sm text-white"
         >
-          Return to Catalog
+          العودة إلى المنتجات
         </button>
       </div>
     );
   }
 
-  const category = categories.find((c) => c.id === product.categoryId);
+  const category = categories.find((c) => c.id === product.categoryId)
+    || storeCategories.find((c) => c.id === product.categoryId);
   const productSubcategories = subcategories.filter((subcategory) =>
     product.subcategoryIds.includes(String(subcategory.id))
   );
@@ -154,11 +159,11 @@ export default function ProductDetailView() {
   const remainingDue = unitPrice - depositDue;
 
   // WhatsApp Enquiry URL with contextual product prefill
-  const whatsappPrefill = `Hello Tocco House, I am inquiring about the "${product.name}".
-Finish: ${selectedFinish}
-Color: ${selectedColor.name}
-${selectedSize ? `Size: ${selectedSize.name} (${selectedSize.dimensions})` : ''}
-Could you please provide pricing and production details?`;
+  const whatsappPrefill = `مرحبًا مودرن هوم، أستفسر عن "${product.name}".
+التشطيب: ${selectedFinish === 'MATTE' ? 'مطفأ' : 'لامع'}
+اللون: ${selectedColor.name}
+${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions})` : ''}
+أرجو إرسال تفاصيل السعر والتنفيذ.`;
 
   const whatsappUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
     whatsappPrefill
@@ -189,408 +194,327 @@ Could you please provide pricing and production details?`;
   };
 
   return (
-    <div id="product-detail-page" className="pt-20 sm:pt-28 pb-32 sm:pb-24 bg-[#FAF8F5] min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Breadcrumb Navigation - scrollable on small screens */}
-        <div className="py-2.5 sm:py-4 flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs uppercase tracking-wider text-[#736B63] overflow-x-auto whitespace-nowrap scrollbar-none">
-          <button
-            onClick={() => navigateTo('shop')}
-            className="flex items-center gap-1 hover:text-[#1C1A19] transition-colors shrink-0"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Catalog</span>
+    <div id="product-detail-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
+        <nav aria-label="مسار التنقل" className="flex items-center gap-2 overflow-x-auto whitespace-nowrap border-b border-[#E6DED2] py-3 text-xs text-[#6D6A64]">
+          <button type="button" onClick={() => navigateTo('shop')} className="inline-flex items-center gap-1.5 hover:text-[#17324A]">
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>المنتجات</span>
           </button>
-          <span>/</span>
           {category && (
             <>
-              <button
-                onClick={() => navigateTo('shop', { categoryId: category.id })}
-                className="hover:text-[#1C1A19] transition-colors shrink-0"
-              >
+              <ChevronRight className="h-3 w-3" aria-hidden="true" />
+              <button type="button" onClick={() => navigateTo('shop', { categoryId: category.id })} className="hover:text-[#17324A]">
                 {category.name}
               </button>
             </>
           )}
           {productSubcategories.map((subcategory) => (
             <React.Fragment key={subcategory.id}>
-              <span>/</span>
-              <span className="shrink-0">{subcategory.name}</span>
+              <ChevronRight className="h-3 w-3" aria-hidden="true" />
+              <span>{subcategory.name}</span>
             </React.Fragment>
           ))}
-          <span>/</span>
-          <span className="text-[#1C1A19] font-medium truncate max-w-[160px] sm:max-w-xs">{product.name}</span>
-        </div>
+          <ChevronRight className="h-3 w-3" aria-hidden="true" />
+          <span className="max-w-[180px] truncate font-medium text-[#17324A]">{product.name}</span>
+        </nav>
 
-        {/* Main Product Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 pt-4 sm:pt-6">
-          {/* Left: Product Imagery Showcase (7 cols) */}
-          <div className="lg:col-span-7 space-y-3 sm:space-y-4">
-            {/* Primary Main Image with High Resolution */}
-            <div className="relative aspect-[4/5] sm:aspect-square w-full rounded-2xl overflow-hidden bg-[#EFEBE3] border border-[#EAE4DC] shadow-[0_12px_36px_rgba(40,25,15,0.06)]">
+        <div className="grid grid-cols-1 gap-7 pt-5 sm:gap-10 lg:grid-cols-12 lg:gap-12 lg:pt-8">
+          <section className="space-y-4 lg:col-span-8" aria-label="صور المنتج ومواصفاته">
+            <div className="relative aspect-[4/5] overflow-hidden bg-[#E6DED2] sm:aspect-[5/4]">
               <Image
                 src={product.images[selectedImageIdx] || product.images[0]}
                 alt={product.name}
                 fill
                 priority
+                sizes="(max-width: 1024px) 100vw, 58vw"
                 className="object-cover"
-                referrerPolicy="no-referrer"
               />
-              <div className="absolute top-3 left-3 sm:top-4 sm:left-4 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-white/90 backdrop-blur-sm text-[10px] sm:text-[11px] uppercase tracking-wider text-[#524B45] font-medium">
-                {product.material.split(',')[0]}
-              </div>
+              <span className="absolute right-3 top-3 bg-[#F7F3EC]/95 px-3 py-1.5 text-xs font-medium text-[#17324A]">
+                {product.material?.split(',')[0] || 'خامة مختارة'}
+              </span>
             </div>
 
-            {/* Gallery Thumbnails (if multiple images exist) */}
             {product.images.length > 1 && (
-              <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
-                {product.images.map((img, idx) => (
+              <div className="flex gap-2 overflow-x-auto pb-1" aria-label="صور إضافية للمنتج">
+                {product.images.map((image, index) => (
                   <button
-                    key={idx}
-                    onClick={() => setSelectedImageIdx(idx)}
-                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
-                      selectedImageIdx === idx
-                        ? 'border-[#643D26] opacity-100 shadow-sm'
-                        : 'border-[#EAE4DC] opacity-70 hover:opacity-100'
-                    }`}
+                    key={`${image}-${index}`}
+                    type="button"
+                    onClick={() => setSelectedImageIdx(index)}
+                    aria-label={`عرض الصورة ${index + 1}`}
+                    aria-pressed={selectedImageIdx === index}
+                    className={`relative h-16 w-16 shrink-0 overflow-hidden border-2 sm:h-20 sm:w-20 ${selectedImageIdx === index ? 'border-[#17324A]' : 'border-transparent opacity-70 hover:opacity-100'}`}
                   >
-                    <Image
-                      src={img}
-                      alt={`${product.name} thumbnail ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      referrerPolicy="no-referrer"
-                    />
+                    <Image src={image} alt={`${product.name} ${index + 1}`} fill sizes="80px" className="object-cover" />
                   </button>
                 ))}
               </div>
             )}
 
-            {/* Craftsmanship & Material Details Accordion / Specs */}
-            <div className="pt-4 sm:pt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="p-4 sm:p-5 rounded-xl bg-[#F5F2EB] border border-[#E8E1D5] space-y-1.5 sm:space-y-2">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-wider font-semibold text-[#1C1A19]">
-                  <Layers className="w-4 h-4 text-[#643D26]" />
-                  <span>Material & Casting</span>
-                </div>
-                <p className="text-xs text-[#524B45] leading-relaxed font-light">
-                  {product.material}
-                </p>
+            <dl className="grid grid-cols-1 divide-y divide-[#E6DED2] border-y border-[#E6DED2] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              <div className="space-y-2 py-4 sm:pl-5 sm:pr-0">
+                <dt className="flex items-center gap-2 text-xs font-semibold text-[#17324A]">
+                  <Layers className="h-4 w-4 text-[#A36046]" aria-hidden="true" /> الخامة
+                </dt>
+                <dd className="text-sm leading-6 text-[#6D6A64]">{product.material || 'غير محددة'}</dd>
               </div>
-
-              <div className="p-4 sm:p-5 rounded-xl bg-[#F5F2EB] border border-[#E8E1D5] space-y-1.5 sm:space-y-2">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-wider font-semibold text-[#1C1A19]">
-                  <Ruler className="w-4 h-4 text-[#643D26]" />
-                  <span>Dimensions & Weight</span>
-                </div>
-                <p className="text-xs text-[#524B45] leading-relaxed font-mono">
-                  {product.dimensions}
-                  {product.height && <span className="block mt-0.5">Height: {product.height} cm</span>}
-                </p>
+              <div className="space-y-2 py-4 sm:pr-5 sm:pl-0">
+                <dt className="flex items-center gap-2 text-xs font-semibold text-[#17324A]">
+                  <Ruler className="h-4 w-4 text-[#A36046]" aria-hidden="true" /> الأبعاد
+                </dt>
+                <dd className="text-sm leading-6 text-[#6D6A64]">
+                  {product.dimensions || 'غير محددة'}
+                  {product.height && <span className="block">الارتفاع: {product.height} سم</span>}
+                </dd>
               </div>
-            </div>
-          </div>
+            </dl>
+          </section>
 
-          {/* Right: Specifications, Selection & Order Actions (5 cols) */}
-          <div className="lg:col-span-5 space-y-6 sm:space-y-8">
-            {/* Title & Tagline */}
-            <div className="space-y-1.5 sm:space-y-2 pb-4 sm:pb-6 border-b border-[#EAE4DC]">
-              <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#B85D38]">
-                {category?.name || 'Sculptural Object'}
-              </span>
-              <h1 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-                {product.name}
-              </h1>
-            </div>
+          <section className="space-y-6 lg:col-span-4 sm:space-y-8">
+            <header className="space-y-2 border-b border-[#E6DED2] pb-5">
+              <span className="text-xs font-semibold text-[#A36046]">{category?.name || 'مودرن هوم'}</span>
+              <h1 className="font-[family-name:var(--font-display)] text-3xl leading-relaxed text-[#17324A] sm:text-4xl">{product.name}</h1>
+              {productSubcategories.length > 0 && (
+                <p className="text-sm text-[#6D6A64]">{productSubcategories.map((subcategory) => subcategory.name).join(' · ')}</p>
+              )}
+            </header>
 
-            {/* Pricing Presentation */}
-            <div className="space-y-2">
-              <div className="space-y-2 sm:space-y-2.5">
-                  <div className="flex items-baseline gap-2 sm:gap-3">
-                    <span className="text-2xl sm:text-3xl font-normal text-[#1C1A19]">
-                      {unitPrice.toLocaleString()} EGP
-                    </span>
-                    <span className="text-[11px] sm:text-xs uppercase tracking-wider text-[#736B63]">
-                      Incl. Tax
-                    </span>
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="text-2xl font-semibold text-[#17324A] sm:text-3xl">
+                  {unitPrice > 0
+                    ? `${new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 }).format(unitPrice)} جنيه`
+                    : 'السعر عند الطلب'}
+                </span>
+                {product.inStock && <span className="text-xs text-[#6D6A64]">متاح للطلب</span>}
+              </div>
+              {unitPrice > 0 && (
+                <div className="border-r-2 border-[#C8A77D] bg-[#F0E7DA] px-4 py-3">
+                  <div className="flex items-center justify-between gap-3 text-sm font-semibold text-[#17324A]">
+                    <span>مقدم {settings.depositPercentage}%</span>
+                    <span>{new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 }).format(depositDue)} جنيه</span>
                   </div>
-
-                  {/* Deposit Callout */}
-                  <div className="p-3 sm:p-3.5 rounded-xl bg-[#F5F0E8] border border-[#E6DDCE] space-y-1">
-                    <div className="flex items-center justify-between text-xs font-semibold text-[#643D26]">
-                      <span>{settings.depositPercentage}% Handcrafted Deposit:</span>
-                      <span>{depositDue.toLocaleString()} EGP</span>
-                    </div>
-                    <p className="text-[11px] text-[#524B45] leading-normal">
-                      Initiates raw casting in our Cairo workshop. The remaining balance ({remainingDue.toLocaleString()} EGP) is due upon delivery inspection.
-                    </p>
-                  </div>
-              </div>
+                  <p className="mt-1 text-xs leading-6 text-[#53616A]">
+                    المتبقي {new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 }).format(remainingDue)} جنيه عند التسليم.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Configurable Attribute: Finishes */}
             {product.finishes.length > 0 && (
-              <div className="space-y-2.5 sm:space-y-3">
-                <label className="block text-xs uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                  Finish: <span className="text-[#643D26] font-normal">{selectedFinish}</span>
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-semibold text-[#17324A]">
+                  التشطيب <span className="font-normal text-[#6D6A64]">· {selectedFinish === 'MATTE' ? 'مطفأ' : 'لامع'}</span>
+                </legend>
+                <div className="flex flex-wrap gap-2">
                   {product.finishes.map((finish) => (
                     <button
                       key={finish}
+                      type="button"
                       onClick={() => setSelectedFinish(finish)}
-                      className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border text-[11px] sm:text-xs uppercase tracking-wider font-medium transition-all ${
-                        selectedFinish === finish
-                          ? 'border-[#643D26] bg-[#F5EFEB] text-[#643D26] shadow-xs'
-                          : 'border-[#D8CEBF] bg-[#FAF8F5] text-[#524B45] hover:border-[#1C1A19]'
-                      }`}
+                      aria-pressed={selectedFinish === finish}
+                      className={`min-h-10 border px-4 text-sm transition-colors ${selectedFinish === finish ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#D9CEBF] bg-white text-[#42515C] hover:border-[#17324A]'}`}
                     >
-                      {finish}
+                      {finish === 'MATTE' ? 'مطفأ' : 'لامع'}
                     </button>
                   ))}
                 </div>
-              </div>
+              </fieldset>
             )}
 
-            {/* Configurable Attribute: Color Swatches */}
             {(product.colors.length > 0 || product.allowsCustomization) && (
-              <div className="space-y-2.5 sm:space-y-3">
-                <label className="block text-xs uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                  Color: <span className="text-[#643D26] font-normal">{selectedColor.name}</span>
-                </label>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  {product.colors.map((color) => {
-                    const isChosen = selectedColor.id === color.id;
-                    return (
-                      <button
-                        key={color.id}
-                        onClick={() => {
-                          setSelectedColor(color);
-                          setIsCustomColorSelected(false);
-                        }}
-                        className={`group relative p-1 rounded-full border-2 transition-all touch-manipulation ${
-                          isChosen ? 'border-[#643D26] scale-110' : 'border-transparent hover:scale-105'
-                        }`}
-                        title={color.name}
-                        aria-label={`Select color ${color.name}`}
-                      >
-                        <span
-                          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full block border border-black/15 shadow-xs"
-                          style={{ backgroundColor: color.hex }}
-                        />
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => void toggleColorMenu()}
-                    className={`group relative grid h-10 w-10 place-items-center rounded-full border-2 transition-all touch-manipulation ${
-                      isCustomColorSelected ? 'border-[#643D26] scale-110' : 'border-[#D8CEBF] hover:border-[#643D26]'
-                    }`}
-                    title="Choose a custom color"
-                    aria-label="Choose a custom color"
-                    aria-expanded={isColorMenuOpen}
-                  >
-                    {isCustomColorSelected ? (
-                      <span
-                        className="h-7 w-7 rounded-full border border-black/15"
-                        style={{ backgroundColor: selectedColor.hex }}
-                      />
-                    ) : (
-                      <Plus className="h-4 w-4 text-[#643D26]" />
-                    )}
-                  </button>
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-semibold text-[#17324A]">
+                  اللون <span className="font-normal text-[#6D6A64]">· {selectedColor.name}</span>
+                </legend>
+                <div className="flex flex-wrap items-center gap-2">
+                  {product.colors.map((color) => (
+                    <button
+                      key={color.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColor(color);
+                        setIsCustomColorSelected(false);
+                      }}
+                      aria-label={`اختيار اللون ${color.name}`}
+                      aria-pressed={selectedColor.id === color.id}
+                      title={color.name}
+                      className={`grid h-10 w-10 place-items-center rounded-full border-2 ${selectedColor.id === color.id ? 'border-[#17324A]' : 'border-transparent'}`}
+                    >
+                      <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: color.hex }} />
+                    </button>
+                  ))}
+                  {!usingPreviewCatalog && (
+                    <button
+                      type="button"
+                      onClick={() => void toggleColorMenu()}
+                      className={`grid h-10 w-10 place-items-center rounded-full border ${isCustomColorSelected ? 'border-[#17324A]' : 'border-[#D9CEBF]'}`}
+                      title="اختيار لون آخر"
+                      aria-label="اختيار لون آخر"
+                      aria-expanded={isColorMenuOpen}
+                    >
+                      {isCustomColorSelected
+                        ? <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: selectedColor.hex }} />
+                        : <Plus className="h-4 w-4 text-[#17324A]" aria-hidden="true" />}
+                    </button>
+                  )}
                 </div>
+
                 {isColorMenuOpen && (
-                  <div className="space-y-3 rounded-xl border border-[#EAE4DC] bg-white p-4">
-                    <p className="text-[11px] text-[#736B63]">Explore more color options</p>
+                  <div className="space-y-4 border border-[#E6DED2] bg-white p-4">
+                    <p className="text-xs text-[#6D6A64]">ألوان إضافية</p>
                     {isSharedColorsLoading ? (
-                      <div className="flex justify-center py-2" aria-label="Loading shared colors">
-                        <Loader2 className="h-4 w-4 animate-spin text-[#643D26]" />
+                      <div className="flex justify-center py-2" aria-label="جارٍ تحميل الألوان">
+                        <Loader2 className="h-4 w-4 animate-spin text-[#17324A]" />
                       </div>
-                    ) : (
-                      <div className="flex flex-wrap gap-2.5">
+                    ) : sharedColors.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
                         {sharedColors.map((color) => (
                           <button
                             key={color.id}
                             type="button"
                             onClick={() => selectSharedColor(color)}
-                            className={`grid h-9 w-9 place-items-center rounded-full border-2 transition-transform hover:scale-110 ${
-                              selectedColor.id === String(color.id) ? 'border-[#643D26]' : 'border-[#D8CEBF]'
-                            }`}
+                            className={`h-9 w-9 rounded-full border-2 ${selectedColor.id === String(color.id) ? 'border-[#17324A]' : 'border-[#D9CEBF]'}`}
                             style={{ backgroundColor: color.hex_code }}
                             title={color.hex_code}
-                            aria-label={`Select ${color.hex_code}`}
+                            aria-label={`اختيار اللون ${color.hex_code}`}
                           />
                         ))}
                       </div>
+                    ) : (
+                      <p className="text-xs text-[#6D6A64]">لا توجد ألوان إضافية حاليًا.</p>
                     )}
-                    <div className="flex flex-col gap-2.5 border-t border-[#EAE4DC] pt-3 sm:flex-row sm:items-center sm:justify-between">
-                      <span className="text-[11px] text-[#736B63]">Looking for something more specific?</span>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <label className="relative inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#D8CEBF] bg-white px-3 py-2 text-[10px] uppercase tracking-wider text-[#1C1A19] hover:bg-[#FAF8F5]">
-                          <span className="h-3.5 w-3.5 rounded-full border border-black/15" style={{ backgroundColor: customColorDraft }} />
-                          <span>Choose color</span>
-                          <input
-                            type="color"
-                            value={customColorDraft}
-                            aria-label="Pick a custom color"
-                            disabled={isCreatingCustomColor}
-                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                            onChange={(event) => {
-                              setCustomColorDraft(event.target.value.toUpperCase());
-                              setHasChosenCustomColor(true);
-                            }}
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => void createCustomColor(customColorDraft)}
-                          disabled={!hasChosenCustomColor || isCreatingCustomColor}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-[#1C1A19] px-3 py-2 text-[10px] uppercase tracking-wider text-white hover:bg-[#332F2D] disabled:cursor-not-allowed disabled:opacity-45"
-                        >
-                          {isCreatingCustomColor ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-                          <span>{isCreatingCustomColor ? 'Adding...' : 'Add one'}</span>
-                        </button>
-                      </div>
+                    <div className="flex flex-wrap items-center gap-3 border-t border-[#E6DED2] pt-3">
+                      <span className="text-xs text-[#6D6A64]">تبحث عن درجة محددة؟</span>
+                      <label className="relative inline-flex min-h-10 cursor-pointer items-center gap-2 border border-[#D9CEBF] px-3 text-xs text-[#42515C]">
+                        <span className="h-4 w-4 rounded-full border border-black/15" style={{ backgroundColor: customColorDraft }} />
+                        <span>اختر درجة</span>
+                        <input
+                          type="color"
+                          value={customColorDraft}
+                          aria-label="اختيار درجة لون مخصصة"
+                          disabled={isCreatingCustomColor}
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                          onChange={(event) => {
+                            setCustomColorDraft(event.target.value.toUpperCase());
+                            setHasChosenCustomColor(true);
+                          }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => void createCustomColor(customColorDraft)}
+                        disabled={!hasChosenCustomColor || isCreatingCustomColor}
+                        className="inline-flex min-h-10 items-center gap-2 bg-[#17324A] px-3 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {isCreatingCustomColor ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+                        <span>{isCreatingCustomColor ? 'جارٍ الإضافة...' : 'إضافة اللون'}</span>
+                      </button>
                     </div>
-                    {customColorError && (
-                      <p role="alert" className="text-[11px] text-[#A33B2B]">{customColorError}</p>
-                    )}
+                    {customColorError && <p role="alert" className="text-xs text-[#A33B2B]">{customColorError}</p>}
                   </div>
                 )}
-              </div>
+              </fieldset>
             )}
 
-            {/* Configurable Attribute: Sizes (if applicable) */}
             {product.sizes && product.sizes.length > 0 && (
-              <div className="space-y-2.5 sm:space-y-3">
-                <label className="block text-xs uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                  Size Dimension:
-                </label>
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-semibold text-[#17324A]">المقاس</legend>
                 <div className="space-y-2">
-                  {product.sizes.map((sz) => {
-                    const isChosen = selectedSize?.id === sz.id;
-                    return (
-                      <button
-                        key={sz.id}
-                        onClick={() => setSelectedSize(sz)}
-                        className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
-                          isChosen
-                            ? 'border-[#643D26] bg-[#F5EFEB]'
-                            : 'border-[#D8CEBF] bg-[#FAF8F5] hover:border-[#1C1A19]'
-                        }`}
-                      >
-                        <div>
-                          <p className="text-xs font-semibold text-[#1C1A19] uppercase tracking-wider">
-                            {sz.name}
-                          </p>
-                          <p className="text-[11px] text-[#736B63] font-mono">{sz.dimensions}</p>
-                        </div>
-                        {sz.priceDelta !== 0 && (
-                          <span className="text-xs font-medium text-[#643D26]">
-                            +{sz.priceDelta.toLocaleString()} EGP
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size.id}
+                      type="button"
+                      onClick={() => setSelectedSize(size)}
+                      aria-pressed={selectedSize?.id === size.id}
+                      className={`flex w-full items-center justify-between gap-4 border px-4 py-3 text-right ${selectedSize?.id === size.id ? 'border-[#17324A] bg-[#F0E7DA]' : 'border-[#D9CEBF] bg-white hover:border-[#17324A]'}`}
+                    >
+                      <span>
+                        <span className="block text-sm font-semibold text-[#17324A]">{size.name}</span>
+                        <span className="mt-1 block text-xs text-[#6D6A64]">{size.dimensions}</span>
+                      </span>
+                      {size.priceDelta !== 0 && (
+                        <span className="shrink-0 text-xs font-medium text-[#17324A]">
+                          +{new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 }).format(size.priceDelta)} جنيه
+                        </span>
+                      )}
+                    </button>
+                  ))}
                 </div>
-              </div>
+              </fieldset>
             )}
 
-            {/* Production & Delivery Timeline */}
-            <div className="pt-2 border-t border-[#EAE4DC] flex flex-col gap-2 text-xs text-[#524B45]">
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-[#643D26]" />
-                <span>
-                  <strong className="text-[#1C1A19]">Estimated manufacturing & delivery:</strong>{' '}
-                  {product.deliveryDays ? `${product.deliveryDays} days` : product.leadTime}
-                </span>
-              </div>
+            <div className="flex items-start gap-2 border-t border-[#E6DED2] pt-4 text-sm text-[#53616A]">
+              <Truck className="mt-0.5 h-4 w-4 shrink-0 text-[#A36046]" aria-hidden="true" />
+              <span><strong className="font-semibold text-[#17324A]">موعد التنفيذ:</strong> {product.deliveryDays ? `${product.deliveryDays} يوم` : 'يُحدد عند تأكيد الطلب'}</span>
             </div>
 
-            {/* Primary Action Button (Desktop & in-page) */}
-            <div className="pt-2 sm:pt-4 space-y-3">
-              <div className="flex gap-2.5 sm:gap-3">
-                  {/* Quantity */}
-                  <div className="flex items-center border border-[#D8CEBF] rounded-full bg-white px-2.5 sm:px-3">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-1 text-[#736B63] hover:text-[#1C1A19]"
-                      aria-label="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <span className="px-2.5 sm:px-3 text-xs font-semibold text-[#1C1A19]">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="p-1 text-[#736B63] hover:text-[#1C1A19]"
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  {/* Add to Cart CTA */}
+            <div className="space-y-3 border-t border-[#E6DED2] pt-5">
+              <div className="flex gap-3">
+                <div className="flex min-h-12 shrink-0 items-center border border-[#D9CEBF] bg-white px-2">
+                  <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="grid h-8 w-8 place-items-center text-[#42515C] hover:text-[#17324A]" aria-label="تقليل الكمية">−</button>
+                  <span className="min-w-7 text-center text-sm font-semibold text-[#17324A]">{quantity}</span>
+                  <button type="button" onClick={() => setQuantity(quantity + 1)} className="grid h-8 w-8 place-items-center text-[#42515C] hover:text-[#17324A]" aria-label="زيادة الكمية">+</button>
+                </div>
+                {product.price <= 0 ? (
                   <button
                     id="add-to-cart-btn"
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart}
-                    className="flex-1 py-3.5 sm:py-4 rounded-full bg-[#1C1A19] text-white text-[11px] sm:text-xs uppercase tracking-[0.22em] sm:tracking-[0.25em] font-medium hover:bg-[#332F2D] active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                    type="button"
+                    onClick={() => navigateTo('custom-design')}
+                    className="flex min-h-12 flex-1 items-center justify-center gap-2 bg-[#17324A] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#24445E]"
                   >
-                    {isAddingToCart ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Adding...</span>
-                      </>
-                    ) : addedAnimation ? (
-                      <>
-                        <Check className="w-4 h-4 text-[#25D366]" />
-                        <span>Added to Design Bag</span>
-                      </>
-                    ) : (
-                      <span>Add to Cart · {settings.depositPercentage}% Deposit</span>
-                    )}
+                    <span>اطلبها حسب مساحتك</span>
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                   </button>
+                ) : (
+                  <button
+                    id="add-to-cart-btn"
+                    type="button"
+                    onClick={handleAddToCart}
+                    disabled={isAddingToCart || usingPreviewCatalog}
+                    className="flex min-h-12 flex-1 items-center justify-center gap-2 bg-[#17324A] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isAddingToCart ? <Loader2 className="h-4 w-4 animate-spin" /> : addedAnimation ? <Check className="h-4 w-4 text-[#65C987]" /> : null}
+                    <span>{usingPreviewCatalog ? 'للمعاينة فقط' : isAddingToCart ? 'جارٍ الإضافة...' : addedAnimation ? 'أُضيفت للحقيبة' : 'أضف إلى الحقيبة'}</span>
+                  </button>
+                )}
               </div>
 
-              {/* Add to Cart Error */}
+              {usingPreviewCatalog && product.price > 0 && <p className="text-xs leading-6 text-[#6D6A64]">بيانات القطعة تجريبية في وضع التطوير؛ لن تُرسل إلى سلة المتجر.</p>}
+
               {cartError && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2.5">
-                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                  <p className="font-medium text-red-800">{cartError}</p>
+                <div role="alert" className="flex items-start gap-2 border border-red-200 bg-red-50 p-3 text-xs text-red-800">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  <p>{cartError}</p>
                 </div>
               )}
 
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 border border-[#D9CEBF] px-4 text-sm font-medium text-[#17324A] transition-colors hover:bg-[#EEE5D9]"
+              >
+                <MessageCircle className="h-4 w-4 text-[#25D366]" aria-hidden="true" />
+                <span>اسألنا على واتساب</span>
+              </a>
+            </div>
 
-
-              {/* Direct Concierge Inquiry secondary link */}
-              <div className="text-center pt-1 sm:pt-2">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] uppercase tracking-wider text-[#736B63] hover:text-[#643D26] inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <MessageCircle className="w-3 h-3 text-[#25D366]" />
-                  <span>Have questions? Inquire on WhatsApp</span>
-                </a>
+            {product.description && (
+              <div className="space-y-2 border-t border-[#E6DED2] pt-5">
+                <h2 className="text-sm font-semibold text-[#17324A]">عن القطعة</h2>
+                <p className="whitespace-pre-line text-sm leading-7 text-[#53616A]">{product.description}</p>
               </div>
-            </div>
+            )}
 
-            {/* Detailed Description */}
-            <div className="pt-6 border-t border-[#EAE4DC] space-y-3">
-              <h3 className="text-xs uppercase tracking-[0.2em] font-semibold text-[#1C1A19]">
-                The Narrative
-              </h3>
-              <p className="text-xs sm:text-sm text-[#524B45] font-light leading-relaxed whitespace-pre-line">
-                {product.description}
-              </p>
+            <div className="flex items-center gap-2 text-xs text-[#6D6A64]">
+              <ShieldCheck className="h-4 w-4 text-[#A36046]" aria-hidden="true" />
+              <span>تفاصيل الطلب تؤكد مع فريق مودرن هوم.</span>
             </div>
-          </div>
+          </section>
         </div>
       </div>
-
     </div>
   );
 }

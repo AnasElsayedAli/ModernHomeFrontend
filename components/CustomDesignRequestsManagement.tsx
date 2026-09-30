@@ -84,17 +84,17 @@ export default function CustomDesignRequestsManagement() {
   };
 
   return (
-    <section className="space-y-5">
+    <section dir="rtl" className="space-y-5">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">Custom design requests</h2>
-          <p className="mt-1 text-xs text-[#736B63]">Review project briefs and contact each customer directly.</p>
+          <h2 className="text-sm font-semibold text-[#17324A]">طلبات التصنيع حسب الطلب</h2>
+          <p className="mt-1 text-sm text-[#6D6A64]">راجع تفاصيل الطلب وتواصل مع العميل مباشرة.</p>
         </div>
         <button
           type="button"
           onClick={refreshRequests}
           disabled={isLoading}
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-[#D8CEBF] px-3.5 py-2 text-xs text-[#524B45] hover:border-[#1C1A19] hover:text-[#1C1A19] disabled:opacity-50"
+          className="inline-flex w-fit items-center gap-2 border border-[#D9CEBF] px-3.5 py-2 text-sm text-[#42515C] hover:border-[#17324A] hover:text-[#17324A] disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} /> Refresh
         </button>
@@ -106,11 +106,11 @@ export default function CustomDesignRequestsManagement() {
           <input
             value={searchDraft}
             onChange={(event) => setSearchDraft(event.target.value)}
-            placeholder="Search title, description, company, or customer"
+            placeholder="ابحث بالعنوان أو الوصف أو الشركة أو العميل"
             className="w-full rounded-lg border border-[#D8CEBF] bg-white py-2.5 pl-9 pr-3 text-xs outline-none focus:border-[#643D26]"
           />
         </label>
-        <button type="submit" className="rounded-lg bg-[#1C1A19] px-4 text-xs font-medium text-white hover:bg-[#332F2D]">Search</button>
+        <button type="submit" className="bg-[#17324A] px-4 text-sm font-medium text-white hover:bg-[#24445E]">بحث</button>
       </form>
 
       {error && (
@@ -125,8 +125,8 @@ export default function CustomDesignRequestsManagement() {
         </div>
       ) : requests.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[#D8CEBF] bg-white p-10 text-center">
-          <p className="text-sm text-[#1C1A19]">No custom design requests found.</p>
-          <p className="mt-1 text-xs text-[#736B63]">New client and business briefs will appear here.</p>
+          <p className="text-sm text-[#17324A]">لا توجد طلبات تصميم حاليًا.</p>
+          <p className="mt-1 text-xs text-[#6D6A64]">ستظهر هنا طلبات العملاء والمشروعات الجديدة.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -134,7 +134,7 @@ export default function CustomDesignRequestsManagement() {
             const images = Array.isArray(request.images) ? request.images : [];
             const normalizedPhone = toWhatsAppNumber(request.contact_phone);
             const whatsappUrl = normalizedPhone
-              ? `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(`Hello, this is Tocco House following up on your ${request.request_type === 'BUSINESS' ? 'business' : 'custom design'} request: ${request.title}.`)}`
+              ? `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(`مرحبًا، معك فريق مودرن هوم بخصوص ${request.request_type === 'BUSINESS' ? 'مشروع الأعمال' : 'طلب التصنيع حسب الطلب'}: ${request.title}.`)}`
               : null;
             return (
               <article key={request.id} className="rounded-xl border border-[#EAE4DC] bg-white p-4 shadow-sm sm:p-5">
@@ -150,10 +150,10 @@ export default function CustomDesignRequestsManagement() {
                     <p className="whitespace-pre-wrap text-xs leading-relaxed text-[#524B45]">{request.description}</p>
                     <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-[#736B63]">
                       <span className="inline-flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5" />{formatDimensions(request.dimensions) || 'Dimensions not specified'}</span>
-                      <span>Qty: {request.quantity}</span>
+                      <span>الكمية: {request.quantity}</span>
                       {request.company_name && <span className="inline-flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5" />{request.company_name}</span>}
                       {request.project_location && <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{request.project_location}</span>}
-                      {request.target_delivery_date && <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />Target: {request.target_delivery_date}</span>}
+                      {request.target_delivery_date && <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />الموعد المطلوب: {request.target_delivery_date}</span>}
                       <span>{new Date(request.created_at).toLocaleDateString()}</span>
                     </div>
                     {images.length > 0 && (
@@ -172,7 +172,7 @@ export default function CustomDesignRequestsManagement() {
                                 className="object-cover"
                               />
                             </div>
-                            <figcaption className="text-[10px] text-[#736B63]">Reference {image.sort_order}</figcaption>
+                            <figcaption className="text-[10px] text-[#6D6A64]">صورة مرجعية {image.sort_order}</figcaption>
                           </figure>
                         ))}
                       </div>
@@ -190,20 +190,20 @@ export default function CustomDesignRequestsManagement() {
                         <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" /> WhatsApp client
                       </a>
                     ) : (
-                      <span className="text-[10px] text-[#8F8880]">No contact phone</span>
+                      <span className="text-[10px] text-[#817D75]">لا يوجد رقم للتواصل</span>
                     )}
                     {confirmDeleteId === request.id ? (
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] text-[#736B63]">Delete request?</span>
+                        <span className="text-[10px] text-[#6D6A64]">حذف الطلب؟</span>
                         <button type="button" onClick={() => void handleDelete(request)} disabled={deletingId === request.id} className="rounded-md px-2 py-1.5 text-[10px] font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-60">
-                          {deletingId === request.id ? 'Deleting...' : 'Confirm'}
+                          {deletingId === request.id ? 'جارٍ الحذف...' : 'تأكيد'}
                         </button>
                         <button type="button" onClick={() => setConfirmDeleteId(null)} disabled={deletingId === request.id} className="rounded-md p-1.5 text-[#736B63] hover:bg-[#FAF8F5]" aria-label="Cancel delete">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     ) : (
-                      <button type="button" onClick={() => setConfirmDeleteId(request.id)} className="rounded-full p-2 text-[#8F8880] hover:bg-rose-50 hover:text-rose-700" title="Delete request" aria-label={`Delete ${request.title}`}>
+                      <button type="button" onClick={() => setConfirmDeleteId(request.id)} className="rounded-full p-2 text-[#8F8880] hover:bg-rose-50 hover:text-rose-700" title="حذف الطلب" aria-label={`حذف ${request.title}`}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     )}

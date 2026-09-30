@@ -62,7 +62,7 @@ export default function ProfileSection({
           phone: profilePhone,
         }
       );
-      setProfileMessage({ type: 'success', text: 'Client profile updated successfully.' });
+      setProfileMessage({ type: 'success', text: 'تم تحديث بياناتك بنجاح.' });
       setTimeout(() => setProfileMessage(null), 4000);
     } catch (err) {
       const normalized = normalizeApiError(err);
@@ -86,16 +86,16 @@ export default function ProfileSection({
   };
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div dir="rtl" className="max-w-2xl space-y-6">
       {/* Profile Card */}
-      <div className="p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-white border border-[#EAE4DC] shadow-sm space-y-6">
-        <div className="flex items-center justify-between border-b border-[#EAE4DC] pb-4">
+      <div className="space-y-6 border-y border-[#DED5C9] bg-[#FBF9F4] py-5 sm:py-7">
+        <div className="flex items-center justify-between border-b border-[#DED5C9] px-5 pb-4 sm:px-7">
           <div>
-            <h3 className="text-sm uppercase tracking-wider font-semibold text-[#1C1A19]">
-              Client Credentials & Profile
+            <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-[#17324A]">
+              بيانات الحساب
             </h3>
             <p className="text-xs text-[#736B63]">
-              Update your name and contact details below.
+              حدّث اسمك وبيانات التواصل.
             </p>
           </div>
         </div>
@@ -117,30 +117,30 @@ export default function ProfileSection({
           </div>
         )}
 
-        <form onSubmit={handleProfileSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form onSubmit={handleProfileSubmit} className="space-y-4 px-5 sm:px-7">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
               <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                First Name
+                الاسم الأول
               </label>
               <input
                 type="text"
                 required
                 value={profileFirstName}
                 onChange={(e) => setProfileFirstName(e.target.value)}
-                className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5] text-[#1C1A19] focus:outline-none focus:border-[#1C1A19]"
+                className="w-full border-b border-[#BFB4A6] bg-transparent px-1 py-2.5 text-sm text-[#18232D] focus:outline-none focus:border-[#17324A]"
               />
             </div>
             <div className="space-y-1">
               <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                Last Name
+                اسم العائلة
               </label>
               <input
                 type="text"
                 required
                 value={profileLastName}
                 onChange={(e) => setProfileLastName(e.target.value)}
-                className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5] text-[#1C1A19] focus:outline-none focus:border-[#1C1A19]"
+                className="w-full border-b border-[#BFB4A6] bg-transparent px-1 py-2.5 text-sm text-[#18232D] focus:outline-none focus:border-[#17324A]"
               />
             </div>
           </div>
@@ -149,62 +149,62 @@ export default function ProfileSection({
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                Email Address
+                البريد الإلكتروني
               </label>
             </div>
             <input
               type="email"
               disabled
               value={user.email}
-              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#EAE4DC] bg-[#EFEBE3]/60 text-[#736B63] font-mono cursor-not-allowed"
+              className="w-full border-b border-[#DED5C9] bg-[#EEE7DC]/60 px-1 py-2.5 text-sm font-mono text-[#81786C] cursor-not-allowed"
             />
             <p className="text-[10px] text-[#8F8880]">
-              Email address cannot be changed here.
+              لا يمكن تغيير البريد الإلكتروني من هنا.
             </p>
           </div>
 
           <div className="space-y-1">
             <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-              Mobile Phone Number
+              رقم الهاتف
             </label>
             <input
               type="tel"
               required
               value={profilePhone}
               onChange={(e) => setProfilePhone(e.target.value)}
-              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5] text-[#1C1A19] focus:outline-none focus:border-[#1C1A19]"
+              className="w-full border-b border-[#BFB4A6] bg-transparent px-1 py-2.5 text-sm text-[#18232D] focus:outline-none focus:border-[#17324A]"
             />
           </div>
 
-          <div className="pt-2 flex justify-end border-t border-[#EAE4DC]">
+          <div className="flex justify-end border-t border-[#DED5C9] pt-4">
             <button
               type="submit"
               disabled={profileLoading}
-              className="px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D] disabled:opacity-50 flex items-center justify-center gap-2"
+              className="inline-flex min-h-11 items-center justify-center gap-2 bg-[#17324A] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#24445E] disabled:opacity-50"
             >
               {profileLoading && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-              <span>Save Changes</span>
+              <span>حفظ التغييرات</span>
             </button>
           </div>
         </form>
       </div>
 
-      <div className="p-5 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-[#F5C2C0] shadow-xs space-y-3">
+      <div className="space-y-3 border-t border-rose-200 py-5 sm:py-6">
         <div className="flex items-center gap-2 text-[#9E4A2B]">
           <AlertTriangle className="w-4 h-4" />
           <h4 className="text-xs uppercase tracking-wider font-semibold">
-            Account Deactivation
+            إيقاف الحساب
           </h4>
         </div>
         <p className="text-xs text-[#736B63]">
-          Deactivating your account will sign you out immediately.
+          سيؤدي إيقاف الحساب إلى تسجيل خروجك.
         </p>
         <button
           type="button"
           onClick={() => setShowDeleteAccountModal(true)}
-          className="px-4 py-2 rounded-full bg-[#FAF3F0] text-[#B85D38] border border-[#F5C2C0] text-xs uppercase tracking-wider font-medium hover:bg-[#FDF3F2] transition-colors"
+          className="min-h-10 border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-800 transition-colors hover:bg-rose-50"
         >
-          Deactivate & Delete Account
+          إيقاف الحساب وحذفه
         </button>
       </div>
 
@@ -214,7 +214,7 @@ export default function ProfileSection({
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
-          aria-label="Confirm account deactivation"
+          aria-label="تأكيد إيقاف الحساب"
           tabIndex={-1}
           onKeyDown={handleDialogKeyDown}
           className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4"
@@ -222,10 +222,10 @@ export default function ProfileSection({
           <div className="bg-white rounded-xl max-w-sm w-full p-5 space-y-4 border border-[#F5C2C0] shadow-xl">
             <div className="flex items-center gap-2 text-[#B85D38]">
               <AlertTriangle className="w-5 h-5" />
-              <h4 className="text-sm font-semibold">Confirm Account Deactivation</h4>
+              <h4 className="text-sm font-semibold">تأكيد إيقاف الحساب</h4>
             </div>
             <p className="text-xs text-[#736B63] leading-relaxed">
-              Are you sure you want to deactivate your profile? You will be signed out immediately.
+              هل تريد إيقاف حسابك؟ سيتم تسجيل خروجك مباشرة.
             </p>
             <div className="flex justify-end gap-2 pt-2 border-t border-[#EAE4DC]">
               <button
@@ -233,7 +233,7 @@ export default function ProfileSection({
                 onClick={() => setShowDeleteAccountModal(false)}
                 className="px-3.5 py-1.5 text-xs uppercase tracking-wider text-[#736B63]"
               >
-                Cancel
+                إلغاء
               </button>
               <button
                 type="button"
@@ -242,7 +242,7 @@ export default function ProfileSection({
                 className="px-4 py-1.5 rounded-full bg-[#B85D38] text-white text-xs uppercase tracking-wider font-medium disabled:opacity-50 flex items-center gap-1.5"
               >
                 {deleteAccountLoading && <RefreshCw className="w-3 h-3 animate-spin" />}
-                <span>Confirm Deactivation</span>
+                <span>تأكيد الإيقاف</span>
               </button>
             </div>
           </div>

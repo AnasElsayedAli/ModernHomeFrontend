@@ -5,61 +5,63 @@ import { useToccoStore } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
 import { Product, Category } from '@/types';
 import { ToccoMark } from './ToccoLogo';
-import { ArrowRight, Sparkles, MessageCircle, ArrowUpRight, Compass, ShieldCheck, SunMedium } from 'lucide-react';
+import ModernHomeProductCard from './ModernHomeProductCard';
+import { ArrowLeft, ArrowRight, Sparkles, MessageCircle, ArrowUpRight, Compass, ShieldCheck, SunMedium } from 'lucide-react';
 import Image from '@/components/SafeImage';
 
 export function HomeHero() {
   const { navigateTo, settings } = useToccoStore();
 
   return (
-    <section id="homepage-hero" className="relative min-h-[85vh] sm:min-h-[92vh] flex items-center justify-center pt-20 sm:pt-24 pb-12 sm:pb-16 overflow-hidden bg-[#FAF8F5]">
-      {/* Background Architectural Canvas / Image with subtle overlay */}
+    <section id="homepage-hero" dir="rtl" className="relative isolate flex min-h-[74svh] max-h-[880px] items-end overflow-hidden bg-[#17324A] pb-12 pt-24 sm:min-h-[78svh] sm:pb-16">
       <div className="absolute inset-0 z-0">
         <Image
           src={settings.homepage.heroImage}
-          alt="Tocco House Architectural Sanctuary"
+          alt="مساحة معيشة عصرية من مودرن هوم"
           fill
           priority
-          className="object-cover object-center brightness-[0.88] contrast-[1.03]"
+          sizes="100vw"
+          className="object-cover object-center brightness-[0.82] contrast-[1.04]"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A19]/85 via-[#1C1A19]/35 to-[#1C1A19]/25" />
+        <div className="absolute inset-0 bg-gradient-to-l from-[#122A3D]/90 via-[#17324A]/45 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#122A3D]/55 via-transparent to-[#122A3D]/10" />
       </div>
 
-      {/* Hero Content Container */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center text-white flex flex-col items-center space-y-6 sm:space-y-8">
-        {/* Minimal Editorial Brand Display */}
-        <div className="space-y-3 sm:space-y-4 max-w-3xl">
-          <p className="text-[11px] sm:text-sm font-medium uppercase tracking-[0.3em] sm:tracking-[0.35em] text-[#EBE3D5]/90">
-            TOCCO HOUSE · CAIRO
+      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-4 sm:px-8 lg:px-12">
+        <div className="max-w-2xl space-y-5 text-right text-white sm:space-y-7">
+          <p className="text-xs font-medium text-[#F0D9B8] sm:text-sm">
+            مودرن هوم <span className="mx-2 text-white/60">·</span> القاهرة
           </p>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-normal tracking-tight leading-[1.12] sm:leading-[1.08] text-white">
-            {settings.homepage.heroHeading}
+          <h1 className="text-4xl font-semibold leading-[1.35] text-white sm:text-6xl sm:leading-[1.3]">
+            بيتك يبدأ من اختيارك
           </h1>
-          <p className="text-sm sm:text-lg md:text-xl text-[#E5DED4] font-light max-w-2xl mx-auto leading-relaxed pt-1 sm:pt-2 px-2">
-            {settings.homepage.heroSubheading}
+          <p className="max-w-xl text-base leading-8 text-white/85 sm:text-lg">
+            أثاث عصري بتصميمات مختارة، وحلول مخصصة تناسب مساحتك وذوقك.
           </p>
-        </div>
 
-        {/* Primary CTA */}
-        <div className="pt-2 sm:pt-4 w-full sm:w-auto flex items-center justify-center">
-          <button
-            id="hero-discover-story-btn"
-            onClick={() => navigateTo('our-story')}
-            className="w-full sm:w-auto px-7 py-3.5 sm:px-9 sm:py-4 rounded-full bg-[#FAF8F5] text-[#1C1A19] text-xs uppercase tracking-[0.22em] font-medium hover:bg-white hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-3"
-          >
-            <span>{settings.homepage.heroCtaText || 'Discover Tocco House'}</span>
-            <ArrowRight className="w-4 h-4 text-[#643D26]" />
-          </button>
-        </div>
+          <div className="flex w-full flex-col gap-3 pt-1 sm:w-auto sm:flex-row sm:items-center">
+            <button
+              id="hero-discover-story-btn"
+              onClick={() => navigateTo('shop')}
+              className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#F7F3EC] px-6 text-sm font-semibold text-[#17324A] transition-colors hover:bg-white"
+            >
+              <span>تصفح المنتجات</span>
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('custom-design')}
+              className="inline-flex min-h-12 items-center justify-center gap-3 border border-white/65 px-6 text-sm font-medium text-white transition-colors hover:bg-white/10"
+            >
+              <span>صمّم قطعتك</span>
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
 
-        {/* Quiet Brand Pill Statement */}
-        <div className="pt-4 sm:pt-8 text-[10px] sm:text-[11px] uppercase tracking-[0.22em] sm:tracking-[0.28em] text-[#D4CCC2]/80 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-          <span>Sculptural Furniture</span>
-          <span>·</span>
-          <span>Indoor & Outdoor</span>
-          <span>·</span>
-          <span>Egyptian Craftsmanship</span>
+          <p className="pt-2 text-xs text-white/70 sm:pt-4">
+            تصنيع حسب الطلب <span className="mx-2">·</span> قطع مستوردة مختارة
+          </p>
         </div>
       </div>
     </section>
@@ -67,111 +69,41 @@ export function HomeHero() {
 }
 
 export function SignaturePiecesSection() {
-  const { products, navigateTo, addToCart, settings } = useToccoStore();
+  const { products, navigateTo } = useToccoStore();
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 4);
 
   if (!featuredProducts.length) return null;
 
   return (
-    <section id="signature-pieces-section" className="py-14 sm:py-24 bg-[#F5F2EB] border-b border-[#E8E1D5]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-16 gap-4 sm:gap-6">
-          <div className="space-y-1 sm:space-y-2">
-            <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#B85D38]">
-              Sculptural Archive
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-              Signature Pieces
-            </h2>
-            <p className="text-xs sm:text-sm text-[#736B63] font-light max-w-lg">
-              Distinctive silhouettes cast in reinforced fiberglass. Crafted to transform residential
-              and architectural environments.
+    <section id="signature-pieces-section" dir="rtl" className="border-b border-[#E6DED2] bg-white py-14 sm:py-20">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
+        <div className="mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl space-y-2">
+            <span className="text-xs font-semibold text-[#A36046]">اختيارات مودرن هوم</span>
+            <h2 className="text-2xl font-semibold text-[#17324A] sm:text-4xl">قطع تستحق مكانها في بيتك</h2>
+            <p className="text-sm leading-7 text-[#6D6A64]">
+              اكتشف القطع التي اختارها فريقنا لمساحات معاصرة وتفاصيل تدوم.
             </p>
           </div>
-
           <button
+            type="button"
             onClick={() => navigateTo('shop')}
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-semibold text-[#1C1A19] hover:text-[#B85D38] transition-colors self-start md:self-auto"
+            className="inline-flex items-center gap-2 self-start text-sm font-semibold text-[#17324A] transition-colors hover:text-[#A36046] sm:self-auto"
           >
-            <span>View Full Catalog</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>اكتشف كل المنتجات</span>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
-        {/* Products Grid: 2 columns on mobile, 4 on desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-          {featuredProducts.map((product) => {
-            return (
-              <div
-                key={product.id}
-                className="group flex flex-col bg-[#FAF8F5] rounded-xl overflow-hidden border border-[#EAE4DC] hover:shadow-[0_8px_30px_rgba(30,20,10,0.06)] transition-all duration-300"
-              >
-                {/* Image Showcase */}
-                <button
-                  type="button"
-                  aria-label={`View ${product.name}`}
-                  className="relative aspect-[4/5] w-full bg-[#EFEBE3] overflow-hidden text-left"
-                  onClick={() => navigateTo('product', { productId: product.id })}
-                >
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    referrerPolicy="no-referrer"
-                  />
-                  {/* Delivery Timeline Badge */}
-                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-white/90 backdrop-blur-sm text-[9px] sm:text-[10px] uppercase tracking-wider text-[#524B45] font-medium">
-                    {product.deliveryDays ? `${product.deliveryDays} days` : product.leadTime}
-                  </div>
-
-                </button>
-
-                {/* Information */}
-                <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between space-y-3 sm:space-y-4">
-                  <div>
-                    <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] uppercase tracking-wider text-[#8F8880] mb-1">
-                      <span className="truncate">{product.material.split(',')[0]}</span>
-                    </div>
-                    <h3 className="line-clamp-1">
-                      <button
-                        type="button"
-                        onClick={() => navigateTo('product', { productId: product.id })}
-                        className="text-left text-xs sm:text-base font-normal text-[#1C1A19] group-hover:text-[#643D26] transition-colors"
-                      >
-                        {product.name}
-                      </button>
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-[#736B63] line-clamp-2 mt-1 font-light hidden sm:block">
-                      {product.description}
-                    </p>
-                  </div>
-
-                  {/* Pricing & Interaction */}
-                  <div className="pt-2 sm:pt-3 border-t border-[#EAE4DC] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                      <div className="flex flex-col">
-                        <span className="text-xs sm:text-sm font-semibold text-[#1C1A19]">
-                          {product.price?.toLocaleString()} EGP
-                        </span>
-                        <span className="text-[9px] sm:text-[10px] text-[#8F8880]">
-                          Deposit: {Math.round((product.price || 0) * settings.depositPercentage / 100).toLocaleString()} EGP
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => navigateTo('product', { productId: product.id })}
-                      className="w-full sm:w-auto text-center px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-full border border-[#D8CEBF] text-[10px] sm:text-[11px] uppercase tracking-wider font-medium text-[#1C1A19] hover:bg-[#1C1A19] hover:text-white hover:border-[#1C1A19] transition-all"
-                    >
-                      View Piece
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4">
+          {featuredProducts.map((product) => (
+            <ModernHomeProductCard
+              key={product.id}
+              product={product}
+              categoryLabel={product.material?.split(',')[0] || undefined}
+              onSelect={() => navigateTo('product', { productId: product.id })}
+            />
+          ))}
         </div>
       </div>
     </section>
@@ -182,72 +114,57 @@ export function StoryTeaserSection() {
   const { navigateTo, settings } = useToccoStore();
 
   return (
-    <section id="story-teaser-section" className="py-14 sm:py-24 bg-[#FAF8F5] border-b border-[#EAE4DC]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
-          {/* Quote & Brand Vision (6 cols) */}
-          <div className="lg:col-span-6 space-y-6 sm:space-y-8">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#EFEBE3] flex items-center justify-center">
-              <ToccoMark size={24} fillColor="#643D26" circleBg="transparent" hasCircle={false} />
-            </div>
+    <section id="story-teaser-section" dir="rtl" className="border-b border-[#E6DED2] bg-[#F7F3EC] py-14 sm:py-20">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-8 px-4 sm:px-8 lg:grid-cols-12 lg:gap-14 lg:px-12">
+        <div className="space-y-5 lg:col-span-5 sm:space-y-7">
+          <div className="grid h-11 w-11 place-items-center bg-[#17324A]">
+            <ToccoMark size={27} fillColor="#FFFFFF" circleBg="transparent" hasCircle={false} />
+          </div>
+          <div className="space-y-3">
+            <span className="text-xs font-semibold text-[#A36046]">حكاية مودرن هوم</span>
+            <h2 className="text-2xl font-semibold leading-relaxed text-[#17324A] sm:text-4xl">
+              أثاث يكمّل روح المكان
+            </h2>
+            <p className="text-sm leading-8 text-[#53616A] sm:text-base">
+              مودرن هوم للأثاث والديكور العصري. نختار قطعًا بتفاصيل مدروسة، ونمنحك مساحة لتصميم ما يناسب بيتك فعلًا.
+            </p>
+          </div>
 
-            <div className="space-y-3 sm:space-y-4">
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#1C1A19] leading-tight sm:leading-[1.15]">
-                «Designed to be noticed. <br />
-                <span className="text-[#643D26]">Made to be lived with.»</span>
-              </h2>
-              <p className="text-sm sm:text-lg text-[#524B45] font-light leading-relaxed">
-                Tocco House is an Egyptian contemporary design brand where each piece is sculpted like an architectural monument. We create distinctive forms and timeless pieces that transform spaces through character, craftsmanship, and a bold design language.
-              </p>
+          <div className="grid grid-cols-3 gap-3 border-t border-[#D9CEBF] pt-4 sm:gap-5">
+            <div>
+              <span className="block text-sm font-semibold text-[#17324A] sm:text-base">تصميم عصري</span>
+              <span className="mt-1 block text-xs leading-5 text-[#6D6A64]">تفاصيل هادئة</span>
             </div>
-
-            <div className="grid grid-cols-3 gap-2 sm:gap-6 pt-4 border-t border-[#EAE4DC]">
-              <div>
-                <span className="block text-lg sm:text-2xl font-light text-[#1C1A19]">100%</span>
-                <span className="text-[9px] sm:text-[11px] uppercase tracking-wider text-[#736B63] leading-tight block">
-                  Handmade in Egypt
-                </span>
-              </div>
-              <div>
-                <span className="block text-lg sm:text-2xl font-light text-[#1C1A19]">Water</span>
-                <span className="text-[9px] sm:text-[11px] uppercase tracking-wider text-[#736B63] leading-tight block">
-                  Resistant
-                </span>
-              </div>
-              <div>
-                <span className="block text-lg sm:text-2xl font-light text-[#1C1A19]">Infinity</span>
-                <span className="text-[9px] sm:text-[11px] uppercase tracking-wider text-[#736B63] leading-tight block">
-                  Colors
-                </span>
-              </div>
+            <div>
+              <span className="block text-sm font-semibold text-[#17324A] sm:text-base">اختيارات مختارة</span>
+              <span className="mt-1 block text-xs leading-5 text-[#6D6A64]">لبيتك ومساحتك</span>
             </div>
-
-            <div className="pt-2">
-              <button
-                onClick={() => navigateTo('our-story')}
-                className="inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.25em] font-semibold text-[#1C1A19] hover:text-[#643D26] group transition-colors"
-              >
-                <span>Tocco Story</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </button>
+            <div>
+              <span className="block text-sm font-semibold text-[#17324A] sm:text-base">حسب الطلب</span>
+              <span className="mt-1 block text-xs leading-5 text-[#6D6A64]">على مقاسك</span>
             </div>
           </div>
 
-          {/* Visual Showcase (6 cols) */}
-          <div className="lg:col-span-6 relative h-64 sm:h-[450px] lg:h-[520px] rounded-2xl overflow-hidden shadow-[0_12px_32px_rgba(40,25,15,0.06)]">
-            <Image
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85"
-              alt="Tocco House Studio Space"
-              fill
-              className="object-cover"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white text-[10px] sm:text-xs tracking-wider uppercase flex justify-between items-center">
-              <span>Raw Mineral Glazes · High-Tensile Resins</span>
-              <span>Cairo Studio</span>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => navigateTo('our-story')}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#17324A] transition-colors hover:text-[#A36046]"
+          >
+            <span>اعرف حكايتنا</span>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="relative min-h-[300px] overflow-hidden sm:min-h-[460px] lg:col-span-7">
+          <Image
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=85"
+            alt="تصميم داخلي عصري بألوان طبيعية"
+            fill
+            sizes="(max-width: 1024px) 100vw, 58vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#122A3D]/55 to-transparent" />
+          <p className="absolute bottom-4 right-4 text-xs text-white sm:bottom-6 sm:right-6">مودرن هوم · القاهرة</p>
         </div>
       </div>
     </section>
@@ -257,57 +174,84 @@ export function StoryTeaserSection() {
 export function CategoriesShowcase() {
   const { categories, navigateTo } = useToccoStore();
   const visibleCategories = categories.filter((c) => c.isVisible);
+  const purchasePaths = [
+    {
+      number: '01',
+      title: 'تصنيع حسب الطلب',
+      description: 'اختار المقاس والخامة واللون، وننفّذ قطعة تناسب مساحتك.',
+      image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1400&q=85',
+      action: () => navigateTo('custom-design'),
+      actionLabel: 'صمّم قطعتك',
+    },
+    {
+      number: '02',
+      title: 'قطع مستوردة مختارة',
+      description: 'تصميمات جاهزة بتفاصيل واضحة لتختار ما يناسب بيتك.',
+      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=85',
+      action: () => navigateTo('shop'),
+      actionLabel: 'تصفح المنتجات',
+    },
+  ];
 
   return (
-    <section id="categories-showcase-section" className="py-14 sm:py-24 bg-[#FAF8F5] border-b border-[#EAE4DC]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16 space-y-2 sm:space-y-3">
-          <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#B85D38]">
-            Architectural Spaces
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-            Categories of Form
-          </h2>
-          <p className="text-xs sm:text-sm text-[#736B63] font-light">
-            Every object serves a purpose while standing alone as contemporary sculptural art.
+    <section id="categories-showcase-section" dir="rtl" className="border-b border-[#E6DED2] bg-[#F7F3EC] py-14 sm:py-20">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
+        <div className="mb-7 max-w-2xl space-y-2 sm:mb-10">
+          <span className="text-xs font-semibold text-[#A36046]">اختار طريقة اقتنائك</span>
+          <h2 className="text-2xl font-semibold text-[#17324A] sm:text-4xl">قطعتك الجاهزة، أو تصميمك الخاص</h2>
+          <p className="text-sm leading-7 text-[#6D6A64]">
+            لكل مساحة حكاية؛ اكتشف القطع المختارة أو ابدأ بتفاصيل قطعة على مقاسك.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {visibleCategories.map((category) => (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-5">
+          {purchasePaths.map((path) => (
             <button
+              key={path.number}
               type="button"
-              key={category.id}
-              onClick={() => navigateTo('shop', { categoryId: category.id })}
-              className="group relative block w-full h-64 sm:h-80 lg:h-96 rounded-xl overflow-hidden text-left shadow-sm hover:shadow-xl transition-all duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#643D26]"
+              onClick={path.action}
+              className="group relative min-h-[340px] overflow-hidden bg-[#17324A] text-right sm:min-h-[430px]"
             >
               <Image
-                src={category.image}
-                alt={category.name}
+                src={path.image}
+                alt={path.title}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                referrerPolicy="no-referrer"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A19]/80 via-[#1C1A19]/25 to-transparent transition-opacity group-hover:from-[#1C1A19]/90" />
-
-              <div className="absolute inset-0 p-5 sm:p-8 flex flex-col justify-end text-white space-y-1.5 sm:space-y-2">
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#EBE3D5] font-medium">
-                  Discovery
+              <span className="absolute inset-0 bg-gradient-to-l from-[#122A3D]/90 via-[#17324A]/30 to-transparent" aria-hidden="true" />
+              <span className="absolute inset-0 bg-gradient-to-t from-[#122A3D]/45 to-transparent" aria-hidden="true" />
+              <span className="absolute inset-0 flex flex-col items-start justify-end p-5 text-white sm:p-8">
+                <span className="mb-3 text-xs font-medium text-[#F0D9B8]">{path.number}</span>
+                <span className="text-xl font-semibold sm:text-3xl">{path.title}</span>
+                <span className="mt-2 max-w-md text-sm leading-7 text-white/85">{path.description}</span>
+                <span className="mt-5 inline-flex items-center gap-2 border-b border-[#C8A77D] pb-1 text-sm font-semibold text-white">
+                  {path.actionLabel}
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 </span>
-                <h3 className="text-xl sm:text-2xl font-normal tracking-wide text-white group-hover:translate-x-1 transition-transform">
-                  {category.name}
-                </h3>
-                <p className="text-xs text-[#D1CBC3] font-light line-clamp-2 max-w-xs opacity-90">
-                  {category.description}
-                </p>
-                <div className="pt-1 sm:pt-2 flex items-center gap-2 text-xs uppercase tracking-widest text-[#FAF8F5] group-hover:text-[#D97750] transition-colors">
-                  <span>Explore Objects</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
+              </span>
             </button>
           ))}
         </div>
+
+        {visibleCategories.length > 0 && (
+          <div className="mt-10 border-t border-[#E6DED2] pt-6 sm:mt-12 sm:pt-8">
+            <h3 className="mb-4 text-sm font-semibold text-[#17324A]">تصفّح حسب التصنيف</h3>
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              {visibleCategories.map((category) => (
+                <button
+                  type="button"
+                  key={category.id}
+                  onClick={() => navigateTo('shop', { categoryId: category.id })}
+                  className="inline-flex items-center gap-2 border-b border-[#C8A77D] pb-1 text-sm text-[#42515C] transition-colors hover:text-[#17324A]"
+                >
+                  <span>{category.name}</span>
+                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -319,15 +263,11 @@ export function CollaborationsSection() {
   if (!collaborations.length) return null;
 
   return (
-    <section id="homepage-collaborations" className="py-12 sm:py-16 bg-white border-y border-[#EAE4DC]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8 sm:mb-10">
-          <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.3em] text-[#B85D38] font-medium mb-2">
-            Trusted Collaborations
-          </p>
-          <h2 className="text-xl sm:text-2xl font-normal tracking-tight text-[#1C1A19]">
-            Brands & Partners Who Trust Tocco House
-          </h2>
+    <section id="homepage-collaborations" dir="rtl" className="border-y border-[#E6DED2] bg-white py-10 sm:py-14">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8">
+        <div className="mb-8 text-right sm:mb-10">
+          <p className="mb-2 text-xs font-semibold text-[#A36046]">شركاؤنا</p>
+          <h2 className="text-xl font-semibold text-[#17324A] sm:text-2xl">جهات نتعاون معها</h2>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8 sm:gap-x-14">
@@ -353,58 +293,51 @@ export function CollaborationsSection() {
 }
 
 export function CustomDesignTeaser() {
-  const { settings } = useToccoStore();
+  const { settings, navigateTo } = useToccoStore();
 
   const whatsappUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
-    "Hello Tocco House, I have a custom design piece in mind and would like to consult with your design studio."
+    'مرحبًا مودرن هوم، أرغب في مناقشة تصميم قطعة أثاث خاصة.'
   )}`;
 
   return (
-    <section id="custom-design-teaser-section" className="py-14 sm:py-24 bg-[#1C1A19] text-[#FAF8F5] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
-          <div className="lg:col-span-7 space-y-4 sm:space-y-6">
-            <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#B85D38]">
-              Custom Design
-            </span>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-white leading-tight">
-              Have a vision in mind? <br />
-              <span className="text-[#EAE4DC]">Let’s bring it to life.</span>
-            </h2>
-            <p className="text-base sm:text-lg text-[#EAE4DC] font-light max-w-xl leading-relaxed">
-              Because some spaces call for something that doesn’t already exist.
-            </p>
-            <p className="text-sm sm:text-base text-[#B8AFA6] font-light max-w-xl leading-relaxed">
-              From the initial concept to the final piece, we develop custom designs tailored to the
-              space, function, dimensions, materials, and visual identity.
-            </p>
-            <p className="text-xs sm:text-sm text-[#D4CCC2] font-medium max-w-xl leading-relaxed">
-              Concept → Design → Development → Production → Final Piece
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-2 sm:pt-4">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-full bg-[#FAF8F5] text-[#1C1A19] text-xs uppercase tracking-[0.2em] font-semibold hover:bg-white transition-all shadow-md flex items-center justify-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                <span>Discuss on WhatsApp</span>
-              </a>
-            </div>
+    <section id="custom-design-teaser-section" dir="rtl" className="relative overflow-hidden bg-[#17324A] py-14 text-white sm:py-20">
+      <div className="relative z-10 mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-8 px-4 sm:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12">
+        <div className="space-y-4 sm:space-y-6 lg:col-span-7">
+          <span className="text-xs font-semibold text-[#E6C9A3]">تصنيع حسب الطلب</span>
+          <h2 className="text-2xl font-semibold leading-relaxed sm:text-4xl">
+            أنت تحدد التفاصيل، ونحن ننفّذها.
+          </h2>
+          <p className="max-w-xl text-sm leading-8 text-white/80 sm:text-base">
+            شاركنا فكرتك والمقاسات والخامات التي تفضّلها. فريقنا يساعدك في تحويلها إلى قطعة تناسب بيتك.
+          </p>
+          <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={() => navigateTo('custom-design')}
+              className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#F7F3EC] px-5 text-sm font-semibold text-[#17324A] transition-colors hover:bg-white"
+            >
+              صمّم قطعتك <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-12 items-center justify-center gap-2 border border-white/50 px-5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+            >
+              <MessageCircle className="h-4 w-4 text-[#65C987]" aria-hidden="true" />
+              <span>تواصل على واتساب</span>
+            </a>
           </div>
+        </div>
 
-          <div className="lg:col-span-5 relative h-64 sm:h-80 lg:h-96 rounded-2xl overflow-hidden border border-[#332F2D]">
+        <div className="relative min-h-[260px] overflow-hidden sm:min-h-[340px] lg:col-span-5">
             <Image
               src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=85"
-              alt="Custom fiberglass fabrication at Tocco House"
+              alt="تفاصيل أثاث وديكور عصري"
               fill
+              sizes="(max-width: 1024px) 100vw, 42vw"
               className="object-cover"
-              referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-black/30" />
-          </div>
         </div>
       </div>
     </section>
@@ -413,94 +346,75 @@ export function CustomDesignTeaser() {
 
 export function ProjectsAndInstagramSection() {
   const { projects, navigateTo, settings } = useToccoStore();
+  const instagramHandles = settings.contact.instagramHandles.filter((handle) => !/tocco/i.test(handle));
 
   return (
-    <section id="projects-journal-section" className="py-14 sm:py-24 bg-[#FAF8F5]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-16 gap-4 sm:gap-6">
-          <div className="space-y-1.5 sm:space-y-2">
-            <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#B85D38]">
-              In Real Living Spaces
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-              Tocco in place
-            </h2>
-            <p className="text-xs sm:text-sm text-[#736B63] font-light max-w-lg">
-              A selection of pieces brought to life and delivered to their spaces
-            </p>
+    <section id="projects-journal-section" dir="rtl" className="bg-[#F7F3EC] py-14 sm:py-20">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
+        <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-2">
+            <span className="text-xs font-semibold text-[#A36046]">من بيوتنا ومشروعاتنا</span>
+            <h2 className="text-2xl font-semibold text-[#17324A] sm:text-4xl">أثاث في مساحته الحقيقية</h2>
+            <p className="max-w-lg text-sm leading-7 text-[#6D6A64]">شاهد كيف تبدو القطع داخل مساحات مختلفة.</p>
           </div>
-
           <button
+            type="button"
             onClick={() => navigateTo('projects')}
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-semibold text-[#1C1A19] hover:text-[#B85D38] transition-colors self-start md:self-auto"
+            className="inline-flex items-center gap-2 self-start text-sm font-semibold text-[#17324A] hover:text-[#A36046] sm:self-auto"
           >
-            <span>View All Projects</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>اكتشف المشروعات</span>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
-        {/* 3 Projects Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
           {projects.slice(0, 3).map((project) => (
-            <div
+            <button
               key={project.id}
+              type="button"
               onClick={() => navigateTo('projects')}
-              className="group cursor-pointer space-y-3 sm:space-y-4"
+              className="group min-w-0 text-right"
             >
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#EFEBE3] border border-[#EAE4DC] shadow-sm">
+              <div className="relative aspect-[4/3] overflow-hidden bg-[#EDE4D7]">
                 <Image
                   src={project.coverImage}
                   alt={project.title}
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  referrerPolicy="no-referrer"
                 />
-                <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-[#1C1A19]/80 backdrop-blur-sm text-[9px] sm:text-[10px] uppercase tracking-wider text-white">
-                  {project.location.split(',')[0]}
-                </div>
               </div>
-
-              <div className="space-y-1">
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#8F8880]">
-                  {project.subtitle} · {project.year}
-                </span>
-                <h3 className="text-base sm:text-lg font-normal text-[#1C1A19] group-hover:text-[#643D26] transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-xs text-[#736B63] line-clamp-2 font-light">
-                  {project.description}
-                </p>
+              <div className="space-y-1.5 pt-3">
+                <span className="text-xs text-[#A36046]">{[project.location, project.year].filter(Boolean).join(' · ')}</span>
+                <h3 className="text-base font-semibold text-[#17324A] transition-colors group-hover:text-[#A36046]">{project.title}</h3>
+                <p className="line-clamp-2 text-xs leading-6 text-[#6D6A64]">{project.description}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
-        {/* Refined Instagram Section */}
-        <div className="mt-12 sm:mt-20 pt-10 sm:pt-16 border-t border-[#EAE4DC] flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
-          <div className="space-y-1 text-center md:text-left">
-            <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#736B63]">
-              STAY CONNECTED
-            </span>
-            <h4 className="text-lg sm:text-xl font-normal text-[#1C1A19]">
-              Explore the Tocco world.
-            </h4>
+        {instagramHandles.length > 0 && (
+          <div className="mt-10 flex flex-col gap-4 border-t border-[#E6DED2] pt-7 sm:mt-14 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <span className="text-xs font-semibold text-[#A36046]">تابعونا</span>
+              <h3 className="mt-1 text-lg font-semibold text-[#17324A]">مودرن هوم على إنستجرام</h3>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              {instagramHandles.map((handle) => (
+                <a
+                  key={handle}
+                  href={`https://instagram.com/${handle.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 border-b border-[#C8A77D] pb-1 text-sm text-[#42515C] hover:text-[#17324A]"
+                >
+                  <span>{handle}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
           </div>
-
-          <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
-            {settings.contact.instagramHandles.map((handle) => (
-              <a
-                key={handle}
-                href={`https://instagram.com/${handle.replace('@', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-[#D8CEBF] text-xs uppercase tracking-[0.2em] font-medium text-[#1C1A19] hover:bg-[#1C1A19] hover:text-white hover:border-[#1C1A19] transition-all"
-              >
-                <span>{handle}</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </a>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );

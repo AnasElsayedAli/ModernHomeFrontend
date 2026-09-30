@@ -355,7 +355,7 @@ export default function CategoriesManagement() {
       itemToDelete.hasSubcategories
     ) {
       notifyError(
-        `Cannot permanently delete category "${itemToDelete.name}" because it still contains ${itemToDelete.subcategoriesCount || 'one or more'} subcategories. Delete or reassign the subcategories first.`
+        `لا يمكن حذف التصنيف "${itemToDelete.name}" نهائيًا لاحتوائه على ${itemToDelete.subcategoriesCount || 'قسم فرعي واحد أو أكثر'}. احذف الأقسام الفرعية أو أعد ربطها أولًا.`
       );
       return;
     }
@@ -369,7 +369,7 @@ export default function CategoriesManagement() {
           notifySuccess(`Category "${itemToDelete.name}" soft-deleted. It can be restored from Archives.`);
         } else {
           await categoryService.hardDeleteCategory(itemToDelete.id);
-          notifySuccess(`Category "${itemToDelete.name}" permanently deleted.`);
+          notifySuccess(`تم حذف التصنيف "${itemToDelete.name}" نهائيًا.`);
         }
       } else {
         if (itemToDelete.mode === 'soft') {
@@ -377,7 +377,7 @@ export default function CategoriesManagement() {
           notifySuccess(`Subcategory "${itemToDelete.name}" soft-deleted. It can be restored from Archives.`);
         } else {
           await subcategoryService.hardDeleteSubcategory(itemToDelete.id);
-          notifySuccess(`Subcategory "${itemToDelete.name}" permanently deleted.`);
+          notifySuccess(`تم حذف القسم الفرعي "${itemToDelete.name}" نهائيًا.`);
         }
       }
 
@@ -387,7 +387,7 @@ export default function CategoriesManagement() {
       const norm = normalizeApiError(err);
       const isCategoryHardDelete = itemToDelete.type === 'category' && itemToDelete.mode === 'hard';
       const message = isCategoryHardDelete && norm.message === 'An unexpected error occurred. Please try again.'
-        ? `Cannot permanently delete category "${itemToDelete.name}" because it still has subcategories or other linked items. Remove or reassign them first, then try again.`
+        ? `لا يمكن حذف التصنيف "${itemToDelete.name}" نهائيًا لارتباطه بأقسام فرعية أو عناصر أخرى. أزل الارتباطات أو أعد تعيينها ثم حاول مرة أخرى.`
         : norm.message;
       notifyError(message);
     } finally {
@@ -430,17 +430,17 @@ export default function CategoriesManagement() {
   };
 
   return (
-    <div id="categories-management-container" className="space-y-6 overflow-x-hidden">
+    <div id="categories-management-container" dir="rtl" className="space-y-6 overflow-x-hidden">
       {/* Header with Title & Action Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EAE4DC]">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-normal tracking-tight text-[#1C1A19]">
-              Categories & Subcategories
+              التصنيفات والأقسام الفرعية
             </h2>
           </div>
           <p className="text-xs text-[#736B63] mt-0.5">
-            Manage architectural product taxonomy, assign subcategories, and handle soft/hard deletions.
+            إدارة تصنيفات المنتجات والأقسام الفرعية والعناصر المؤرشفة.
           </p>
         </div>
 
@@ -448,7 +448,7 @@ export default function CategoriesManagement() {
           <button
             onClick={() => loadData(searchQuery.trim())}
             disabled={loading}
-            title="Reload from API"
+            title="إعادة التحميل من المتجر"
             className="p-2 rounded-full border border-[#D8CEBF] text-[#524B45] hover:text-[#1C1A19] hover:bg-[#EFEBE3] transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -458,14 +458,14 @@ export default function CategoriesManagement() {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D] transition-colors shadow-sm"
           >
             <FolderPlus className="w-3.5 h-3.5" />
-            <span>Add Category</span>
+            <span>إضافة تصنيف</span>
           </button>
           <button
             onClick={() => handleOpenCreateSubcategory()}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#1C1A19] text-[#1C1A19] hover:bg-[#1C1A19] hover:text-white text-xs uppercase tracking-wider font-medium transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Subcategory</span>
+            <span>إضافة قسم فرعي</span>
           </button>
         </div>
       </div>
@@ -508,7 +508,7 @@ export default function CategoriesManagement() {
             }`}
           >
             <Folder className="w-3.5 h-3.5" />
-            <span>Categories</span>
+            <span>التصنيفات</span>
             <span className="ml-1 px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">
               {activeCategories.length}
             </span>
@@ -523,7 +523,7 @@ export default function CategoriesManagement() {
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>Subcategories</span>
+            <span>الأقسام الفرعية</span>
             <span className="ml-1 px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">
               {activeSubcategories.length}
             </span>
@@ -538,7 +538,7 @@ export default function CategoriesManagement() {
             }`}
           >
             <Archive className="w-3.5 h-3.5" />
-            <span>Deleted Archives</span>
+            <span>الأرشيف</span>
             {(deletedCategories.length > 0 || deletedSubcategories.length > 0) && (
               <span className="ml-1 px-1.5 py-0.2 rounded-full bg-white/25 text-[10px]">
                 {deletedCategories.length + deletedSubcategories.length}
@@ -557,7 +557,7 @@ export default function CategoriesManagement() {
                 onChange={(e) => setSelectedParentFilter(e.target.value)}
                 className="bg-white border border-[#D8CEBF] text-xs text-[#1C1A19] rounded-lg px-2.5 py-1.5 focus:outline-none"
               >
-                <option value="all">All Parent Categories</option>
+                <option value="all">كل التصنيفات الرئيسية</option>
                 {activeCategories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -573,10 +573,10 @@ export default function CategoriesManagement() {
               type="text"
               placeholder={
                 activeTab === 'categories'
-                  ? 'Search categories...'
+                  ? 'ابحث في التصنيفات...'
                   : activeTab === 'subcategories'
-                  ? 'Search subcategories...'
-                  : 'Search archives...'
+                  ? 'ابحث في الأقسام الفرعية...'
+                  : 'ابحث في الأرشيف...'
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -605,11 +605,11 @@ export default function CategoriesManagement() {
           {filteredActiveCategories.length === 0 ? (
             <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-[#D8CEBF] space-y-3">
               <Folder className="w-8 h-8 mx-auto text-[#8F8880]" />
-              <p className="text-sm font-medium text-[#1C1A19]">No categories found</p>
+              <p className="text-sm font-medium text-[#17324A]">لا توجد تصنيفات</p>
               <p className="text-xs text-[#736B63] max-w-sm mx-auto">
                 {searchQuery
-                  ? 'No categories match your search criteria. Try a different query.'
-                  : 'There are no active categories created yet. Click "Add Category" to create your first one.'}
+                  ? 'لا توجد تصنيفات تطابق البحث. جرّب كلمة أخرى.'
+                  : 'لا توجد تصنيفات نشطة بعد. أضف أول تصنيف للبدء.'}
               </p>
               {!searchQuery && (
                 <button
@@ -617,7 +617,7 @@ export default function CategoriesManagement() {
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Create Category</span>
+                  <span>إنشاء تصنيف</span>
                 </button>
               )}
             </div>
@@ -646,7 +646,7 @@ export default function CategoriesManagement() {
                         ) : (
                           <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8F8880] space-y-1">
                             <ImageIcon className="w-6 h-6 stroke-[1.5]" />
-                            <span className="text-[10px] uppercase tracking-wider">No Image Set</span>
+                            <span className="text-[10px]">لم تُحدد صورة</span>
                           </div>
                         )}
                       </div>
@@ -656,11 +656,11 @@ export default function CategoriesManagement() {
                         <div className="flex items-center justify-between">
                           <h4 className="text-base font-medium text-[#1C1A19]">{cat.name}</h4>
                           <span className="text-[11px] font-medium text-[#B85D38] bg-[#F5EBE6] px-2 py-0.5 rounded-full">
-                            {subCount} {subCount === 1 ? 'subcategory' : 'subcategories'}
+                            {subCount} {subCount === 1 ? 'قسم فرعي' : 'أقسام فرعية'}
                           </span>
                         </div>
                         <p className="text-[11px] text-[#8F8880]">
-                          Created: {new Date(cat.created_at).toLocaleDateString()}
+                          تاريخ الإضافة: {new Date(cat.created_at).toLocaleDateString('ar-EG')}
                         </p>
                       </div>
 
@@ -677,13 +677,13 @@ export default function CategoriesManagement() {
                           ))}
                           {assignedSubcategories.length > 4 && (
                             <span className="px-1.5 py-0.5 text-[10px] text-[#736B63]">
-                              +{assignedSubcategories.length - 4} more
+                              +{assignedSubcategories.length - 4} أخرى
                             </span>
                           )}
                         </div>
                       ) : (
                         <p className="text-[11px] text-[#8F8880] italic pt-1">
-                          No subcategories assigned yet.
+                          لم تُضف أقسام فرعية بعد.
                         </p>
                       )}
                     </div>
@@ -695,14 +695,14 @@ export default function CategoriesManagement() {
                         className="text-[#524B45] hover:text-[#1C1A19] inline-flex items-center gap-1 font-medium text-[11px]"
                       >
                         <Plus className="w-3 h-3" />
-                        <span>Add Sub</span>
+                        <span>إضافة قسم فرعي</span>
                       </button>
 
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleOpenEditCategory(cat)}
                           className="p-1.5 text-[#524B45] hover:text-[#1C1A19] hover:bg-[#EFEBE3] rounded-lg transition-colors"
-                          title="Edit Category"
+                          title="تعديل التصنيف"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
@@ -717,7 +717,7 @@ export default function CategoriesManagement() {
                             })
                           }
                           className="p-1.5 text-[#B85D38] hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-colors"
-                            title="Archive Category"
+                            title="أرشفة التصنيف"
                         >
                           <Archive className="w-3.5 h-3.5" />
                         </button>
@@ -733,7 +733,7 @@ export default function CategoriesManagement() {
                             })
                           }
                           className="p-1.5 text-rose-600 hover:text-rose-900 hover:bg-rose-50 rounded-lg transition-colors"
-                          title="Permanently Delete"
+                          title="حذف نهائي"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -753,18 +753,18 @@ export default function CategoriesManagement() {
           {filteredActiveSubcategories.length === 0 ? (
             <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-[#D8CEBF] space-y-3">
               <Layers className="w-8 h-8 mx-auto text-[#8F8880]" />
-              <p className="text-sm font-medium text-[#1C1A19]">No subcategories found</p>
+              <p className="text-sm font-medium text-[#17324A]">لا توجد أقسام فرعية</p>
               <p className="text-xs text-[#736B63] max-w-sm mx-auto">
                 {searchQuery || selectedParentFilter !== 'all'
-                  ? 'No subcategories match your current search/filter.'
-                  : 'There are no active subcategories yet. Click "Add Subcategory" to create one.'}
+                  ? 'لا توجد أقسام فرعية تطابق البحث أو التصفية.'
+                  : 'لا توجد أقسام فرعية نشطة بعد. أضف أول قسم فرعي للبدء.'}
               </p>
               <button
                 onClick={() => handleOpenCreateSubcategory()}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Create Subcategory</span>
+                <span>إنشاء قسم فرعي</span>
               </button>
             </div>
           ) : (
@@ -791,7 +791,7 @@ export default function CategoriesManagement() {
                         ) : (
                           <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8F8880] space-y-1">
                             <ImageIcon className="w-6 h-6 stroke-[1.5]" />
-                            <span className="text-[10px] uppercase tracking-wider">No Image Set</span>
+                            <span className="text-[10px]">لم تُحدد صورة</span>
                           </div>
                         )}
                       </div>
@@ -805,7 +805,7 @@ export default function CategoriesManagement() {
                           </span>
                         </div>
                         <p className="text-[11px] text-[#8F8880]">
-                          Updated: {new Date(sub.updated_at).toLocaleDateString()}
+                          آخر تحديث: {new Date(sub.updated_at).toLocaleDateString('ar-EG')}
                         </p>
                       </div>
                     </div>
@@ -848,7 +848,7 @@ export default function CategoriesManagement() {
                             })
                           }
                           className="p-1.5 text-rose-600 hover:text-rose-900 hover:bg-rose-50 rounded-lg transition-colors"
-                          title="Permanently Delete"
+                          title="حذف نهائي"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -875,7 +875,7 @@ export default function CategoriesManagement() {
                   : 'bg-white border border-[#D8CEBF] text-[#736B63]'
               }`}
             >
-              Deleted Categories ({deletedCategories.length})
+              التصنيفات المحذوفة ({deletedCategories.length})
             </button>
             <button
               onClick={() => setDeletedViewMode('subcategories')}
@@ -885,18 +885,16 @@ export default function CategoriesManagement() {
                   : 'bg-white border border-[#D8CEBF] text-[#736B63]'
               }`}
             >
-              Deleted Subcategories ({deletedSubcategories.length})
+              الأقسام الفرعية المحذوفة ({deletedSubcategories.length})
             </button>
           </div>
 
           <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5">
             <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <p className="font-medium">Archive Restoration & Soft Deletion Info</p>
+              <p className="font-medium">استعادة العناصر المؤرشفة</p>
               <p className="text-[#87502B] leading-relaxed">
-                Items in this archive are hidden from active catalog views. You can restore an item back to
-                active status, or permanently remove it with a hard delete. Note: A subcategory cannot be restored
-                if its parent category remains deleted.
+                العناصر في هذا الأرشيف مخفية عن المتجر. يمكنك استعادتها أو حذفها نهائيًا. لا يمكن استعادة قسم فرعي قبل استعادة تصنيفه الرئيسي.
               </p>
             </div>
           </div>
@@ -905,8 +903,8 @@ export default function CategoriesManagement() {
             filteredDeletedCategories.length === 0 ? (
               <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-[#D8CEBF] space-y-2">
                 <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-600" />
-                <p className="text-sm font-medium text-[#1C1A19]">No deleted categories</p>
-                <p className="text-xs text-[#736B63]">All categories in the database are currently active.</p>
+                <p className="text-sm font-medium text-[#17324A]">لا توجد تصنيفات محذوفة</p>
+                <p className="text-xs text-[#6D6A64]">كل التصنيفات نشطة حاليًا.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -931,13 +929,13 @@ export default function CategoriesManagement() {
                           </div>
                         )}
                         <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-rose-700 text-white text-[10px] font-medium tracking-wide uppercase">
-                          Soft Deleted
+                          مؤرشف
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <h4 className="text-base font-medium text-[#1C1A19]">{cat.name}</h4>
-                        <p className="text-[11px] text-[#8F8880]">Category ID: {cat.id}</p>
+                        <p className="text-[11px] text-[#817D75]">رقم التصنيف: {cat.id}</p>
                       </div>
                     </div>
 
@@ -948,7 +946,7 @@ export default function CategoriesManagement() {
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-medium hover:bg-emerald-800 transition-colors"
                       >
                         <RotateCcw className="w-3 h-3" />
-                        <span>Restore Category</span>
+                        <span>استعادة التصنيف</span>
                       </button>
 
                       <button
@@ -963,7 +961,7 @@ export default function CategoriesManagement() {
                           })
                         }
                         className="p-1.5 text-rose-600 hover:text-rose-900 rounded-lg"
-                          title="Permanently Delete"
+                          title="حذف نهائي"
                       >
                           <Trash2 className="w-4 h-4" />
                       </button>
@@ -975,8 +973,8 @@ export default function CategoriesManagement() {
           ) : filteredDeletedSubcategories.length === 0 ? (
             <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-[#D8CEBF] space-y-2">
               <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-600" />
-              <p className="text-sm font-medium text-[#1C1A19]">No deleted subcategories</p>
-              <p className="text-xs text-[#736B63]">All subcategories are currently active.</p>
+              <p className="text-sm font-medium text-[#17324A]">لا توجد أقسام فرعية محذوفة</p>
+              <p className="text-xs text-[#6D6A64]">كل الأقسام الفرعية نشطة حاليًا.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -1006,7 +1004,7 @@ export default function CategoriesManagement() {
                           </div>
                         )}
                         <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-rose-700 text-white text-[10px] font-medium tracking-wide uppercase">
-                          Soft Deleted
+                          مؤرشف
                         </div>
                       </div>
 
@@ -1019,7 +1017,7 @@ export default function CategoriesManagement() {
                         </div>
                         {!isParentActive && (
                           <p className="text-[10px] text-amber-700 font-medium">
-                            Restore the parent category before restoring this subcategory.
+                            استعد التصنيف الرئيسي قبل استعادة هذا القسم الفرعي.
                           </p>
                         )}
                       </div>
@@ -1029,11 +1027,11 @@ export default function CategoriesManagement() {
                       <button
                         onClick={() => handleRestoreSubcategory(sub)}
                         disabled={actionLoading || !isParentActive}
-                        title={!isParentActive ? 'Restore the parent category first' : 'Restore subcategory'}
+                        title={!isParentActive ? 'استعد التصنيف الرئيسي أولًا' : 'استعادة القسم الفرعي'}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-medium hover:bg-emerald-800 transition-colors"
                       >
                         <RotateCcw className="w-3 h-3" />
-                        <span>Restore Sub</span>
+                        <span>استعادة القسم الفرعي</span>
                       </button>
 
                       <button
@@ -1046,7 +1044,7 @@ export default function CategoriesManagement() {
                           })
                         }
                         className="p-1.5 text-rose-600 hover:text-rose-900 rounded-lg"
-                        title="Permanently Delete"
+                        title="حذف نهائي"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1089,12 +1087,12 @@ export default function CategoriesManagement() {
               {/* Name */}
               <div>
                 <label className="block text-[#1C1A19] font-medium mb-1">
-                  Category Name <span className="text-rose-600">*</span>
+                  اسم التصنيف <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Tables, Chairs & Loungers..."
+                  placeholder="مثال: طاولات، كراسي، كنب..."
                   value={categoryFormData.name}
                   onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                   className={`w-full p-2.5 rounded-lg border ${
@@ -1111,7 +1109,7 @@ export default function CategoriesManagement() {
               {/* Image upload with preview */}
               <div>
                 <CloudinaryImageField
-                  label="Cover Image"
+                  label="صورة الغلاف"
                   value={categoryFormData.image || ''}
                   folder="tocco/categories"
                   onChange={(image) =>
@@ -1138,14 +1136,14 @@ export default function CategoriesManagement() {
                   onClick={() => setIsCategoryModalOpen(false)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63] hover:text-[#1C1A19]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
                   className="px-5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D] transition-colors disabled:opacity-50"
                 >
-                  {actionLoading ? 'Saving...' : 'Save Category'}
+                  {actionLoading ? 'جارٍ الحفظ...' : 'حفظ التصنيف'}
                 </button>
               </div>
             </form>
@@ -1161,7 +1159,7 @@ export default function CategoriesManagement() {
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
-          aria-label={subcategoryFormMode === 'create' ? 'Add subcategory' : 'Edit subcategory'}
+          aria-label={subcategoryFormMode === 'create' ? 'إضافة قسم فرعي' : 'تعديل القسم الفرعي'}
           tabIndex={-1}
           onKeyDown={handleDialogKeyDown}
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn"
@@ -1169,7 +1167,7 @@ export default function CategoriesManagement() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-[#EAE4DC]">
               <h3 className="text-base font-medium text-[#1C1A19]">
-                {subcategoryFormMode === 'create' ? 'Add New Subcategory' : 'Edit Subcategory'}
+                {subcategoryFormMode === 'create' ? 'إضافة قسم فرعي' : 'تعديل القسم الفرعي'}
               </h3>
               <button
                 onClick={() => setIsSubcategoryModalOpen(false)}
@@ -1183,7 +1181,7 @@ export default function CategoriesManagement() {
               {/* Parent Category Selection */}
               <div>
                 <label className="block text-[#1C1A19] font-medium mb-1">
-                  Parent Category <span className="text-rose-600">*</span>
+                  التصنيف الرئيسي <span className="text-rose-600">*</span>
                 </label>
                 <select
                   required
@@ -1202,7 +1200,7 @@ export default function CategoriesManagement() {
                 >
                   {activeCategories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name} (ID: {cat.id})
+                      {cat.name} (رقم: {cat.id})
                     </option>
                   ))}
                 </select>
@@ -1216,12 +1214,12 @@ export default function CategoriesManagement() {
               {/* Subcategory Name */}
               <div>
                 <label className="block text-[#1C1A19] font-medium mb-1">
-                  Subcategory Name <span className="text-rose-600">*</span>
+                  اسم القسم الفرعي <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Dining Tables, Monolithic Pedestals..."
+                  placeholder="مثال: طاولات سفرة، قواعد جانبية..."
                   value={subcategoryFormData.name}
                   onChange={(e) =>
                     setSubcategoryFormData({ ...subcategoryFormData, name: e.target.value })
@@ -1240,7 +1238,7 @@ export default function CategoriesManagement() {
               {/* Image upload with preview */}
               <div>
                 <CloudinaryImageField
-                  label="Image"
+                  label="الصورة"
                   value={subcategoryFormData.image || ''}
                   folder="tocco/subcategories"
                   onChange={(image) =>
@@ -1267,14 +1265,14 @@ export default function CategoriesManagement() {
                   onClick={() => setIsSubcategoryModalOpen(false)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63] hover:text-[#1C1A19]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
                   className="px-5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D] transition-colors disabled:opacity-50"
                 >
-                  {actionLoading ? 'Saving...' : 'Save Subcategory'}
+                  {actionLoading ? 'جارٍ الحفظ...' : 'حفظ القسم الفرعي'}
                 </button>
               </div>
             </form>
@@ -1287,11 +1285,12 @@ export default function CategoriesManagement() {
       {/* ========================================== */}
       <ConfirmDialog
         isOpen={Boolean(itemToDelete)}
-        title={itemToDelete?.mode === 'hard' ? `Delete Permanently: "${itemToDelete.name}"` : `Archive: "${itemToDelete?.name || ''}"`}
+        title={itemToDelete?.mode === 'hard' ? `حذف نهائي: "${itemToDelete.name}"` : `أرشفة: "${itemToDelete?.name || ''}"`}
         description={itemToDelete?.mode === 'hard'
-          ? `This will permanently delete the ${itemToDelete?.type || 'item'} and cannot be undone.`
-          : `This will hide the ${itemToDelete?.type || 'item'} from the live catalogue. You can restore it later from Deleted Archives.`}
-        confirmLabel={itemToDelete?.mode === 'hard' ? 'Delete Permanently' : 'Archive'}
+          ? `سيتم حذف ${itemToDelete?.type === 'category' ? 'التصنيف' : 'القسم الفرعي'} نهائيًا، ولا يمكن التراجع عن ذلك.`
+          : `سيتم إخفاء ${itemToDelete?.type === 'category' ? 'التصنيف' : 'القسم الفرعي'} من المتجر. يمكنك استعادته لاحقًا من الأرشيف.`}
+        confirmLabel={itemToDelete?.mode === 'hard' ? 'حذف نهائي' : 'أرشفة'}
+        cancelLabel="إلغاء"
         variant={itemToDelete?.mode === 'hard' ? 'danger' : 'warning'}
         icon={itemToDelete?.mode === 'hard' ? 'delete' : 'archive'}
         confirmDisabled={Boolean(itemToDelete?.type === 'category' && itemToDelete.mode === 'hard' && itemToDelete.hasSubcategories)}
@@ -1301,9 +1300,9 @@ export default function CategoriesManagement() {
       >
         {itemToDelete?.mode === 'hard' && itemToDelete.type === 'category' && itemToDelete.hasSubcategories && (
           <div className="space-y-2 text-rose-900 bg-rose-50 p-3.5 rounded-xl border border-rose-200">
-            <p className="font-semibold text-rose-950">Cannot delete this category yet.</p>
+            <p className="font-semibold text-rose-950">لا يمكن حذف هذا التصنيف الآن.</p>
             <p>
-              It still contains {itemToDelete.subcategoriesCount || 'one or more'} subcategories. Delete or reassign them first.
+              يحتوي على {itemToDelete.subcategoriesCount || 'قسم فرعي واحد أو أكثر'}. احذفها أو أعد ربطها أولًا.
             </p>
           </div>
         )}

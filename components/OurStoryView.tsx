@@ -1,118 +1,75 @@
 'use client';
 
 import { useToccoStore } from '@/lib/store';
-import { ToccoMark } from './ToccoLogo';
 import Image from '@/components/SafeImage';
+import { ArrowLeft } from 'lucide-react';
 
 export default function OurStoryView() {
   const { navigateTo } = useToccoStore();
 
   return (
-    <div id="our-story-page" className="pt-20 sm:pt-28 pb-20 sm:pb-24 bg-[#FAF8F5] min-h-screen">
-      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
-        <div className="py-8 sm:py-16 border-b border-[#EAE4DC] max-w-4xl space-y-4 sm:space-y-6">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <ToccoMark size={30} fillColor="#FFFFFF" circleBg="#5E3B26" />
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] font-medium text-[#B85D38]">
-              The Tocco House Philosophy
-            </span>
-          </div>
-
-          <h1 className="text-3xl sm:text-6xl font-normal tracking-tight text-[#1C1A19] leading-[1.15]">
-            Objects with character. <br />
-            <span className="text-[#643D26]">The touch that elevates.</span>
+    <div id="our-story-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
+      <section className="grid grid-cols-1 bg-[#E8E3D9] lg:min-h-[650px] lg:grid-cols-12">
+        <div className="flex flex-col justify-center px-5 py-10 sm:px-10 sm:py-14 lg:col-span-5 lg:px-14 lg:py-20">
+          <p className="text-xs font-semibold text-[#A36046]">فلسفة مودرن هوم · صُنعت بأيدٍ مصرية في القاهرة</p>
+          <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl leading-[1.55] text-[#17324A] sm:text-5xl">
+            بيتك ليس مساحة فقط.
           </h1>
-
-          <p className="text-sm sm:text-xl text-[#524B45] font-light leading-relaxed">
-            Tocco House was founded in Cairo as an antidote to disposable mass production.
-            We approach furniture not as background utilities, but as bold architectural sculptures
-            with emotional resonance.
+          <p className="mt-4 max-w-lg text-sm leading-8 text-[#625E57] sm:text-base">
+            هو تفاصيل تتكرر كل يوم؛ قطعة تختارها بعناية، خامة تلمسها، وركن يحمل دفء البيت المصري ويشبهك.
           </p>
+          <button type="button" onClick={() => navigateTo('shop')} className="mt-7 inline-flex min-h-10 w-fit items-center gap-2 border-b border-[#A36046] text-sm font-semibold text-[#17324A]">
+            <span>اكتشف المجموعة</span><ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          </button>
         </div>
+        <figure className="relative min-h-[320px] overflow-hidden bg-[#6A5A48] sm:min-h-[500px] lg:col-span-7">
+          <Image src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1500&q=85" alt="أثاث عصري في مساحة منزلية دافئة" fill sizes="(max-width: 1024px) 100vw, 58vw" priority className="object-cover" />
+          <figcaption className="absolute bottom-4 right-4 border-r border-white/70 pe-3 text-xs text-white sm:bottom-6 sm:right-7">تصميم معاصر · حياة يومية</figcaption>
+        </figure>
+      </section>
 
-        <div className="py-10 sm:py-20 border-b border-[#EAE4DC] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          <div className="lg:col-span-6 space-y-4 sm:space-y-6">
-            <h2 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-              The idea
-            </h2>
-            <p className="text-sm sm:text-xl text-[#1C1A19] font-light leading-relaxed">
-              tocco is a design house built on one belief: great spaces begin with extraordinary ideas
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
+        <section className="grid grid-cols-1 gap-8 border-b border-[#DED5C9] py-10 sm:py-16 lg:grid-cols-12 lg:gap-14 lg:py-20">
+          <p className="text-xs font-semibold text-[#A36046] lg:col-span-3">01 · كيف نختار</p>
+          <div className="space-y-4 lg:col-span-7">
+            <h2 className="font-[family-name:var(--font-display)] text-2xl leading-relaxed text-[#17324A] sm:text-4xl">التصميم يبدأ من طريقة عيشك.</h2>
+            <p className="max-w-2xl text-sm leading-8 text-[#625E57] sm:text-base">
+              نبحث عن التوازن بين الراحة والخطوط الواضحة والخامات المناسبة. قطعة جميلة يجب أن تكون عملية، وأن تبدو طبيعية في المكان الذي تعيش فيه.
             </p>
-            <div className="space-y-3 sm:space-y-4 text-xs sm:text-base text-[#524B45] font-light leading-relaxed">
-              <p>At Tocco, we believe that design is more than creating beautiful pieces.</p>
-              <p>
-                It is about imagining something different, giving it form, and creating a presence
-                that transforms the space around it.
-              </p>
-              <p>Because the most memorable spaces are the ones that have something of their own.</p>
-            </div>
           </div>
+        </section>
 
-          <div className="lg:col-span-6 relative h-[280px] sm:h-[520px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md sm:shadow-lg">
-            <Image
-              src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1200&q=85"
-              alt="Sculptural fiberglass form"
-              fill
-              className="object-cover"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-        </div>
-
-        <div className="py-10 sm:py-20 border-b border-[#EAE4DC] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          <div className="lg:col-span-6 order-2 lg:order-1 relative h-[280px] sm:h-[520px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md sm:shadow-lg">
-            <Image
-              src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=85"
-              alt="Artisans finishing fiberglass surfaces in the Cairo workshop"
-              fill
-              className="object-cover"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-
-          <div className="lg:col-span-6 order-1 lg:order-2 space-y-4 sm:space-y-6">
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] font-semibold text-[#8F8880]">
-              — ABOUT TOCCO
-            </span>
-            <div className="space-y-3 sm:space-y-4 text-xs sm:text-base text-[#524B45] font-light leading-relaxed">
-              <p>
-                Tocco is a design house founded in 2023 by Hadeer Ezz and Sara Elguneidy, born from
-                a shared passion for furniture design and distinctive spaces.
-              </p>
-              <p>
-                We turn ideas into distinctive furniture and spatial pieces — combining creativity,
-                craftsmanship, materials, and function to create designs that feel truly unique.
-              </p>
-              <p>From an idea to a signature piece, Tocco brings imagination into reality.</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="py-12 sm:py-20 text-center max-w-3xl mx-auto space-y-6 sm:space-y-8">
-          <h2 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-            Designed to elevate your everyday ritual.
-          </h2>
-          <p className="text-xs sm:text-base text-[#736B63] font-light leading-relaxed">
-            From the shores of Sidi Abdel Rahman to the historic high-ceilinged apartments of
-            Cairo, Tocco House pieces are conversation starters that anchor residential and
-            hospitality interiors.
-          </p>
-
-          <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-            <button
-              onClick={() => navigateTo('shop')}
-              className="w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-[0.25em] font-medium hover:bg-[#332F2D] transition-all"
-            >
-              Explore the Archive
-            </button>
-            <button
-              onClick={() => navigateTo('custom-design')}
-              className="w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-full border border-[#D8CEBF] text-[#1C1A19] text-xs uppercase tracking-[0.25em] font-medium hover:border-[#1C1A19] transition-all"
-            >
-              Commission Bespoke
+        <section className="grid grid-cols-1 gap-0 border-b border-[#DED5C9] lg:grid-cols-12">
+          <figure className="relative min-h-[320px] overflow-hidden bg-[#786854] sm:min-h-[500px] lg:col-span-7">
+            <Image src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1400&q=85" alt="خامات وألوان أثاث مودرن هوم" fill sizes="(max-width: 1024px) 100vw, 58vw" className="object-cover" />
+          </figure>
+          <div className="flex flex-col justify-center gap-5 bg-[#FBF9F4] px-5 py-8 sm:px-10 sm:py-12 lg:col-span-5 lg:px-12">
+            <p className="text-xs font-semibold text-[#A36046]">02 · ما يناسب مساحتك</p>
+            <h2 className="font-[family-name:var(--font-display)] text-2xl leading-relaxed text-[#17324A] sm:text-3xl">قطعة جاهزة، أو تفصيل يبدأ منك.</h2>
+            <p className="text-sm leading-8 text-[#625E57]">
+              في مجموعتنا قطع مختارة بمواصفات واضحة. وللمساحات ذات الاحتياج الخاص، نراجع المقاسات والخامات والتفاصيل معك قبل التنفيذ.
+            </p>
+            <button type="button" onClick={() => navigateTo('custom-design')} className="inline-flex min-h-10 w-fit items-center gap-2 border-b border-[#A36046] text-sm font-semibold text-[#17324A]">
+              <span>ناقش تصميمك</span><ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
-        </div>
+        </section>
+
+        <section className="flex flex-col gap-5 py-10 sm:py-16 lg:flex-row lg:items-end lg:justify-between lg:py-20">
+          <div className="max-w-2xl space-y-3">
+            <p className="text-xs font-semibold text-[#A36046]">مودرن هوم · للأثاث والديكور العصري</p>
+            <h2 className="font-[family-name:var(--font-display)] text-2xl leading-relaxed text-[#17324A] sm:text-4xl">اختيارات تعيش معك كل يوم.</h2>
+            <p className="text-sm leading-7 text-[#625E57]">اكتشف المجموعة، أو أخبرنا عن القطعة التي تتخيلها.</p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={() => navigateTo('shop')} className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#17324A] px-6 text-sm font-semibold text-white hover:bg-[#24445E]">
+              <span>اكتشف المجموعة</span><ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button type="button" onClick={() => navigateTo('custom-design')} className="min-h-12 border border-[#BFB4A6] px-6 text-sm font-semibold text-[#17324A] hover:border-[#17324A]">
+              صمّم قطعتك
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );

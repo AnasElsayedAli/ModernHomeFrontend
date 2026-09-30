@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { useToccoStore, AppView } from '@/lib/store';
-import { toWhatsAppNumber } from '@/lib/utils';
-import { Home, Compass, Sparkles, ShoppingBag, MessageCircle } from 'lucide-react';
+import { House, Armchair, Ruler, ShoppingBag, UserRound } from 'lucide-react';
 
 export default function MobileBottomNav() {
   const {
@@ -11,17 +10,12 @@ export default function MobileBottomNav() {
     navigateTo,
     cartItemsCount,
     setIsCartDrawerOpen,
-    settings,
   } = useToccoStore();
 
   // Hide in admin CMS so it doesn't collide with table/form controls
   if (activeView === 'admin') {
     return null;
   }
-
-  const whatsappUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
-    'Hello Tocco House Concierge, I would like to inquire about your pieces.'
-  )}`;
 
   const tabs: {
     id: string;
@@ -33,87 +27,81 @@ export default function MobileBottomNav() {
   }[] = [
     {
       id: 'home',
-      label: 'Home',
-      icon: Home,
+      label: 'الرئيسية',
+      icon: House,
       action: () => navigateTo('home'),
       isActive: activeView === 'home',
     },
     {
       id: 'shop',
-      label: 'Catalog',
-      icon: Compass,
+      label: 'المنتجات',
+      icon: Armchair,
       action: () => navigateTo('shop'),
       isActive: activeView === 'shop' || activeView === 'product',
     },
     {
       id: 'custom',
-      label: 'Bespoke',
-      icon: Sparkles,
+      label: 'تصنيع',
+      icon: Ruler,
       action: () => navigateTo('custom-design'),
       isActive: activeView === 'custom-design',
     },
     {
+      id: 'account',
+      label: 'حسابي',
+      icon: UserRound,
+      action: () => navigateTo('account'),
+      isActive: activeView === 'account',
+    },
+    {
       id: 'bag',
-      label: 'Bag',
+      label: 'الحقيبة',
       icon: ShoppingBag,
       action: () => setIsCartDrawerOpen(true),
       isActive: false,
       badge: cartItemsCount,
-    },
-    {
-      id: 'concierge',
-      label: 'Concierge',
-      icon: MessageCircle,
-      action: () => window.open(whatsappUrl, '_blank'),
-      isActive: false,
     },
   ];
 
   return (
     <nav
       id="mobile-bottom-navigation-bar"
-      aria-label="Mobile Navigation Bar"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-lg border-t border-[#EAE4DC] shadow-[0_-4px_24px_rgba(40,25,15,0.06)] pb-[env(safe-area-inset-bottom)]"
+      aria-label="التنقل الرئيسي"
+      dir="rtl"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#D8CEBF] bg-[#FBF9F4]/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(23,50,74,0.07)] backdrop-blur-lg md:hidden"
     >
-      <div className="flex items-center justify-around h-15 px-2">
+      <div className="mx-auto flex h-[62px] max-w-lg items-center justify-around px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isCurrent = tab.isActive;
-          const isConcierge = tab.id === 'concierge';
-
           return (
             <button
               key={tab.id}
               id={`mobile-tab-${tab.id}`}
               onClick={tab.action}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 relative transition-all duration-200 touch-manipulation focus:outline-none ${
-                isCurrent ? 'text-[#643D26]' : 'text-[#736B63] hover:text-[#1C1A19]'
+              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center py-1.5 transition-colors duration-200 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#A36046] ${
+                isCurrent ? 'text-[#17324A]' : 'text-[#81786C] hover:text-[#17324A]'
               }`}
             >
               <div className="relative">
                 <Icon
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    isCurrent ? 'scale-110 stroke-[2.2]' : 'stroke-[1.7]'
-                  } ${isConcierge ? 'text-[#25D366]' : ''}`}
+                  className={`h-[18px] w-[18px] transition-transform duration-200 ${isCurrent ? 'stroke-[2.2]' : 'stroke-[1.7]'}`}
                 />
                 {tab.badge !== undefined && tab.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-[15px] h-[15px] px-1 bg-[#643D26] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1.5 -right-2.5 grid h-4 min-w-4 place-items-center bg-[#A36046] px-1 text-[9px] font-bold text-white">
                     {tab.badge}
                   </span>
                 )}
-                {isConcierge && (
-                  <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse" />
-                )}
               </div>
               <span
-                className={`text-[9px] uppercase tracking-wider mt-1 transition-all ${
-                  isCurrent ? 'font-semibold text-[#643D26]' : 'font-medium'
+                className={`mt-1 truncate text-[10px] transition-all ${
+                  isCurrent ? 'font-semibold text-[#17324A]' : 'font-medium'
                 }`}
               >
                 {tab.label}
               </span>
               {isCurrent && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#643D26] rounded-full" />
+                <span className="absolute inset-x-1/3 top-0 h-[2px] bg-[#A36046]" />
               )}
             </button>
           );

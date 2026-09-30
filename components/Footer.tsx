@@ -3,8 +3,8 @@
 import React from 'react';
 import { useToccoStore, AppView } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
-import ToccoLogo, { ToccoMark } from './ToccoLogo';
-import { MessageCircle, Instagram, Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react';
+import ToccoLogo from './ToccoLogo';
+import { ArrowUpLeft, Instagram, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 
 export default function Footer() {
   const { navigateTo, settings } = useToccoStore();
@@ -14,217 +14,100 @@ export default function Footer() {
   };
 
   const whatsappUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
-    'Hello Tocco House, I would like to enquire about your design pieces.'
+    'مرحبًا مودرن هوم، أود الاستفسار عن منتجاتكم.'
   )}`;
+  const currentYear = React.useMemo(() => new Date().getFullYear(), []);
+  const instagramHandles = settings.contact.instagramHandles.filter((handle) => !/tocco/i.test(handle));
 
   return (
-    <footer id="main-site-footer" className="bg-[#1C1A19] text-[#FAF8F5] pt-16 sm:pt-20 pb-24 sm:pb-12 border-t border-[#2E2B29]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-12 pb-12 sm:pb-16 border-b border-[#2E2B29]">
-          {/* Brand Column (5 cols) */}
-          <div className="sm:col-span-2 lg:col-span-5 space-y-4 sm:space-y-6">
-            <div className="flex items-center gap-3">
-              <ToccoMark size={40} fillColor="#FFFFFF" circleBg="#4A2E1C" />
-              <div className="flex flex-col leading-tight">
-                <span className="text-lg sm:text-xl font-medium tracking-[0.25em] uppercase text-white">
-                  TOCCO HOUSE
-                </span>
-                <span className="text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-[#B8AFA6]">
-                  The Touch That Elevates
-                </span>
-              </div>
-            </div>
-
-            <p className="text-[#A8A199] text-xs sm:text-sm leading-relaxed max-w-md">
-              A contemporary Egyptian design house creating distinctive furniture, architectural
-              objects, and sculptural focal pieces. Designed to be noticed. Made to be lived with.
+    <footer id="main-site-footer" dir="rtl" className="border-t border-white/15 bg-[#17324A] pb-24 pt-12 text-[#F7F3EC] sm:pb-12 sm:pt-16">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
+        <div className="grid grid-cols-1 gap-10 pb-10 lg:grid-cols-12 lg:gap-14 lg:pb-14">
+          <div className="space-y-5 lg:col-span-5">
+            <ToccoLogo size="md" showSubtitle theme="light" />
+            <p className="max-w-md text-sm leading-8 text-white/70">
+              أثاث وديكور عصري بلمسة مصرية أصيلة، وقطع تُصنع بعناية لتناسب تفاصيل بيتك وحياتك اليومية.
             </p>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 border-b border-[#E9CBA6] text-sm font-semibold text-white"
+            >
+              <MessageCircle className="h-4 w-4 text-[#65C987]" aria-hidden="true" />
+              <span>ابدأ حديثًا عن مساحتك</span>
+              <ArrowUpLeft className="h-4 w-4 text-[#E9CBA6]" aria-hidden="true" />
+            </a>
+          </div>
 
-            <div className="pt-1 flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] sm:text-xs tracking-wider uppercase text-[#C4BCB3]">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B85D38]" />
-                Egyptian Design
-              </span>
-              <span>·</span>
-              <span>Modern Living</span>
-              <span>·</span>
-              <span>Signature Forms</span>
+          <div className="grid grid-cols-2 gap-8 lg:col-span-7 lg:grid-cols-3">
+            <div className="space-y-4">
+              <h2 className="text-xs font-semibold text-[#E9CBA6]">اكتشف</h2>
+              <ul className="space-y-3 text-sm text-white/75">
+                {([
+                  ['shop', 'المجموعة'],
+                  ['custom-design', 'تصنيع حسب الطلب'],
+                  ['b2b', 'مشروعات الأعمال'],
+                  ['projects', 'مشروعاتنا'],
+                  ['events', 'الفعاليات'],
+                  ['our-story', 'حكايتنا'],
+                ] as [AppView, string][]).map(([view, label]) => (
+                  <li key={view}>
+                    <button type="button" onClick={() => handleLink(view)} className="text-right transition-colors hover:text-white">{label}</button>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
 
-          {/* Explore Links (2 cols) */}
-          <div className="space-y-3 sm:space-y-4 lg:col-span-2">
-            <h4 className="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#8F8880] font-semibold">
-              Explore
-            </h4>
-            <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-[#D1CBC3]">
-              <li>
-                <button
-                  onClick={() => handleLink('shop')}
-                  className="hover:text-white transition-colors"
-                >
-                  Shop Catalog
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleLink('our-story')}
-                  className="hover:text-white transition-colors"
-                >
-                  Our Story
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleLink('custom-design')}
-                  className="hover:text-white transition-colors"
-                >
-                  Custom Design
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleLink('b2b')}
-                  className="hover:text-white transition-colors"
-                >
-                  B2B (Tocco Plus)
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleLink('events')}
-                  className="hover:text-white transition-colors"
-                >
-                  Exhibitions & Events
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleLink('projects')}
-                  className="hover:text-white transition-colors"
-                >
-                  In Their Space (Projects)
-                </button>
-              </li>
-            </ul>
-          </div>
+            <div className="space-y-4">
+              <h2 className="text-xs font-semibold text-[#E9CBA6]">المساعدة</h2>
+              <ul className="space-y-3 text-sm text-white/75">
+                {([
+                  ['shipping', 'الشحن والتوصيل'],
+                  ['returns', 'الاستبدال والاسترجاع'],
+                  ['faq', 'الأسئلة الشائعة'],
+                  ['contact', 'تواصل معنا'],
+                ] as [AppView, string][]).map(([view, label]) => (
+                  <li key={view}>
+                    <button type="button" onClick={() => handleLink(view)} className="text-right transition-colors hover:text-white">{label}</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Client Support (2 cols) */}
-          <div className="space-y-3 sm:space-y-4 lg:col-span-2">
-            <h4 className="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#8F8880] font-semibold">
-              Client Support
-            </h4>
-            <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-[#D1CBC3]">
-              <li>
-                <button
-                  onClick={() => handleLink('shipping')}
-                  className="hover:text-white transition-colors"
-                >
-                  Shipping & Delivery
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleLink('returns')}
-                  className="hover:text-white transition-colors"
-                >
-                  Returns & Guarantee
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleLink('faq')}
-                  className="hover:text-white transition-colors"
-                >
-                  Frequently Asked Questions
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Showroom & Contact (3 cols) */}
-          <div className="space-y-3 sm:space-y-4 sm:col-span-2 lg:col-span-3">
-            <h4 className="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#8F8880] font-semibold">
-              Showroom &amp; Contact
-            </h4>
-            <div className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm text-[#D1CBC3]">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#B85D38] shrink-0 mt-0.5" />
-                <a
-                  href={settings.contact.mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs leading-relaxed hover:text-white"
-                >
-                  {settings.contact.atelierAddress}
+            <div className="col-span-2 space-y-4 sm:col-span-1">
+              <h2 className="text-xs font-semibold text-[#E9CBA6]">زورونا أو راسلونا</h2>
+              <div className="space-y-3 text-sm text-white/75">
+                <a href={settings.contact.mapUrl} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2.5 leading-7 hover:text-white">
+                  <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
+                  <span>{settings.contact.atelierAddress}</span>
                 </a>
-              </div>
-              <p className="pl-[26px] text-[11px] leading-relaxed text-[#8F8880]">
-                Note: Visits are by appointment.
-              </p>
-              <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#B85D38] shrink-0" />
-                <a href={`tel:${settings.contact.phone}`} className="text-xs font-mono hover:text-white">
-                  {settings.contact.phone}
-                </a>
-              </div>
-              {settings.contact.email && (
-                <div className="flex items-center gap-2.5">
-                  <Mail className="w-4 h-4 text-[#B85D38] shrink-0" />
-                  <span className="text-xs font-mono">{settings.contact.email}</span>
-                </div>
-              )}
-
-              {/* Direct WhatsApp Concierge CTA */}
-              <div className="pt-2">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#2A2624] hover:bg-[#383330] text-xs uppercase tracking-wider text-white border border-[#403A36] transition-all"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                  <span>WhatsApp Concierge</span>
-                  <ArrowUpRight className="w-3 h-3 text-[#A8A199]" />
-                </a>
+                {settings.contact.phone && (
+                  <a href={`tel:${settings.contact.phone}`} className="flex items-center gap-2.5 hover:text-white">
+                    <Phone className="h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
+                    <span dir="ltr">{settings.contact.phone}</span>
+                  </a>
+                )}
+                {settings.contact.email && (
+                  <a href={`mailto:${settings.contact.email}`} className="flex items-center gap-2.5 hover:text-white">
+                    <Mail className="h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
+                    <span dir="ltr">{settings.contact.email}</span>
+                  </a>
+                )}
+                {instagramHandles.map((handle) => (
+                  <a key={handle} href={`https://instagram.com/${handle.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-white">
+                    <Instagram className="h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
+                    <span>{handle}</span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar: Copyright & Legal */}
-        <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-[11px] sm:text-xs text-[#8F8880] text-center sm:text-left">
-          <p>© {new Date().getFullYear()} Tocco House LLC. All rights reserved. Handcrafted in Egypt.</p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            <button
-              onClick={() => handleLink('privacy')}
-              className="hover:text-[#D1CBC3] transition-colors"
-            >
-              Privacy Policy
-            </button>
-            <span>·</span>
-            <button
-              onClick={() => handleLink('terms')}
-              className="hover:text-[#D1CBC3] transition-colors"
-            >
-              Terms & Conditions
-            </button>
-            <span>·</span>
-            {settings.contact.instagramHandles.map((handle) => (
-              <a
-                key={handle}
-                href={`https://instagram.com/${handle.replace('@', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 hover:text-[#D1CBC3] transition-colors"
-              >
-                <Instagram className="w-3.5 h-3.5" />
-                <span>{handle}</span>
-              </a>
-            ))}
-          </div>
+        <div className="flex flex-col gap-2 border-t border-white/15 pt-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {currentYear} مودرن هوم. جميع الحقوق محفوظة.</p>
+          <span>للأثاث والديكور العصري · القاهرة، مصر</span>
         </div>
       </div>
     </footer>

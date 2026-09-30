@@ -1,5 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
+
+:root {
+	color-scheme: light;
+	--mh-navy: #17324A;
+	--mh-sand: #C8A77D;
+	--mh-ivory: #F7F3EC;
+	--mh-ink: #18232D;
+	--mh-muted: #6D6A64;
+	--mh-border: #E6DED2;
+	--mh-clay: #A36046;
+	--font-arabic: 'IBM Plex Sans Arabic', 'Tahoma', sans-serif;
+	--font-display: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
+	--font-brand: 'DM Sans', 'Arial', sans-serif;
+}
+
+html {
+	direction: rtl;
+}
+
+.mh-body {
+	font-family: var(--font-arabic);
+	background-color: var(--mh-ivory);
+	color: var(--mh-ink);
+}
+
+.mh-body *,
+.mh-body *::before,
+.mh-body *::after {
+	letter-spacing: 0 !important;
+}
 
 @keyframes notification-progress-fill {
 	to {
@@ -16,5 +47,46 @@
 @media (prefers-reduced-motion: reduce) {
 	.notification-progress-track {
 		display: none;
+	}
+}
+
+@keyframes mh-kenburns {
+	0% {
+		transform: scale(1.02) translate3d(0, 0, 0);
+	}
+	100% {
+		transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+	}
+}
+
+.mh-kenburns {
+	animation: mh-kenburns 18s ease-in-out infinite alternate;
+}
+
+@keyframes mh-float {
+	0%, 100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-8px);
+	}
+}
+
+.mh-float {
+	animation: mh-float 5s ease-in-out infinite;
+}
+
+/* Subtle geometric motif inspired by Egyptian mashrabiya lattice work */
+.mh-motif {
+	background-image:
+		linear-gradient(45deg, currentColor 1px, transparent 1px),
+		linear-gradient(-45deg, currentColor 1px, transparent 1px);
+	background-size: 22px 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mh-kenburns,
+	.mh-float {
+		animation: none;
 	}
 }

@@ -61,7 +61,7 @@ export default function CloudinaryImageField({
           className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#D8CEBF] bg-[#FAF8F5] px-3 py-2 text-xs text-[#1C1A19] hover:bg-[#F1ECE4] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UploadCloud className="h-3.5 w-3.5" />}
-          {isUploading ? 'Uploading' : 'Upload'}
+          {isUploading ? 'جارٍ الرفع...' : 'رفع صورة'}
         </button>
       </div>
       <div className="relative aspect-[16/9] rounded-xl overflow-hidden border border-[#EAE4DC] bg-[#FAF8F5]">
@@ -78,7 +78,7 @@ export default function CloudinaryImageField({
               type="button"
               onClick={() => onChange('')}
               className="absolute top-2 right-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#1C1A19] shadow-sm hover:bg-white"
-              aria-label="Remove image"
+              aria-label="إزالة الصورة"
             >
               <X className="h-4 w-4" />
             </button>
@@ -91,8 +91,8 @@ export default function CloudinaryImageField({
             className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[#736B63] disabled:opacity-60"
           >
             {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <UploadCloud className="h-7 w-7" />}
-            <span className="text-xs uppercase tracking-wider">
-              {isUploading ? 'Uploading image' : 'Upload image'}
+              <span className="text-xs">
+              {isUploading ? 'جارٍ رفع الصورة...' : 'رفع صورة'}
             </span>
           </button>
         )}

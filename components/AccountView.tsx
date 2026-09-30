@@ -337,7 +337,7 @@ export default function AccountView() {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3CD] text-[#856404] text-[11px] font-semibold uppercase tracking-wider">
           <AlertCircle className="w-3 h-3" />
-          Awaiting {settings.depositPercentage}% Deposit
+          بانتظار المقدم ({settings.depositPercentage}%)
         </span>
       );
     }
@@ -345,7 +345,7 @@ export default function AccountView() {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E2E3E5] text-[#383D41] text-[11px] font-semibold uppercase tracking-wider">
           <Clock className="w-3 h-3" />
-          Deposit Proof Received
+          تم استلام إثبات الدفع
         </span>
       );
     }
@@ -353,7 +353,7 @@ export default function AccountView() {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D1E7DD] text-[#0F5132] text-[11px] font-semibold uppercase tracking-wider">
           <CheckCircle2 className="w-3 h-3" />
-          In Production (Casting)
+          جارٍ التنفيذ
         </span>
       );
     }
@@ -361,7 +361,7 @@ export default function AccountView() {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#CCE5FF] text-[#004085] text-[11px] font-semibold uppercase tracking-wider">
           <Package className="w-3 h-3" />
-          Ready for White-Glove Shipping
+          جاهز للتوصيل
         </span>
       );
     }
@@ -369,7 +369,7 @@ export default function AccountView() {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4EDDA] text-[#155724] text-[11px] font-semibold uppercase tracking-wider">
           <Check className="w-3 h-3" />
-          Delivered & Installed
+          تم التوصيل والتركيب
         </span>
       );
     }
@@ -385,7 +385,7 @@ export default function AccountView() {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF5EE] text-[#1E6B3A] border border-[#C5E5D0] text-[11px] font-semibold uppercase tracking-wider">
           <CheckCircle2 className="w-3 h-3" />
-          Confirmed · In Production
+          مؤكد · جارٍ التنفيذ
         </span>
       );
     }
@@ -393,7 +393,7 @@ export default function AccountView() {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5F2EF] text-[#736B63] border border-[#D8CEBF] text-[11px] font-semibold uppercase tracking-wider">
           <AlertCircle className="w-3 h-3" />
-          Cancelled
+          ملغي
         </span>
       );
     }
@@ -401,49 +401,49 @@ export default function AccountView() {
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF0E6] text-[#B85D38] border border-[#E8D5C4] text-[11px] font-semibold uppercase tracking-wider">
         <Clock className="w-3 h-3" />
-        Pending Confirmation
+        بانتظار التأكيد
       </span>
     );
   };
 
   return (
-    <div id="account-portal-page" className="pt-20 sm:pt-28 pb-20 sm:pb-24 bg-[#FAF8F5] min-h-screen">
-      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+    <div id="account-portal-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
         {/* Portal Header */}
-        <div className="py-6 sm:py-10 border-b border-[#EAE4DC] flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
-          <div className="space-y-1.5 sm:space-y-2">
+        <div className="grid grid-cols-1 gap-5 border-b border-[#DED5C9] py-7 sm:py-10 md:grid-cols-12 md:items-end md:gap-6">
+          <div className="space-y-1.5 sm:space-y-2 md:col-span-8">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] font-medium text-[#B85D38]">
-                Client Portal
+              <span className="text-xs font-semibold text-[#A36046]">
+                حساب مودرن هوم
               </span>
               {user && (
                 <span
                   className={`text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full ${
                     user.role === 'ADMIN'
-                      ? 'bg-[#1C1A19] text-white'
+                      ? 'bg-[#17324A] text-white'
                       : user.role === 'MODERATOR'
-                      ? 'bg-[#643D26] text-white'
-                      : 'bg-[#EAE4DC] text-[#524B45]'
+                        ? 'bg-[#A36046] text-white'
+                        : 'bg-[#E8E3D9] text-[#524B45]'
                   }`}
                 >
-                  {user.role}
+                  {user.role === 'ADMIN' ? 'مدير' : user.role === 'MODERATOR' ? 'مشرف' : 'عميل'}
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-4xl font-normal tracking-tight text-[#1C1A19]">
-              {user ? `${user.first_name} ${user.last_name}` : 'Client Account'}
+            <h1 className="font-[family-name:var(--font-display)] text-3xl leading-relaxed text-[#17324A] sm:text-4xl">
+              {user ? `${user.first_name} ${user.last_name}` : 'حسابي'}
             </h1>
           </div>
 
           {user && (
-            <div className="flex flex-col items-start gap-2 self-start md:self-auto">
+            <div className="flex flex-col items-start gap-2 md:col-span-4 md:items-end">
               <button
                 type="button"
                 onClick={() => void handleLogout()}
                 disabled={isLoggingOut}
-                className="px-4 py-2 rounded-full border border-[#D8CEBF] text-xs uppercase tracking-wider text-[#B85D38] hover:bg-[#FAF3F0] transition-colors disabled:cursor-wait disabled:opacity-60"
+                className="min-h-10 border-b border-[#A36046] px-1 text-xs font-semibold text-[#A36046] transition-colors hover:text-[#17324A] disabled:cursor-wait disabled:opacity-60"
               >
-                {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
+                {isLoggingOut ? 'جارٍ تسجيل الخروج...' : 'تسجيل الخروج'}
               </button>
               {authError && (
                 <p role="alert" className="max-w-xs text-[11px] text-rose-700">{authError}</p>
@@ -456,16 +456,30 @@ export default function AccountView() {
         {isAuthLoading ? (
           <div className="py-20 text-center space-y-3">
             <div className="w-8 h-8 border-2 border-[#643D26] border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs uppercase tracking-wider text-[#736B63]">Verifying Session...</p>
+            <p className="text-xs text-[#6D6A64]">جارٍ التحقق من الحساب...</p>
           </div>
         ) : !user ? (
           /* =========================================================================
              UNAUTHENTICATED: SIGN IN & REGISTRATION
              ========================================================================= */
-          <div className="py-8 sm:py-16 max-w-md mx-auto">
-            <div className="p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-white border border-[#EAE4DC] shadow-sm space-y-5 sm:space-y-6">
+          <div className="grid grid-cols-1 gap-0 py-7 sm:py-12 lg:grid-cols-12">
+            <aside className="relative isolate flex min-h-[300px] flex-col justify-end overflow-hidden bg-[#17324A] p-6 text-white sm:min-h-[420px] sm:p-10 lg:col-span-5">
+              <SafeImage
+                src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1100&q=85"
+                alt="أثاث مودرن هوم داخل مساحة منزلية"
+                fill
+                sizes="(max-width: 1024px) 100vw, 42vw"
+                className="-z-10 object-cover opacity-55"
+              />
+              <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#122A3D] via-[#17324A]/35 to-transparent" />
+              <p className="text-xs font-semibold text-[#E9CBA6]">مساحة تخصك</p>
+              <h2 className="mt-3 max-w-md font-[family-name:var(--font-display)] text-3xl leading-relaxed sm:text-4xl">كل تفاصيل طلبك، في مكان واحد.</h2>
+              <p className="mt-3 max-w-sm text-sm leading-7 text-white/80">تابع طلباتك، واحفظ عناوينك، وحدّث بيانات حسابك بسهولة.</p>
+            </aside>
+            <div className="py-7 sm:py-10 lg:col-span-7 lg:px-10 lg:py-8">
+            <div className="space-y-5 sm:space-y-6">
               {/* Tabs: Sign In / Create Account */}
-              <div className="flex border-b border-[#EAE4DC] text-xs uppercase tracking-wider font-medium">
+              <div className="flex border-b border-[#DED5C9] text-sm font-medium">
                 <button
                   type="button"
                   onClick={() => {
@@ -475,11 +489,11 @@ export default function AccountView() {
                   }}
                   className={`flex-1 pb-3 text-center transition-all ${
                     authMode === 'login'
-                      ? 'border-b-2 border-[#1C1A19] text-[#1C1A19] font-bold'
-                      : 'text-[#736B63] hover:text-[#1C1A19]'
+                      ? 'border-b-2 border-[#A36046] text-[#17324A] font-semibold'
+                      : 'text-[#81786C] hover:text-[#17324A]'
                   }`}
                 >
-                  Sign In
+                  تسجيل الدخول
                 </button>
                 <button
                   type="button"
@@ -490,11 +504,11 @@ export default function AccountView() {
                   }}
                   className={`flex-1 pb-3 text-center transition-all ${
                     authMode === 'register'
-                      ? 'border-b-2 border-[#1C1A19] text-[#1C1A19] font-bold'
-                      : 'text-[#736B63] hover:text-[#1C1A19]'
+                      ? 'border-b-2 border-[#A36046] text-[#17324A] font-semibold'
+                      : 'text-[#81786C] hover:text-[#17324A]'
                   }`}
                 >
-                  Create Account
+                  إنشاء حساب
                 </button>
               </div>
 
@@ -514,7 +528,7 @@ export default function AccountView() {
                         disabled={isLoggingOut}
                         className="mt-2 font-semibold underline underline-offset-2 disabled:opacity-50"
                       >
-                        {isLoggingOut ? 'Signing out...' : 'Retry sign out'}
+                        {isLoggingOut ? 'جارٍ تسجيل الخروج...' : 'إعادة محاولة تسجيل الخروج'}
                       </button>
                     )}
                   </div>
@@ -526,14 +540,14 @@ export default function AccountView() {
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div className="space-y-1">
                     <label className="block text-[11px] sm:text-xs uppercase tracking-wider text-[#1C1A19] font-medium">
-                      Email Address
+                      البريد الإلكتروني
                     </label>
                     <input
                       type="email"
                       required
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="client@example.com"
+                      placeholder="name@example.com"
                       className={`w-full text-xs px-3.5 py-3 rounded-lg bg-[#FAF8F5] border text-[#1C1A19] focus:outline-none focus:border-[#1C1A19] ${
                         authFieldErrors.email ? 'border-red-400' : 'border-[#D8CEBF]'
                       }`}
@@ -545,7 +559,7 @@ export default function AccountView() {
 
                   <div className="space-y-1">
                     <label className="block text-[11px] sm:text-xs uppercase tracking-wider text-[#1C1A19] font-medium">
-                      Password
+                      كلمة المرور
                     </label>
                     <input
                       type="password"
@@ -570,10 +584,10 @@ export default function AccountView() {
                     {authLoading ? (
                       <>
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        <span>Authenticating...</span>
+                        <span>جارٍ تسجيل الدخول...</span>
                       </>
                     ) : (
-                      <span>Sign In</span>
+                      <span>تسجيل الدخول</span>
                     )}
                   </button>
 
@@ -586,14 +600,14 @@ export default function AccountView() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="block text-[11px] uppercase tracking-wider text-[#1C1A19] font-medium">
-                        First Name
+                        الاسم الأول
                       </label>
                       <input
                         type="text"
                         required
                         value={regFirstName}
                         onChange={(e) => setRegFirstName(e.target.value)}
-                        placeholder="Anas"
+                        placeholder="الاسم الأول"
                         className={`w-full text-xs px-3 py-2.5 rounded-lg bg-[#FAF8F5] border text-[#1C1A19] focus:outline-none focus:border-[#1C1A19] ${
                           authFieldErrors.first_name ? 'border-red-400' : 'border-[#D8CEBF]'
                         }`}
@@ -604,14 +618,14 @@ export default function AccountView() {
                     </div>
                     <div className="space-y-1">
                       <label className="block text-[11px] uppercase tracking-wider text-[#1C1A19] font-medium">
-                        Last Name
+                        اسم العائلة
                       </label>
                       <input
                         type="text"
                         required
                         value={regLastName}
                         onChange={(e) => setRegLastName(e.target.value)}
-                        placeholder="Sayed"
+                        placeholder="اسم العائلة"
                         className={`w-full text-xs px-3 py-2.5 rounded-lg bg-[#FAF8F5] border text-[#1C1A19] focus:outline-none focus:border-[#1C1A19] ${
                           authFieldErrors.last_name ? 'border-red-400' : 'border-[#D8CEBF]'
                         }`}
@@ -624,14 +638,14 @@ export default function AccountView() {
 
                   <div className="space-y-1">
                     <label className="block text-[11px] uppercase tracking-wider text-[#1C1A19] font-medium">
-                      Email Address
+                      البريد الإلكتروني
                     </label>
                     <input
                       type="email"
                       required
                       value={regEmail}
                       onChange={(e) => setRegEmail(e.target.value)}
-                      placeholder="anas.sayed@example.com"
+                      placeholder="name@example.com"
                       className={`w-full text-xs px-3 py-2.5 rounded-lg bg-[#FAF8F5] border text-[#1C1A19] focus:outline-none focus:border-[#1C1A19] ${
                         authFieldErrors.email ? 'border-red-400' : 'border-[#D8CEBF]'
                       }`}
@@ -643,7 +657,7 @@ export default function AccountView() {
 
                   <div className="space-y-1">
                     <label className="block text-[11px] uppercase tracking-wider text-[#1C1A19] font-medium">
-                      Mobile Phone
+                      رقم الهاتف
                     </label>
                     <input
                       type="tel"
@@ -664,7 +678,7 @@ export default function AccountView() {
 
                   <div className="space-y-1">
                     <label className="block text-[11px] uppercase tracking-wider text-[#1C1A19] font-medium">
-                      Password (min. 8 chars)
+                      كلمة المرور (٨ أحرف على الأقل)
                     </label>
                     <input
                       type="password"
@@ -690,57 +704,55 @@ export default function AccountView() {
                     {authLoading ? (
                       <>
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        <span>Registering...</span>
+                        <span>جارٍ إنشاء الحساب...</span>
                       </>
                     ) : (
-                      <span>Complete Registration</span>
+                      <span>إنشاء الحساب</span>
                     )}
                   </button>
                 </form>
               )}
+            </div>
             </div>
           </div>
         ) : (
           /* =========================================================================
              AUTHENTICATED CLIENT DASHBOARD
              ========================================================================= */
-          <div className="py-6 sm:py-10 space-y-6 sm:space-y-8">
+          <div className="space-y-6 py-6 sm:space-y-8 sm:py-10">
             {/* Tabs */}
-            <div className="flex border-b border-[#EAE4DC] gap-4 sm:gap-6 text-[11px] sm:text-xs uppercase tracking-wider font-medium overflow-x-auto scrollbar-none pb-0.5">
+            <div role="tablist" aria-label="أقسام الحساب" className="flex w-fit max-w-full overflow-x-auto border border-[#DED5C9] bg-[#EEE7DC] scrollbar-none">
               <button
                 onClick={() => setActiveTab('orders')}
-                className={`pb-3 relative transition-colors whitespace-nowrap ${
-                  activeTab === 'orders' ? 'text-[#1C1A19] font-bold' : 'text-[#736B63] hover:text-[#1C1A19]'
+                role="tab"
+                aria-selected={activeTab === 'orders'}
+                className={`min-h-11 px-4 text-xs transition-colors whitespace-nowrap sm:px-6 ${
+                  activeTab === 'orders' ? 'bg-[#17324A] font-semibold text-white' : 'text-[#625E57] hover:text-[#17324A]'
                 }`}
               >
-                Commissions & Orders ({backendOrders.length})
-                {activeTab === 'orders' && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#643D26]" />
-                )}
+                الطلبات ({backendOrders.length})
               </button>
 
               <button
                 onClick={() => setActiveTab('addresses')}
-                className={`pb-3 relative transition-colors whitespace-nowrap ${
-                  activeTab === 'addresses' ? 'text-[#1C1A19] font-bold' : 'text-[#736B63] hover:text-[#1C1A19]'
+                role="tab"
+                aria-selected={activeTab === 'addresses'}
+                className={`min-h-11 px-4 text-xs transition-colors whitespace-nowrap sm:px-6 ${
+                  activeTab === 'addresses' ? 'bg-[#17324A] font-semibold text-white' : 'text-[#625E57] hover:text-[#17324A]'
                 }`}
               >
-                Delivery Residences ({addresses.length})
-                {activeTab === 'addresses' && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#643D26]" />
-                )}
+                عناوين التوصيل ({addresses.length})
               </button>
 
               <button
                 onClick={() => setActiveTab('profile')}
-                className={`pb-3 relative transition-colors whitespace-nowrap ${
-                  activeTab === 'profile' ? 'text-[#1C1A19] font-bold' : 'text-[#736B63] hover:text-[#1C1A19]'
+                role="tab"
+                aria-selected={activeTab === 'profile'}
+                className={`min-h-11 px-4 text-xs transition-colors whitespace-nowrap sm:px-6 ${
+                  activeTab === 'profile' ? 'bg-[#17324A] font-semibold text-white' : 'text-[#625E57] hover:text-[#17324A]'
                 }`}
               >
-                Client Profile
-                {activeTab === 'profile' && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#643D26]" />
-                )}
+                بياناتي
               </button>
             </div>
 
@@ -751,7 +763,7 @@ export default function AccountView() {
                   <div className="py-12 sm:py-16 text-center space-y-3">
                     <RefreshCw className="w-6 h-6 animate-spin text-[#643D26] mx-auto" />
                     <p className="text-xs uppercase tracking-wider text-[#736B63]">
-                      Retrieving Artisanal Commissions...
+                      جارٍ تحميل الطلبات...
                     </p>
                   </div>
                 ) : ordersError ? (
@@ -764,24 +776,24 @@ export default function AccountView() {
                       onClick={fetchMyOrders}
                       className="px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-red-800 font-semibold"
                     >
-                      Retry
+                      إعادة المحاولة
                     </button>
                   </div>
                 ) : backendOrders.length === 0 ? (
                   <div className="py-12 sm:py-16 text-center space-y-4">
-                    <p className="text-sm sm:text-base text-[#1C1A19]">No commissions placed yet.</p>
+                    <p className="text-sm sm:text-base text-[#17324A]">لا توجد طلبات حتى الآن.</p>
                     <button
                       onClick={() => navigateTo('shop')}
-                      className="px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D]"
+                      className="min-h-11 bg-[#17324A] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#24445E]"
                     >
-                      Browse Catalogue
+                      تصفح المنتجات
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-4 sm:space-y-6">
                     {backendOrders.map((ord) => {
                       const whatsappUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
-                        `Hello Tocco House, I am inquiring about my Commission #${ord.order_number}.`
+                        `مرحبًا مودرن هوم، أستفسر عن الطلب رقم ${ord.order_number}.`
                       )}`;
                       const depositPercentage = Number(ord.deposit_percentage);
                       const deposit = Math.round(Number(ord.total_price) * depositPercentage / 100);
@@ -789,13 +801,13 @@ export default function AccountView() {
                       return (
                         <div
                           key={ord.id}
-                          className="p-5 sm:p-7 rounded-xl sm:rounded-2xl bg-white border border-[#EAE4DC] shadow-sm space-y-5"
+                          className="border-b border-[#DED5C9] bg-[#FBF9F4] p-5 sm:p-7 space-y-5"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#EAE4DC]">
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="text-[10px] sm:text-xs uppercase tracking-wider font-mono text-[#736B63]">
-                                  Reference: {ord.order_number}
+                                  رقم الطلب: {ord.order_number}
                                 </span>
                                 <button
                                   type="button"
@@ -804,8 +816,8 @@ export default function AccountView() {
                                     setCopiedReferenceId(ord.id);
                                     window.setTimeout(() => setCopiedReferenceId(null), 1500);
                                   }}
-                                  aria-label={`Copy reference ${ord.order_number}`}
-                                  title={copiedReferenceId === ord.id ? 'Copied' : 'Copy reference'}
+                                  aria-label={`نسخ رقم الطلب ${ord.order_number}`}
+                                  title={copiedReferenceId === ord.id ? 'تم النسخ' : 'نسخ رقم الطلب'}
                                   className="inline-flex items-center justify-center rounded-md p-1 text-[#736B63] hover:bg-[#F5F1EA] hover:text-[#1C1A19]"
                                 >
                                   {copiedReferenceId === ord.id ? (
@@ -816,7 +828,7 @@ export default function AccountView() {
                                 </button>
                               </div>
                               <p className="text-xs text-[#8F8880] mt-0.5">
-                                Ordered on {new Date(ord.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                تاريخ الطلب: {new Date(ord.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' })}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
@@ -841,13 +853,13 @@ export default function AccountView() {
                                   <p className="text-[11px] text-[#736B63] flex items-center gap-1.5 mt-0.5">
                                     {item.color_name && (
                                       <>
-                                        <span>Color: {item.color_name}</span>
+                                        <span>اللون: {item.color_name}</span>
                                         <span>•</span>
                                       </>
                                     )}
-                                    <span>Qty: {item.quantity}</span>
+                                    <span>الكمية: {item.quantity}</span>
                                     <span>•</span>
-                                    <span className="font-mono">{Number(item.product_price).toLocaleString()} EGP each</span>
+                                    <span className="font-mono">{Number(item.product_price).toLocaleString()} جنيه للقطعة</span>
                                   </p>
                                 </div>
                                 <span className="text-xs font-mono font-medium text-[#1C1A19]">
@@ -859,12 +871,12 @@ export default function AccountView() {
 
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[#EAE4DC] text-xs">
                             <div>
-                              <span className="text-[#736B63]">{depositPercentage}% Handcrafted Deposit: </span>
+                              <span className="text-[#6D6A64]">المقدم ({depositPercentage}%): </span>
                               <span className="font-semibold text-[#643D26] font-mono">{deposit.toLocaleString()} EGP</span>
-                              <span className="text-[#8F8880] text-[11px] ml-2 font-mono">Total: {Number(ord.total_price).toLocaleString()} EGP</span>
+                              <span className="text-[#817D75] text-[11px] ml-2 font-mono">الإجمالي: {Number(ord.total_price).toLocaleString()} جنيه</span>
                               {ord.shipping_address && (
                                 <p className="text-[11px] text-[#8F8880] mt-1">
-                                  Destination: {ord.shipping_address.title} ({ord.shipping_address.street}, {ord.shipping_address.city})
+                                  التوصيل إلى: {ord.shipping_address.title} ({ord.shipping_address.street}، {ord.shipping_address.city})
                                 </p>
                               )}
                             </div>
@@ -876,7 +888,7 @@ export default function AccountView() {
                               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#D8CEBF] text-[11px] uppercase tracking-wider text-[#524B45] hover:bg-[#F5F1EA] transition-colors self-start sm:self-auto"
                             >
                               <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                              <span>Concierge Support</span>
+                              <span>تواصل معنا</span>
                             </a>
                           </div>
                         </div>
@@ -890,59 +902,57 @@ export default function AccountView() {
             {/* TAB 2: ADDRESSES */}
             {activeTab === 'addresses' && (
               <div className="space-y-4 sm:space-y-6">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col justify-between gap-3 border-b border-[#DED5C9] pb-4 sm:flex-row sm:items-center">
                   <div>
-                    <h3 className="text-xs sm:text-sm uppercase tracking-wider font-semibold text-[#1C1A19]">
-                      Delivery Residences & Coastal Villas
+                    <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-[#17324A] sm:text-xl">
+                      عناوين التوصيل
                     </h3>
                     <p className="text-xs text-[#736B63]">
-                      Addresses are validated against duplicate entries and ordered by default status.
+                      تُرتب العناوين المحفوظة حسب العنوان الأساسي.
                     </p>
                   </div>
                   <button
                     onClick={openCreateAddressModal}
-                    className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#1C1A19] text-white text-[11px] sm:text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D] transition-colors"
+                    className="inline-flex min-h-10 items-center gap-1.5 bg-[#17324A] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#24445E] sm:px-4"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Add Residence</span>
+                    <span>إضافة عنوان</span>
                   </button>
                 </div>
 
                 {isAddressesLoading ? (
                   <div className="py-12 text-center text-xs uppercase tracking-wider text-[#736B63]">
                     <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#643D26]" />
-                    Loading delivery residences...
+                    جارٍ تحميل العناوين...
                   </div>
                 ) : addresses.length === 0 ? (
-                  <div className="py-12 bg-white rounded-xl border border-[#EAE4DC] text-center space-y-3 p-6">
+                  <div className="space-y-3 border-y border-[#DED5C9] py-12 text-center">
                     <MapPin className="w-8 h-8 text-[#D8CEBF] mx-auto" />
-                    <p className="text-xs text-[#736B63]">No saved delivery residences yet.</p>
+                    <p className="text-sm text-[#6D6A64]">لا توجد عناوين محفوظة.</p>
                     <button
                       onClick={openCreateAddressModal}
-                      className="px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium"
+                      className="min-h-10 bg-[#17324A] px-4 py-2 text-sm font-semibold text-white"
                     >
-                      Add First Address
+                      إضافة أول عنوان
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="divide-y divide-[#DED5C9] border-y border-[#DED5C9]">
                     {addresses.map((addr) => (
                       <div
                         key={addr.id}
-                        className={`p-5 rounded-xl sm:rounded-2xl bg-white border transition-all flex flex-col justify-between space-y-4 ${
-                          addr.is_default ? 'border-[#643D26] shadow-md ring-1 ring-[#643D26]/10' : 'border-[#EAE4DC] shadow-sm'
-                        }`}
+                        className={`flex flex-col justify-between gap-4 py-5 sm:flex-row sm:items-center ${addr.is_default ? 'bg-[#EEE7DC]/55' : ''}`}
                       >
                         <div className="space-y-2">
-                          <div className="flex justify-between items-start">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-semibold uppercase tracking-wider text-[#643D26]">
+                              <span className="text-sm font-semibold text-[#17324A]">
                                 {addr.title}
                               </span>
                               {addr.is_default && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5EFEB] text-[#643D26] text-[10px] uppercase font-semibold">
-                                  <Star className="w-2.5 h-2.5 fill-[#643D26]" />
-                                  Default
+                                <span className="inline-flex items-center gap-1 border-r-2 border-[#A36046] bg-[#F7F3EC] px-2 py-1 text-[10px] font-semibold text-[#72583C]">
+                                  <Star className="h-2.5 w-2.5 fill-[#A36046]" />
+                                  أساسي
                                 </span>
                               )}
                             </div>
@@ -950,39 +960,39 @@ export default function AccountView() {
                               <button
                                 onClick={() => openEditAddressModal(addr)}
                                 className="text-[#8F8880] hover:text-[#1C1A19] p-1 transition-colors"
-                                title="Edit Residence"
+                                title="تعديل العنوان"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => setDeletingAddressId(addr.id)}
                                 className="text-[#8F8880] hover:text-[#B85D38] p-1 transition-colors"
-                                title="Delete Residence"
+                                title="حذف العنوان"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
 
-                          <h4 className="text-sm font-medium text-[#1C1A19]">{addr.city}, {addr.country}</h4>
-                          <p className="text-xs text-[#736B63]">{addr.street}</p>
-                          <p className="text-[11px] text-[#8F8880]">
-                            Bldg {addr.building_number}, Apt {addr.apartment_number}
+                          <h4 className="mt-2 text-sm font-semibold text-[#17324A]">{addr.city}، {addr.country}</h4>
+                          <p className="text-xs text-[#625E57]">{addr.street}</p>
+                          <p className="text-[11px] text-[#81786C]">
+                            مبنى {addr.building_number}، شقة {addr.apartment_number}
                           </p>
                         </div>
 
-                        <div className="pt-2 border-t border-[#FAF8F5] flex items-center justify-between">
+                        <div className="flex items-center justify-end gap-3 sm:justify-start">
                           {!addr.is_default ? (
                             <button
                               type="button"
                               onClick={() => handleSetDefaultAddress(addr.id)}
-                              className="text-[11px] uppercase tracking-wider text-[#643D26] hover:underline font-medium"
+                              className="min-h-10 border-b border-[#A36046] px-1 text-xs font-semibold text-[#17324A] hover:text-[#A36046]"
                             >
-                              Set as Default
+                              جعله العنوان الأساسي
                             </button>
                           ) : (
-                            <span className="text-[10px] uppercase tracking-widest text-[#643D26] font-medium">
-                              Primary White-Glove Destination
+                            <span className="text-xs text-[#81786C]">
+                              عنوان التوصيل الأساسي
                             </span>
                           )}
                         </div>
@@ -997,7 +1007,7 @@ export default function AccountView() {
                     ref={dialogRef}
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Confirm address deletion"
+                    aria-label="تأكيد حذف العنوان"
                     tabIndex={-1}
                     onKeyDown={handleDialogKeyDown}
                     className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4"
@@ -1005,10 +1015,10 @@ export default function AccountView() {
                     <div className="bg-white rounded-xl max-w-sm w-full p-5 space-y-4 border border-[#EAE4DC] shadow-xl">
                       <div className="flex items-center gap-2 text-[#B85D38]">
                         <AlertTriangle className="w-5 h-5" />
-                        <h4 className="text-sm font-semibold">Delete Residence?</h4>
+                        <h4 className="text-sm font-semibold">حذف العنوان؟</h4>
                       </div>
                       <p className="text-xs text-[#736B63]">
-                        Are you sure you want to remove this delivery residence? If this is the default address, another address will automatically become default.
+                        هل تريد حذف عنوان التوصيل؟ إذا كان العنوان أساسيًا، سيصبح عنوان آخر هو الأساسي تلقائيًا.
                       </p>
                       <div className="flex justify-end gap-2 pt-2">
                         <button
@@ -1016,14 +1026,14 @@ export default function AccountView() {
                           onClick={() => setDeletingAddressId(null)}
                           className="px-3.5 py-1.5 text-xs uppercase tracking-wider text-[#736B63] hover:text-[#1C1A19]"
                         >
-                          Cancel
+                          إلغاء
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteAddress(deletingAddressId)}
                           className="px-4 py-1.5 rounded-full bg-[#B85D38] text-white text-xs uppercase tracking-wider font-medium"
                         >
-                          Delete
+                          حذف
                         </button>
                       </div>
                     </div>
@@ -1036,7 +1046,7 @@ export default function AccountView() {
                     ref={dialogRef}
                     role="dialog"
                     aria-modal="true"
-                    aria-label={editingAddress ? 'Edit delivery residence' : 'Add delivery residence'}
+                    aria-label={editingAddress ? 'تعديل عنوان التوصيل' : 'إضافة عنوان توصيل'}
                     tabIndex={-1}
                     onKeyDown={handleDialogKeyDown}
                     className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-3.5 sm:p-4 overflow-y-auto"
@@ -1044,7 +1054,7 @@ export default function AccountView() {
                     <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
                       <div className="flex justify-between items-center border-b border-[#EAE4DC] pb-3">
                         <h3 className="text-base font-medium text-[#1C1A19]">
-                          {editingAddress ? 'Edit Delivery Residence' : 'Add Delivery Residence'}
+                          {editingAddress ? 'تعديل عنوان التوصيل' : 'إضافة عنوان توصيل'}
                         </h3>
                         <button
                           type="button"
@@ -1065,14 +1075,14 @@ export default function AccountView() {
                       <form onSubmit={handleSaveAddress} className="space-y-3">
                         <div>
                           <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                            Title / Residence Name
+                            اسم العنوان
                           </label>
                           <input
                             type="text"
                             required
                             value={addressTitle}
                             onChange={(e) => setAddressTitle(e.target.value)}
-                            placeholder="e.g. Sahel Summer Villa / Zamalek Penthouse"
+                            placeholder="مثال: المنزل أو المكتب"
                             className="w-full text-xs p-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5]"
                           />
                         </div>
@@ -1080,7 +1090,7 @@ export default function AccountView() {
                         <div className="grid grid-cols-2 gap-3">
                           <div>
                             <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                              Country
+                              الدولة
                             </label>
                             <input
                               type="text"
@@ -1093,14 +1103,14 @@ export default function AccountView() {
                           </div>
                           <div>
                             <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                              City / Governorate
+                              المدينة أو المحافظة
                             </label>
                             <input
                               type="text"
                               required
                               value={addressCity}
                               onChange={(e) => setAddressCity(e.target.value)}
-                              placeholder="Cairo / Matrouh"
+                              placeholder="القاهرة"
                               className="w-full text-xs p-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5]"
                             />
                           </div>
@@ -1108,14 +1118,14 @@ export default function AccountView() {
 
                         <div>
                           <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                            Street Address / Compound
+                            الشارع أو المنطقة
                           </label>
                           <input
                             type="text"
                             required
                             value={addressStreet}
                             onChange={(e) => setAddressStreet(e.target.value)}
-                            placeholder="e.g. Catania Village, Road 42"
+                            placeholder="اسم الشارع أو المنطقة"
                             className="w-full text-xs p-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5]"
                           />
                         </div>
@@ -1123,27 +1133,27 @@ export default function AccountView() {
                         <div className="grid grid-cols-2 gap-3">
                           <div>
                             <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                              Building Number
+                              رقم المبنى
                             </label>
                             <input
                               type="text"
                               required
                               value={addressBuildingNumber}
                               onChange={(e) => setAddressBuildingNumber(e.target.value)}
-                              placeholder="e.g. 18 or Villa 42"
+                              placeholder="رقم المبنى أو الفيلا"
                               className="w-full text-xs p-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5]"
                             />
                           </div>
                           <div>
                             <label className="block text-[11px] uppercase tracking-wider text-[#736B63] font-medium">
-                              Apartment / Suite
+                              رقم الشقة أو الوحدة
                             </label>
                             <input
                               type="text"
                               required
                               value={addressApartmentNumber}
                               onChange={(e) => setAddressApartmentNumber(e.target.value)}
-                              placeholder="e.g. 5 or Penthouse"
+                              placeholder="رقم الشقة"
                               className="w-full text-xs p-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5]"
                             />
                           </div>
@@ -1158,7 +1168,7 @@ export default function AccountView() {
                             className="rounded border-[#D8CEBF] text-[#643D26] focus:ring-[#643D26]"
                           />
                           <label htmlFor="addr-default-check" className="text-xs text-[#524B45]">
-                            Set as default delivery residence
+                            تعيينه عنوانًا أساسيًا للتوصيل
                           </label>
                         </div>
 
@@ -1168,7 +1178,7 @@ export default function AccountView() {
                             onClick={() => setShowAddressModal(false)}
                             className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                           >
-                            Cancel
+                            إلغاء
                           </button>
                           <button
                             type="submit"
@@ -1176,7 +1186,7 @@ export default function AccountView() {
                             className="px-5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium disabled:opacity-50 flex items-center gap-2"
                           >
                             {addressLoading && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                            <span>Save Residence</span>
+                            <span>حفظ العنوان</span>
                           </button>
                         </div>
                       </form>

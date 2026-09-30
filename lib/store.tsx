@@ -44,20 +44,20 @@ import { spaceProjectService } from '@/lib/api/services/spaceProjectService';
 import { BackendSpaceProject, SpaceProjectRequest } from '@/types/spaceProject';
 
 const EMPTY_SETTINGS: StoreSettings = {
-  brandName: 'Tocco House',
-  tagline: '',
-  subTagline: '',
+  brandName: 'Modern Home',
+  tagline: 'للأثاث والديكور العصري',
+  subTagline: 'مودرن هوم',
   depositPercentage: 50,
-  defaultLeadTime: 'Made to order',
-  defaultShippingTime: 'Shipping details confirmed after order review',
+  defaultLeadTime: 'حسب الطلب',
+  defaultShippingTime: 'تُؤكد تفاصيل التوصيل بعد مراجعة الطلب',
   contact: {
     phone: '01080182663',
     whatsapp: '01080182663',
     email: '',
-    atelierAddress: 'Villa 291, yasmin 1, first settlement, new cairo',
+    atelierAddress: 'القاهرة الجديدة، القاهرة، مصر',
     mapUrl: 'https://www.google.com/maps/place/30%C2%B003%2700.6%22N+31%C2%B027%2720.0%22E/@30.0501537,31.4529839,17z/data=!3m1!4b1!4m4!3m3!8m2!3d30.0501537!4d31.4555588?hl=en&entry=ttu&g_ep=EgoyMDI2MDkxNi4wIKXMDSoASAFQAw%3D%3D',
-    instagramHandles: ['@tocco_house', '@toccoplus'],
-    hours: 'By appointment',
+    instagramHandles: [],
+    hours: 'الزيارة بموعد مسبق',
   },
   paymentMethods: {
     instapay: { active: false, address: '', accountName: '', instructions: 'InstaPay details will appear here once configured.' },
@@ -74,12 +74,12 @@ const EMPTY_SETTINGS: StoreSettings = {
     },
   },
   homepage: {
-    heroHeading: 'designed to inspire',
-    heroSubheading: 'Contemporary Egyptian design house specializing in distinctive furniture, sculptural pieces, and architectural design objects.',
-    heroCtaText: 'Discover Tocco House',
+    heroHeading: 'أثاث يصنع للمكان شخصية',
+    heroSubheading: 'تصميمات عصرية، قطع مختارة، وتنفيذ يراعي تفاصيل بيتك.',
+    heroCtaText: 'اكتشف المجموعة',
     heroImage: '/images/hero_villa_clean.jpg',
-    storyQuote: '',
-    storySubtext: '',
+    storyQuote: 'نصنع مساحة تشبهك',
+    storySubtext: 'أثاث يكمّل روح المكان.',
   },
   policies: { shipping: '', returns: '', privacy: '', terms: '', faq: [] },
 };
@@ -164,8 +164,8 @@ function mapBackendSpaceProject(project: BackendSpaceProject): ProjectItem {
   const createdYear = new Date(project.created_at).getFullYear();
   return {
     id: String(project.id),
-    title: project.customer_name || 'In Their Space',
-    subtitle: project.product_name || 'Tocco House Installation',
+    title: project.customer_name || 'مساحة من بيوتنا',
+    subtitle: project.product_name || 'تنفيذ مودرن هوم',
     description: project.caption || '',
     location: project.location || '',
     coverImage: project.image,

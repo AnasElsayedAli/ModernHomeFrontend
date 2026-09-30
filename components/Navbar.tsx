@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useToccoStore, AppView } from '@/lib/store';
 import { useAuth } from '@/lib/context/AuthContext';
 import ToccoLogo from './ToccoLogo';
-import { ShoppingBag, User, Search, Menu, X, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { ShoppingBag, User, Search, Menu, X, SlidersHorizontal, ArrowLeft } from 'lucide-react';
 
 export default function Navbar() {
   const {
@@ -31,12 +31,13 @@ export default function Navbar() {
   }, []);
 
   const navLinks: { label: string; view: AppView }[] = [
-    { label: 'Shop', view: 'shop' },
-    { label: 'Our Story', view: 'our-story' },
-    { label: 'Custom Design', view: 'custom-design' },
-    { label: 'B2B (Tocco Plus)', view: 'b2b' },
-    { label: 'Events', view: 'events' },
-    { label: 'Projects', view: 'projects' },
+    { label: 'الرئيسية', view: 'home' },
+    { label: 'المنتجات', view: 'shop' },
+    { label: 'تصنيع حسب الطلب', view: 'custom-design' },
+    { label: 'مشروعات الأعمال', view: 'b2b' },
+    { label: 'المشروعات', view: 'projects' },
+    { label: 'الفعاليات', view: 'events' },
+    { label: 'عن مودرن هوم', view: 'our-story' },
   ];
 
   const handleNavClick = (view: AppView) => {
@@ -52,7 +53,7 @@ export default function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isTransparent
           ? 'bg-transparent border-b border-transparent shadow-none'
-          : 'bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE4DC] shadow-[0_2px_12px_rgba(40,25,15,0.03)]'
+          : 'bg-[#F7F3EC]/95 backdrop-blur-md border-b border-[#E6DED2] shadow-[0_2px_12px_rgba(23,50,74,0.06)]'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
@@ -60,8 +61,8 @@ export default function Navbar() {
         <button
           id="nav-logo-btn"
           onClick={() => handleNavClick('home')}
-          className="group flex items-center text-left focus:outline-none"
-          aria-label="Tocco House Home"
+          className="group flex items-center text-right focus:outline-none"
+          aria-label="الصفحة الرئيسية لمودرن هوم"
         >
           <ToccoLogo size="sm" showSubtitle={false} theme={isTransparent ? 'light' : 'dark'} />
         </button>
@@ -69,7 +70,7 @@ export default function Navbar() {
         {/* Center: Editorial Navigation Links (Desktop) */}
         <nav
           id="desktop-nav-links"
-          className="hidden md:flex items-center gap-8 text-[13px] tracking-[0.18em] uppercase font-medium"
+          className="hidden xl:flex items-center gap-5 2xl:gap-7 text-[13px] font-medium"
         >
           {navLinks.map((link) => {
             const isActive = activeView === link.view;
@@ -85,14 +86,14 @@ export default function Navbar() {
                       : 'text-white/85 hover:text-white'
                     : isActive
                     ? 'text-[#1C1A19] font-semibold'
-                    : 'text-[#4A4540] hover:text-[#1C1A19]'
+                    : 'text-[#42515C] hover:text-[#17324A]'
                 }`}
               >
                 {link.label}
                 {isActive && (
                   <span
                     className={`absolute bottom-0 left-0 w-full h-[1.5px] animate-in fade-in duration-200 ${
-                      isTransparent ? 'bg-white' : 'bg-[#643D26]'
+                      isTransparent ? 'bg-white' : 'bg-[#17324A]'
                     }`}
                   />
                 )}
@@ -102,7 +103,7 @@ export default function Navbar() {
         </nav>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Search Toggle */}
           <button
             id="nav-search-toggle-btn"
@@ -115,10 +116,10 @@ export default function Navbar() {
             className={`p-2.5 rounded-full transition-colors focus:outline-none touch-manipulation ${
               isTransparent
                 ? 'text-white/90 hover:text-white hover:bg-white/10'
-                : 'text-[#4A4540] hover:text-[#1C1A19] hover:bg-[#F2EDE4]'
+                : 'text-[#42515C] hover:text-[#17324A] hover:bg-[#EEE5D9]'
             }`}
-            title="Search Catalog"
-            aria-label="Search"
+              title="البحث في المنتجات"
+              aria-label="بحث"
           >
             <Search className="w-4 h-4" />
           </button>
@@ -131,16 +132,16 @@ export default function Navbar() {
               isTransparent
                 ? 'text-white/90 hover:text-white hover:bg-white/10'
                 : activeView === 'account'
-                ? 'text-[#643D26] bg-[#EFEBE3]'
-                : 'text-[#4A4540] hover:text-[#1C1A19] hover:bg-[#F2EDE4]'
+                ? 'text-[#17324A] bg-[#EDE4D7]'
+                : 'text-[#42515C] hover:text-[#17324A] hover:bg-[#EEE5D9]'
             }`}
-            title="Customer Account & Order Tracking"
-            aria-label="Account"
+              title="حسابي وطلباتي"
+              aria-label="حسابي"
           >
             <div className="relative">
               <User className="w-4 h-4" />
               {user && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+                <span className="absolute -top-0.5 -left-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
               )}
             </div>
             {user && (
@@ -157,16 +158,16 @@ export default function Navbar() {
             className={`relative p-2.5 rounded-full transition-colors focus:outline-none touch-manipulation ${
               isTransparent
                 ? 'text-white/90 hover:text-white hover:bg-white/10'
-                : 'text-[#4A4540] hover:text-[#1C1A19] hover:bg-[#F2EDE4]'
+                : 'text-[#42515C] hover:text-[#17324A] hover:bg-[#EEE5D9]'
             }`}
-            title="View Shopping Bag"
-            aria-label="Cart"
+              title="عرض سلة التسوق"
+              aria-label="السلة"
           >
             <ShoppingBag className="w-4 h-4" />
             {cartItemsCount > 0 && (
               <span
                 id="cart-badge-count"
-                className="absolute top-1 right-1 min-w-[17px] h-[17px] px-1 bg-[#643D26] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs ring-1 ring-white/30"
+                className="absolute top-1 left-1 min-w-[17px] h-[17px] px-1 bg-[#17324A] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs ring-1 ring-white/30"
               >
                 {cartItemsCount}
               </span>
@@ -182,12 +183,12 @@ export default function Navbar() {
                 ? 'text-white border-white/40 bg-white/10 backdrop-blur-xs hover:bg-white/20 hover:border-white/70'
                 : activeView === 'admin'
                 ? 'bg-[#1C1A19] text-white border-[#1C1A19]'
-                : 'text-[#643D26] border-[#D8CEBF] bg-[#F5F1EA] hover:border-[#643D26]'
+                : 'text-[#17324A] border-[#D9CEBF] bg-[#F0E7DA] hover:border-[#17324A]'
             }`}
-            title="Manage Catalogue, Orders & CMS"
+            title="إدارة المتجر والطلبات"
           >
             <SlidersHorizontal className="w-3 h-3" />
-            <span>Admin CMS</span>
+            <span>إدارة المتجر</span>
           </button>}
 
           {/* Mobile Hamburger Toggle */}
@@ -197,9 +198,9 @@ export default function Navbar() {
             className={`md:hidden p-2.5 rounded-full focus:outline-none touch-manipulation transition-colors ${
               isTransparent
                 ? 'text-white hover:bg-white/10'
-                : 'text-[#4A4540] hover:text-[#1C1A19] hover:bg-[#F2EDE4]'
+                : 'text-[#42515C] hover:text-[#17324A] hover:bg-[#EEE5D9]'
             }`}
-            aria-label="Toggle Navigation Menu"
+              aria-label="فتح القائمة"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -210,7 +211,8 @@ export default function Navbar() {
       {isSearchOpen && (
         <div
           id="nav-search-bar"
-          className="border-t border-[#EAE4DC] bg-[#FAF8F5] px-4 py-3 animate-in slide-in-from-top-2 duration-200 shadow-inner"
+          className="border-t border-[#E6DED2] bg-[#F7F3EC] px-4 py-3 animate-in slide-in-from-top-2 duration-200 shadow-inner"
+          dir="rtl"
         >
           <div className="max-w-3xl mx-auto flex items-center gap-3">
             <Search className="w-4 h-4 text-[#736B63] shrink-0" />
@@ -223,20 +225,22 @@ export default function Navbar() {
                 if (activeView !== 'shop') navigateTo('shop');
               }}
               placeholder="Search pieces, categories, mineral finishes..."
-              className="w-full bg-transparent text-xs sm:text-sm text-[#1C1A19] placeholder-[#8F8880] focus:outline-none"
+              className="w-full bg-transparent text-right text-sm text-[#18232D] placeholder-[#817D75] focus:outline-none"
+              dir="rtl"
               autoFocus
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="text-[11px] text-[#736B63] hover:text-[#1C1A19] uppercase tracking-wider shrink-0"
+                className="text-xs text-[#6D6A64] hover:text-[#17324A] shrink-0"
               >
-                Clear
+                مسح
               </button>
             )}
             <button
               onClick={() => setIsSearchOpen(false)}
-              className="text-xs text-[#736B63] hover:text-[#1C1A19] p-1 shrink-0"
+              className="text-xs text-[#6D6A64] hover:text-[#17324A] p-1 shrink-0"
+              aria-label="إغلاق البحث"
             >
               <X className="w-4 h-4" />
             </button>
@@ -248,25 +252,26 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div
           id="mobile-navigation-menu"
-          className="md:hidden fixed inset-x-0 top-16 sm:top-20 h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)] bg-[#FAF8F5] z-50 flex flex-col justify-between p-6 shadow-2xl overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200"
+          className="md:hidden fixed inset-x-0 top-16 sm:top-20 h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)] bg-[#F7F3EC] z-50 flex flex-col justify-between p-5 shadow-2xl overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200"
+          dir="rtl"
         >
           <div className="space-y-6">
             {/* Navigation links */}
-            <nav className="flex flex-col space-y-1 text-sm tracking-[0.2em] uppercase font-medium text-[#4A4540]">
+            <nav className="flex flex-col space-y-1 text-sm font-medium text-[#42515C]">
               {navLinks.map((link) => {
                 const isActive = activeView === link.view;
                 return (
                   <button
                     key={link.view}
                     onClick={() => handleNavClick(link.view)}
-                    className={`text-left py-3 px-3 rounded-xl transition-colors flex items-center justify-between ${
+                    className={`text-right py-3 px-3 rounded-lg transition-colors flex items-center justify-between ${
                       isActive
-                        ? 'bg-[#EFEBE3] text-[#643D26] font-semibold'
-                        : 'hover:bg-[#F5F2EB] text-[#332F2D]'
+                        ? 'bg-[#EDE4D7] text-[#17324A] font-semibold'
+                        : 'hover:bg-[#F0E7DA] text-[#18232D]'
                     }`}
                   >
                     <span>{link.label}</span>
-                    <span className="text-[10px] tracking-widest text-[#8F8880]">→</span>
+                    <ArrowLeft className="h-4 w-4 text-[#9A8A74]" aria-hidden="true" />
                   </button>
                 );
               })}
@@ -277,18 +282,18 @@ export default function Navbar() {
           <div className="pt-6 border-t border-[#EAE4DC] space-y-3">
             {(user?.role === 'ADMIN' || user?.role === 'MODERATOR') && <button
               onClick={() => handleNavClick('admin')}
-              className="flex items-center justify-between w-full py-3 px-4 rounded-xl bg-[#F2EDE4] text-xs uppercase tracking-widest font-medium text-[#643D26]"
+              className="flex items-center justify-between w-full py-3 px-4 rounded-lg bg-[#EDE4D7] text-sm font-medium text-[#17324A]"
             >
               <span className="flex items-center gap-2.5">
                 <SlidersHorizontal className="w-4 h-4" />
-                Admin CMS Studio
+                إدارة المتجر
               </span>
-              <span className="text-[10px] text-[#8F8880]">Manage</span>
+              <span className="text-xs text-[#6D6A64]">فتح</span>
             </button>}
 
-            <div className="flex items-center justify-between pt-2 text-xs text-[#8F8880]">
-              <span>Tocco House Cairo</span>
-              <span>Handcrafted in Egypt</span>
+            <div className="flex items-center justify-between pt-2 text-xs text-[#6D6A64]">
+              <span>مودرن هوم · القاهرة</span>
+              <span>للأثاث والديكور العصري</span>
             </div>
           </div>
         </div>

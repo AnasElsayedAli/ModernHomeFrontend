@@ -5,19 +5,11 @@ import { StoreProvider, useToccoStore } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
 import { AuthProvider } from '@/lib/context/AuthContext';
 import { useAuth } from '@/lib/context/AuthContext';
-import Navbar from '@/components/Navbar';
+import ModernHeader from '@/components/modern-home/ModernHeader';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
-import BannersSection from '@/components/BannersSection';
-import {
-  HomeHero,
-  SignaturePiecesSection,
-  StoryTeaserSection,
-  CategoriesShowcase,
-  CollaborationsSection,
-  CustomDesignTeaser,
-  ProjectsAndInstagramSection,
-} from '@/components/HomeSections';
+import ModernHomeHomepage from '@/components/modern-home/ModernHomeHomepage';
 import ShopCatalog from '@/components/ShopCatalog';
 import ProductDetailView from '@/components/ProductDetailView';
 import CustomDesignView from '@/components/CustomDesignView';
@@ -96,13 +88,13 @@ function ToccoApp() {
   }, [activeView]);
 
   const whatsappConciergeUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
-    'Hello Tocco House, I am inquiring about your handcrafted fiberglass design pieces.'
+    'مرحبًا مودرن هوم، أود الاستفسار عن منتجاتكم.'
   )}`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#1C1A19]">
+    <div dir="rtl" className="min-h-screen flex flex-col bg-[#F7F3EC] text-[#18232D]">
       {/* Navigation */}
-      <Navbar />
+      <ModernHeader />
 
       {failedDataLoads.length > 0 && !isStoreDataAlertDismissed && (
         <section
@@ -111,11 +103,19 @@ function ToccoApp() {
         >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs font-semibold text-rose-900">Some store information could not be loaded.</p>
+              <p className="text-sm font-semibold text-rose-900">تعذر تحميل بعض بيانات المتجر.</p>
               <ul className="mt-1 space-y-0.5 text-xs text-rose-800">
-                {failedDataLoads.map(([key, message]) => (
-                  <li key={key}><span className="font-medium capitalize">{key}:</span> {message}</li>
-                ))}
+                {failedDataLoads.map(([key, message]) => {
+                  const labels: Record<string, string> = {
+                    catalog: 'المنتجات والتصنيفات',
+                    cart: 'السلة',
+                    events: 'الفعاليات',
+                    projects: 'المشروعات',
+                    collaborations: 'الشركاء',
+                    settings: 'الإعدادات',
+                  };
+                  return <li key={key}><span className="font-medium">{labels[key] || key}:</span> {message}</li>;
+                })}
               </ul>
             </div>
             <div className="flex shrink-0 items-center gap-2 self-end sm:ml-4 sm:self-auto">
@@ -124,14 +124,14 @@ function ToccoApp() {
                 onClick={() => void reloadStoreData()}
                 className="text-left text-xs font-semibold text-rose-900 underline underline-offset-2 sm:text-right"
               >
-                Retry loading
+                إعادة المحاولة
               </button>
               <button
                 type="button"
                 onClick={() => setIsStoreDataAlertDismissed(true)}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full text-rose-900 hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
-                aria-label="Dismiss notification"
-                title="Dismiss notification"
+                aria-label="إغلاق التنبيه"
+                title="إغلاق التنبيه"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -150,16 +150,7 @@ function ToccoApp() {
       {/* Main Content Body */}
       <main className="flex-1">
         {activeView === 'home' && (
-          <div>
-            <HomeHero />
-            <BannersSection />
-            <SignaturePiecesSection />
-            <StoryTeaserSection />
-            <CategoriesShowcase />
-            <CustomDesignTeaser />
-            <CollaborationsSection />
-            <ProjectsAndInstagramSection />
-          </div>
+          <ModernHomeHomepage />
         )}
 
         {activeView === 'shop' && <ShopCatalog />}
@@ -203,20 +194,22 @@ function ToccoApp() {
       {/* Slide-over Bag Drawer */}
       <CartDrawer />
 
-      {/* Floating Tocco House WhatsApp Concierge (visible everywhere except Admin) */}
+      {activeView !== 'admin' && <MobileBottomNav />}
+
+      {/* Floating WhatsApp contact (hidden in admin) */}
       {activeView !== 'admin' && (
         <aside
-          aria-label="Tocco House Concierge"
-          className="fixed bottom-6 right-6 z-40"
+          aria-label="تواصل واتساب"
+            className="fixed bottom-20 right-4 z-40 md:bottom-6 md:right-6"
         >
           <a
             id="floating-whatsapp-concierge"
             href={whatsappConciergeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Chat with Tocco House Concierge on WhatsApp"
-            className="group flex items-center justify-center p-3 rounded-full bg-[#1C1A19] text-white shadow-xl hover:bg-[#332F2D] active:scale-95 transition-all border border-white/10"
-            title="Chat with Tocco House Concierge"
+            aria-label="تواصل مع مودرن هوم على واتساب"
+            className="group flex items-center justify-center border border-white/20 bg-[#17324A] p-3 text-white shadow-xl transition-all hover:bg-[#24445E] active:scale-95"
+            title="تواصل مع مودرن هوم على واتساب"
           >
             <MessageCircle className="w-5 h-5 text-[#25D366]" aria-hidden="true" />
           </a>

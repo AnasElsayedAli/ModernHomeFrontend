@@ -112,17 +112,18 @@ export default function BannersSection() {
 
   // Filter options for tabs
   const filterOptions: { id: BannerType; label: string; icon: React.ReactNode }[] = [
-    { id: 'all', label: 'All Highlights', icon: <Flame className="w-3.5 h-3.5" /> },
-    { id: 'new_product', label: 'New Pieces', icon: <Sparkles className="w-3.5 h-3.5" /> },
-    { id: 'special_offer', label: 'Exclusive Privileges', icon: <Tag className="w-3.5 h-3.5" /> },
-    { id: 'upcoming_event', label: 'Events', icon: <Calendar className="w-3.5 h-3.5" /> },
-    { id: 'custom_service', label: 'Bespoke Studio', icon: <Compass className="w-3.5 h-3.5" /> },
+    { id: 'all', label: 'الكل', icon: <Flame className="w-3.5 h-3.5" /> },
+    { id: 'new_product', label: 'وصل حديثًا', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { id: 'special_offer', label: 'عروض خاصة', icon: <Tag className="w-3.5 h-3.5" /> },
+    { id: 'upcoming_event', label: 'فعاليات', icon: <Calendar className="w-3.5 h-3.5" /> },
+    { id: 'custom_service', label: 'تصنيع حسب الطلب', icon: <Compass className="w-3.5 h-3.5" /> },
   ];
 
   return (
     <section
       id="atelier-banners-section"
-      className="relative py-10 sm:py-16 bg-[#F5F1EB] border-b border-[#E8E1D5] overflow-hidden"
+      dir="rtl"
+      className="relative overflow-hidden border-b border-[#E6DED2] bg-[#F0E7DA] py-10 sm:py-14"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -130,15 +131,15 @@ export default function BannersSection() {
           <div className="space-y-1.5 sm:space-y-2">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#B85D38] animate-pulse" />
-              <span className="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#B85D38]">
-                Latest · أحدث المستجدات والعروض
+              <span className="text-xs font-semibold text-[#A36046]">
+                جديد مودرن هوم · عروض وقطع مختارة
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-[#1C1A19]">
-              Highlights & Privileges
+            <h2 className="text-2xl font-semibold text-[#17324A] sm:text-3xl">
+              جديدنا وعروضنا
             </h2>
-            <p className="text-xs sm:text-sm text-[#736B63] max-w-xl leading-relaxed">
-              Discover recently unveiled monolithic pieces, exclusive design offers, and upcoming architectural exhibitions.
+            <p className="max-w-xl text-sm leading-7 text-[#6D6A64]">
+              اكتشف أحدث القطع والعروض والفعاليات القادمة.
             </p>
           </div>
 
@@ -148,10 +149,10 @@ export default function BannersSection() {
               id="banners-nav-prev-btn"
               onClick={handlePrev}
               disabled={activeSlideIndex === 0}
-              aria-label="Previous highlight"
+              aria-label="العنصر السابق"
               className="w-10 h-10 rounded-full border border-[#DCD5C9] bg-white text-[#1C1A19] flex items-center justify-center hover:bg-[#FAF8F5] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4" />
             </button>
             <span className="text-xs font-mono text-[#736B63] px-1">
               0{activeSlideIndex + 1} / 0{displayedBanners.length}
@@ -160,10 +161,10 @@ export default function BannersSection() {
               id="banners-nav-next-btn"
               onClick={handleNext}
               disabled={activeSlideIndex >= displayedBanners.length - 1}
-              aria-label="Next highlight"
+              aria-label="العنصر التالي"
               className="w-10 h-10 rounded-full border border-[#DCD5C9] bg-white text-[#1C1A19] flex items-center justify-center hover:bg-[#FAF8F5] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -217,7 +218,7 @@ export default function BannersSection() {
                 key={banner.id}
                 id={`banner-card-${banner.id}`}
                 onClick={() => handleBannerClick(banner)}
-                className="group relative w-[86vw] sm:w-[380px] lg:w-[410px] shrink-0 snap-center rounded-2xl overflow-hidden bg-[#1C1A19] text-white cursor-pointer shadow-[0_8px_24px_rgba(28,26,25,0.08)] hover:shadow-[0_16px_36px_rgba(28,26,25,0.16)] transition-all duration-300 flex flex-col justify-between"
+                className="group relative flex w-[86vw] shrink-0 snap-center flex-col justify-between overflow-hidden bg-[#17324A] text-right text-white shadow-[0_8px_24px_rgba(23,50,74,0.12)] transition-all duration-300 hover:shadow-[0_16px_36px_rgba(23,50,74,0.18)] sm:w-[380px] lg:w-[410px]"
                 style={{ minHeight: '460px' }}
               >
                 {/* Background Architectural Photography with Premium Gradient */}
@@ -242,17 +243,17 @@ export default function BannersSection() {
 
                   {banner.type === 'special_offer' && (
                     <span className="px-2.5 py-1 rounded-full bg-[#B85D38] text-[10px] uppercase tracking-wider font-semibold text-white">
-                      Offer
+                      عرض
                     </span>
                   )}
                   {banner.type === 'new_product' && (
                     <span className="px-2.5 py-1 rounded-full bg-[#3D5A45] text-[10px] uppercase tracking-wider font-semibold text-white">
-                      New
+                      جديد
                     </span>
                   )}
                   {banner.type === 'upcoming_event' && (
                     <span className="px-2.5 py-1 rounded-full bg-[#4A4B6B] text-[10px] uppercase tracking-wider font-semibold text-white">
-                      Event
+                      فعالية
                     </span>
                   )}
                 </div>
@@ -282,12 +283,12 @@ export default function BannersSection() {
                           {isCopied ? (
                             <>
                               <Check className="w-3 h-3 text-emerald-600" />
-                              <span className="text-emerald-700 font-semibold">Copied!</span>
+                              <span className="text-emerald-700 font-semibold">تم النسخ</span>
                             </>
                           ) : (
                             <>
                               <Copy className="w-3 h-3 text-[#524B45]" />
-                              <span>Copy</span>
+                              <span>نسخ الكود</span>
                             </>
                           )}
                         </button>

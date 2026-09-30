@@ -2,10 +2,11 @@
 
 import React from 'react';
 import { useToccoStore } from '@/lib/store';
-import { X, Plus, Minus, Trash2, ArrowRight, ShieldCheck, ShoppingBag } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ArrowLeft, ShieldCheck, ShoppingBag } from 'lucide-react';
 import Image from '@/components/SafeImage';
 import { useAccessibleDialog } from '@/hooks/use-accessible-dialog';
 import { normalizeApiError } from '@/lib/api/errors';
+import { previewCart } from '@/mock-data/previewFixtures';
 
 export default function CartDrawer() {
   const {
@@ -25,12 +26,24 @@ export default function CartDrawer() {
     navigateTo,
     settings,
     products,
+    storeDataErrors,
   } = useToccoStore();
   const [cartActionError, setCartActionError] = React.useState<string | null>(null);
   const [isCartActionPending, setIsCartActionPending] = React.useState(false);
   const primaryImagesByProductId = new Map(
     products.map((product) => [product.id, product.images[0]] as const)
   );
+  const isPreviewCart = process.env.NODE_ENV !== 'production'
+    && Boolean(storeDataErrors.cart)
+    && cart.length === 0;
+  const visibleCart = isPreviewCart ? previewCart : cart;
+  const visibleSubtotal = isPreviewCart
+    ? visibleCart.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
+    : cartSubtotal;
+  const visibleDeposit = isPreviewCart
+    ? Math.round(visibleSubtotal * settings.depositPercentage / 100)
+    : cartDepositAmount;
+  const visibleRemaining = visibleSubtotal - visibleDeposit;
 
   const closeDrawer = () => setIsCartDrawerOpen(false);
   const { dialogRef, handleDialogKeyDown } = useAccessibleDialog(isCartDrawerOpen, closeDrawer);
@@ -38,12 +51,13 @@ export default function CartDrawer() {
   if (!isCartDrawerOpen) return null;
 
   const handleCheckout = () => {
+    if (isPreviewCart) return;
     setIsCartDrawerOpen(false);
     navigateTo('checkout');
   };
 
   const runCartAction = async (action: () => Promise<void>) => {
-    if (isCartActionPending || isGuestCartSyncing) return;
+    if (isPreviewCart || isCartActionPending || isGuestCartSyncing) return;
     setCartActionError(null);
     setIsCartActionPending(true);
     try {
@@ -60,256 +74,206 @@ export default function CartDrawer() {
   };
 
   return (
-    <div
-      ref={dialogRef}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="cart-drawer-title"
-      tabIndex={-1}
-      onKeyDown={handleDialogKeyDown}
-      className="fixed inset-0 z-50 overflow-hidden animate-in fade-in duration-200"
-    >
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-        onClick={() => setIsCartDrawerOpen(false)}
-        aria-hidden="true"
-      />
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cart-drawer-title"
+          tabIndex={-1}
+          onKeyDown={handleDialogKeyDown}
+          dir="rtl"
+          className="fixed inset-0 z-50 overflow-hidden animate-in fade-in duration-200"
+        >
+          <div
+            className="fixed inset-0 bg-[#122A3D]/55 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsCartDrawerOpen(false)}
+            aria-hidden="true"
+          />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
-        <div className="w-screen max-w-full sm:max-w-md bg-[#FAF8F5] shadow-2xl flex flex-col border-l border-[#EAE4DC] animate-in slide-in-from-right duration-300">
-          {/* Header */}
-          <div className="px-4 py-4 sm:px-6 sm:py-5 border-b border-[#EAE4DC] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-[#643D26]" />
-              <h2 id="cart-drawer-title" className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#1C1A19]">
-                Design Bag ({cart.length})
-              </h2>
-            </div>
-            <button
-              onClick={() => setIsCartDrawerOpen(false)}
-              className="p-1.5 text-[#736B63] hover:text-[#1C1A19] rounded-full hover:bg-[#EFEBE3] transition-colors"
-              aria-label="Close Bag"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Body: Items List or Empty State */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
-            {isGuestCartSyncing && (
-              <p role="status" className="rounded-lg border border-[#D8CEBF] bg-white px-3 py-2 text-xs text-[#524B45]">
-                Transferring your saved bag to your account...
-              </p>
-            )}
-            {cartSyncError && (
-              <div role="alert" className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs text-amber-900">
-                <p>{cartSyncError}</p>
+          <div className="fixed inset-y-0 right-0 flex max-w-full">
+            <div className="flex h-full w-screen max-w-full flex-col bg-[#F7F3EC] shadow-2xl animate-in slide-in-from-right duration-300 sm:max-w-[520px]">
+                <div className="flex items-end justify-between border-b border-[#DED5C9] px-5 py-5 sm:px-7 sm:py-6">
+                  <div>
+                    <p className="text-[10px] font-semibold text-[#A36046]">اختياراتك من مودرن هوم</p>
+                    <h2 id="cart-drawer-title" className="mt-1 font-[family-name:var(--font-display)] text-2xl text-[#17324A] sm:text-3xl">
+                      الحقيبة <span className="me-1 font-[family-name:var(--font-brand)] text-sm font-normal text-[#81786C]">({visibleCart.reduce((count, item) => count + item.quantity, 0)})</span>
+                  </h2>
+                </div>
                 <button
                   type="button"
-                  onClick={() => void syncGuestCart()}
-                  disabled={isGuestCartSyncing}
-                  className="mt-2 font-semibold underline underline-offset-2 disabled:opacity-50"
+                  onClick={() => setIsCartDrawerOpen(false)}
+                  className="grid h-10 w-10 place-items-center text-[#6D6A64] transition-colors hover:bg-[#E8E3D9] hover:text-[#17324A]"
+                  aria-label="إغلاق السلة"
                 >
-                  Retry bag transfer
+                  <X className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
-            )}
-            {cartActionError && (
-              <p role="alert" className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2.5 text-xs text-rose-900">
-                {cartActionError}
-              </p>
-            )}
-            {isCartActionPending && (
-              <p role="status" className="text-xs text-[#736B63]">Updating your bag...</p>
-            )}
-            {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-12 space-y-4">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#EFEBE3] flex items-center justify-center text-[#8F8880]">
-                  <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm sm:text-base font-medium text-[#1C1A19]">Your bag is empty</p>
-                  <p className="text-xs text-[#736B63] max-w-[240px]">
-                    Explore our distinctive fiberglass furniture and sculptural objects.
+
+              <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
+                {isPreviewCart && (
+                  <p role="status" className="border-r-2 border-[#A36046] bg-[#EEE7DC] px-3 py-2.5 text-xs leading-6 text-[#625E57]">
+                    حقيبة معاينة محلية فقط. لن تُرسل هذه القطعة التجريبية إلى المتجر.
                   </p>
-                </div>
-                <button
-                  onClick={() => {
-                    setIsCartDrawerOpen(false);
-                    navigateTo('shop');
-                  }}
-                  className="mt-2 px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-widest font-medium hover:bg-[#332F2D] transition-colors"
-                >
-                  Discover Pieces
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 sm:space-y-6">
-                {cart.map((item) => (
-                  <div
-                    key={item.id}
-                    className="pb-4 sm:pb-6 border-b border-[#EAE4DC] flex flex-col gap-2.5 sm:gap-3 group"
-                  >
-                    <div className="flex gap-3 sm:gap-4">
-                      {/* Image Thumbnail */}
-                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-[#EFEBE3] shrink-0 border border-[#E2DDD3]">
-                        <Image
-                          src={
-                            primaryImagesByProductId.has(item.productId)
-                              ? primaryImagesByProductId.get(item.productId)
-                              : item.productImage
-                          }
-                          alt={item.productName}
-                          fill
-                          className="object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
+                )}
+                {isGuestCartSyncing && (
+                  <p role="status" className="border border-[#D9CEBF] bg-white px-3 py-2 text-xs text-[#42515C]">
+                    جارٍ نقل المنتجات المحفوظة إلى حسابك...
+                  </p>
+                )}
+                {cartSyncError && (
+                  <div role="alert" className="border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs text-amber-900">
+                    <p>{cartSyncError}</p>
+                    <button type="button" onClick={() => void syncGuestCart()} disabled={isGuestCartSyncing} className="mt-2 font-semibold underline underline-offset-2 disabled:opacity-50">
+                      إعادة المحاولة
+                    </button>
+                  </div>
+                )}
+                {cartActionError && (
+                  <p role="alert" className="border border-rose-300 bg-rose-50 px-3 py-2.5 text-xs text-rose-900">{cartActionError}</p>
+                )}
+                {isCartActionPending && <p role="status" className="text-xs text-[#6D6A64]">جارٍ تحديث السلة...</p>}
 
-                      {/* Item Details */}
-                      <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-xs sm:text-sm font-medium text-[#1C1A19] truncate">
-                              {item.productName}
-                            </h3>
-                            <button
-                              onClick={() => void runCartAction(() => removeFromCart(item.id))}
-                              disabled={isGuestCartSyncing || isCartActionPending}
-                              className="text-[#8F8880] hover:text-[#B85D38] p-1 transition-colors disabled:cursor-wait disabled:opacity-50"
-                              title="Remove item"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-
-                          <div className="mt-1 flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-[#736B63]">
-                            <span className="flex items-center gap-1">
-                              <span
-                                className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block"
-                                style={{ backgroundColor: item.selectedColor.hex }}
-                              />
-                              {item.selectedColor.name}
-                            </span>
-                            <span>•</span>
-                            <span>{item.selectedFinish}</span>
-                            {item.selectedSize && (
-                              <>
-                                <span>•</span>
-                                <span>{item.selectedSize.name}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center border border-[#D8CEBF] rounded-full bg-white px-2 py-0.5">
-                            <button
-                              onClick={() => void runCartAction(() => updateCartQuantity(item.id, item.quantity - 1))}
-                              disabled={isGuestCartSyncing || isCartActionPending}
-                              className="p-1 text-[#736B63] hover:text-[#1C1A19] disabled:cursor-wait disabled:opacity-50"
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="px-2 text-xs font-medium text-[#1C1A19]">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => void runCartAction(() => updateCartQuantity(item.id, item.quantity + 1))}
-                              disabled={isGuestCartSyncing || isCartActionPending}
-                              className="p-1 text-[#736B63] hover:text-[#1C1A19] disabled:cursor-wait disabled:opacity-50"
-                              aria-label="Increase quantity"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
-                          </div>
-
-                          <p className="text-xs sm:text-sm font-semibold text-[#1C1A19]">
-                            {item.discountAmount ? (
-                              <span className="flex flex-col items-end">
-                                <span className="text-[10px] text-[#8F8880] line-through font-normal">
-                                  {(item.originalSubtotal ?? item.unitPrice * item.quantity).toLocaleString()} EGP
-                                </span>
-                                <span>{(item.subtotal ?? item.unitPrice * item.quantity).toLocaleString()} EGP</span>
-                              </span>
-                            ) : (
-                              `${(item.subtotal ?? item.unitPrice * item.quantity).toLocaleString()} EGP`
-                            )}
-                          </p>
-                        </div>
-                      </div>
+                {visibleCart.length === 0 ? (
+                  <div className="flex h-full flex-col items-start justify-center py-12 text-right">
+                    <span className="font-[family-name:var(--font-brand)] text-6xl font-light text-[#C8BBA9]">00</span>
+                    <div className="mt-3 space-y-2">
+                      <p className="font-[family-name:var(--font-display)] text-2xl text-[#17324A]">لم تختر قطعتك بعد</p>
+                      <p className="max-w-[260px] text-sm leading-7 text-[#6D6A64]">تصفّح المجموعة، واحفظ القطع التي تناسب مساحتك هنا.</p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCartDrawerOpen(false);
+                        navigateTo('shop');
+                      }}
+                      className="mt-6 inline-flex min-h-11 items-center gap-3 bg-[#17324A] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#24445E]"
+                    >
+                      تصفّح المجموعة <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    {visibleCart.map((item) => {
+                      const itemSubtotal = item.subtotal ?? item.unitPrice * item.quantity;
+                      const originalSubtotal = item.originalSubtotal ?? item.unitPrice * item.quantity;
+                      return (
+                        <article key={item.id} className="space-y-3 border-b border-[#DED5C9] pb-5">
+                          <div className="flex gap-3">
+                            <div className="relative h-24 w-24 shrink-0 overflow-hidden bg-[#E6DED2] sm:h-28 sm:w-28">
+                              <Image
+                                src={primaryImagesByProductId.has(item.productId) ? primaryImagesByProductId.get(item.productId) : item.productImage}
+                                alt={item.productName}
+                                fill
+                                sizes="80px"
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col justify-between">
+                              <div>
+                                <div className="flex items-start justify-between gap-2">
+                                  <h3 className="truncate text-sm font-semibold text-[#17324A]">{item.productName}</h3>
+                                  <button
+                                    type="button"
+                                    onClick={() => void runCartAction(() => removeFromCart(item.id))}
+                                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                                    className="grid h-8 w-8 shrink-0 place-items-center text-[#817D75] transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:cursor-wait disabled:opacity-50"
+                                    title="إزالة المنتج"
+                                    aria-label={`إزالة ${item.productName} من السلة`}
+                                  >
+                                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                  </button>
+                                </div>
+                                <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[#6D6A64]">
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <span className="h-3 w-3 rounded-full border border-black/10" style={{ backgroundColor: item.selectedColor.hex }} />
+                                    {item.selectedColor.name}
+                                  </span>
+                                  <span>·</span>
+                                  <span>{item.selectedFinish === 'MATTE' ? 'مطفأ' : 'لامع'}</span>
+                                  {item.selectedSize && <><span>·</span><span>{item.selectedSize.name}</span></>}
+                                </div>
+                              </div>
 
-                    {item.offerName && (
-                      <span className="inline-flex w-fit items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5EBE6] text-[#B85D38] text-[10px] font-medium uppercase tracking-wider">
-                        {item.offerName}
-                      </span>
+                              <div className="mt-2 flex items-center justify-between gap-3">
+                                <div className="flex items-center border border-[#D9CEBF] bg-white px-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => void runCartAction(() => updateCartQuantity(item.id, item.quantity - 1))}
+                                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                                    className="grid h-8 w-8 place-items-center text-[#42515C] hover:text-[#17324A] disabled:cursor-wait disabled:opacity-50"
+                                    aria-label="تقليل الكمية"
+                                  >
+                                    <Minus className="h-3.5 w-3.5" aria-hidden="true" />
+                                  </button>
+                                  <span className="min-w-7 text-center text-xs font-semibold text-[#17324A]">{item.quantity}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => void runCartAction(() => updateCartQuantity(item.id, item.quantity + 1))}
+                                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                                    className="grid h-8 w-8 place-items-center text-[#42515C] hover:text-[#17324A] disabled:cursor-wait disabled:opacity-50"
+                                    aria-label="زيادة الكمية"
+                                  >
+                                    <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                                  </button>
+                                </div>
+                                <p className="text-sm font-semibold text-[#17324A]">
+                                  {itemSubtotal > 0 ? `${new Intl.NumberFormat('ar-EG').format(itemSubtotal)} جنيه` : 'السعر عند الطلب'}
+                                  {item.discountAmount ? <span className="block text-[10px] font-normal text-[#817D75] line-through">{new Intl.NumberFormat('ar-EG').format(originalSubtotal)} جنيه</span> : null}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          {item.offerName && <span className="inline-block border-r-2 border-[#A36046] bg-[#F0E7DA] px-2 py-1 text-xs text-[#785132]">{item.offerName}</span>}
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {visibleCart.length > 0 && (
+                <div className="space-y-4 border-t border-[#DED5C9] bg-[#FBF9F4] px-5 py-5 sm:px-7">
+                  <div className="flex items-start gap-2 border-r-2 border-[#C8A77D] bg-[#EEE7DC] px-3 py-2.5 text-xs leading-6 text-[#42515C]">
+                    <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-[#17324A]" aria-hidden="true" />
+                    <p><span className="font-semibold text-[#17324A]">مقدم {settings.depositPercentage}%.</span> يُستكمل باقي المبلغ عند التسليم.</p>
+                  </div>
+
+                  <div className="space-y-2 text-sm text-[#53616A]">
+                    {cartDiscountTotal > 0 && (
+                      <div className="flex justify-between text-emerald-700">
+                        <span>قيمة الخصم</span>
+                        <span className="font-medium">−{new Intl.NumberFormat('ar-EG').format(cartDiscountTotal)} جنيه</span>
+                      </div>
                     )}
-
+                    {cartFreeShipping && <div className="flex justify-between text-emerald-700"><span>الشحن</span><span className="font-medium">مجاني</span></div>}
+                    <div className="flex justify-between">
+                      <span>إجمالي الطلب</span>
+                      <span className="font-medium text-[#17324A]">{new Intl.NumberFormat('ar-EG').format(visibleSubtotal)} جنيه</span>
+                    </div>
+                    <div className="flex justify-between border-t border-[#E6DED2] pt-2 font-semibold text-[#17324A]">
+                      <span>المقدم المستحق الآن</span>
+                      <span>{new Intl.NumberFormat('ar-EG').format(visibleDeposit)} جنيه</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-[#6D6A64]">
+                      <span>المتبقي عند التسليم</span>
+                      <span>{new Intl.NumberFormat('ar-EG').format(visibleRemaining)} جنيه</span>
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* Footer: Deposit Breakdown & Checkout CTA */}
-          {cart.length > 0 && (
-            <div className="px-4 py-4 sm:px-6 sm:py-5 border-t border-[#EAE4DC] bg-[#FAF8F5] space-y-3 sm:space-y-4">
-              {/* Deposit notice callout */}
-              <div className="p-3 rounded-lg bg-[#F5F0E8] border border-[#E6DDCE] flex items-start gap-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#643D26] shrink-0 mt-0.5" />
-                <div className="text-[11px] sm:text-xs text-[#524B45] leading-relaxed">
-                  <span className="font-semibold text-[#1C1A19]">
-                    {settings.depositPercentage}% Handcrafted Deposit:
-                  </span>{' '}
-                  Initiates workshop casting. Remaining {100 - settings.depositPercentage}% paid upon delivery inspection.
+                  <button
+                    id="cart-proceed-checkout-btn"
+                    type="button"
+                    onClick={handleCheckout}
+                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                    className="flex min-h-12 w-full items-center justify-center gap-2 bg-[#17324A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span>{isPreviewCart ? 'معاينة فقط' : 'متابعة الطلب'}</span>
+                    {!isPreviewCart && <ArrowLeft className="h-4 w-4" aria-hidden="true" />}
+                  </button>
                 </div>
-              </div>
-
-              {/* Price calculations */}
-              <div className="space-y-1 text-xs text-[#524B45]">
-                {cartDiscountTotal > 0 && (
-                  <div className="flex justify-between text-emerald-700">
-                    <span>Offer Savings</span>
-                    <span className="font-medium">-{cartDiscountTotal.toLocaleString()} EGP</span>
-                  </div>
-                )}
-                {cartFreeShipping && (
-                  <div className="flex justify-between text-emerald-700">
-                    <span>Shipping</span>
-                    <span className="font-medium">Free</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span>Total Order Value</span>
-                  <span className="font-medium text-[#1C1A19]">{cartSubtotal.toLocaleString()} EGP</span>
-                </div>
-                <div className="flex justify-between font-semibold text-xs sm:text-sm text-[#643D26] pt-0.5">
-                  <span>{settings.depositPercentage}% Deposit Due Today</span>
-                  <span>{cartDepositAmount.toLocaleString()} EGP</span>
-                </div>
-                <div className="flex justify-between text-[10px] sm:text-[11px] text-[#736B63]">
-                  <span>Remaining {100 - settings.depositPercentage}% upon delivery</span>
-                  <span>{cartRemainingAmount.toLocaleString()} EGP</span>
-                </div>
-              </div>
-
-              {/* Checkout CTA */}
-              <button
-                id="cart-proceed-checkout-btn"
-                onClick={handleCheckout}
-                disabled={isGuestCartSyncing || isCartActionPending}
-                className="w-full py-3.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#332F2D] active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm"
-              >
-                <span>Proceed to Checkout</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              )}
             </div>
-          )}
+          </div>
         </div>
-      </div>
-    </div>
-  );
+      );
 }

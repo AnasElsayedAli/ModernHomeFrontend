@@ -78,12 +78,12 @@ export default function CloudinaryImageUploader({
   const handleFileUpload = async (files: FileList | File[]) => {
     const fileArray = Array.from(files).filter((file) => file.type.startsWith('image/'));
     if (fileArray.length === 0) {
-      setErrorMessage('Please select a valid image file (JPEG, PNG, WebP, AVIF, or GIF).');
+      setErrorMessage('اختر ملف صورة صالحًا (JPEG أو PNG أو WebP أو AVIF أو GIF).');
       return;
     }
 
     if (images.length + fileArray.length > maxImages) {
-      setErrorMessage(`Maximum limit of ${maxImages} images reached. Remove some images before adding more.`);
+      setErrorMessage(`الحد الأقصى ${maxImages} صور. أزل بعض الصور قبل إضافة المزيد.`);
       return;
     }
 
@@ -91,7 +91,7 @@ export default function CloudinaryImageUploader({
     setIsUploading(true);
     setUploadProgress(0);
     setStatusStep('uploading');
-    setStatusMessage('Uploading image...');
+    setStatusMessage('جارٍ رفع الصورة...');
 
     try {
       const currentList = [...images];
@@ -101,8 +101,8 @@ export default function CloudinaryImageUploader({
         const file = fileArray[i];
         setStatusMessage(
           fileArray.length > 1
-            ? `Uploading image ${i + 1} of ${fileArray.length}...`
-            : 'Uploading image...'
+            ? `جارٍ رفع الصورة ${i + 1} من ${fileArray.length}...`
+            : 'جارٍ رفع الصورة...'
         );
 
         // 1. DIRECT-TO-CLOUDINARY UPLOAD (Browser -> Cloudinary, no backend proxy)
@@ -121,7 +121,7 @@ export default function CloudinaryImageUploader({
         // Send resulting Cloudinary metadata to backend to create ProductImage record
         if (numericProductId) {
           setStatusStep('saving_metadata');
-          setStatusMessage('Preparing image...');
+          setStatusMessage('جارٍ تجهيز الصورة...');
           try {
             const createdBackendImg = await productImageService.createProductImage({
               product: numericProductId,
@@ -143,11 +143,11 @@ export default function CloudinaryImageUploader({
       onImagesChange(currentList);
       if (failedMetadataAttachments > 0) {
         setStatusStep('error');
-        setStatusMessage('Some uploaded images were not attached to the product.');
-        setErrorMessage(`${failedMetadataAttachments} image${failedMetadataAttachments === 1 ? '' : 's'} could not be attached. Please try uploading ${failedMetadataAttachments === 1 ? 'it' : 'them'} again.`);
+        setStatusMessage('تعذر ربط بعض الصور بالمنتج.');
+        setErrorMessage(`تعذر ربط ${failedMetadataAttachments} صورة. حاول رفعها مرة أخرى.`);
       } else {
         setStatusStep('success');
-        setStatusMessage('Image uploaded.');
+        setStatusMessage('تم رفع الصورة.');
         setTimeout(() => {
           setStatusStep('idle');
           setStatusMessage('');
@@ -205,7 +205,7 @@ export default function CloudinaryImageUploader({
       }
       onImagesChange(newImages);
     } catch (err) {
-      setErrorMessage(`The primary image was not changed. ${normalizeApiError(err).message}`);
+      setErrorMessage(`لم يتغير غلاف المنتج. ${normalizeApiError(err).message}`);
     } finally {
       setIsImageActionPending(false);
     }
@@ -226,7 +226,7 @@ export default function CloudinaryImageUploader({
       }
       onImagesChange(newImages);
     } catch (err) {
-      setErrorMessage(`The image is still attached because we couldn't confirm its removal. ${normalizeApiError(err).message}`);
+      setErrorMessage(`تعذر تأكيد إزالة الصورة. ${normalizeApiError(err).message}`);
     } finally {
       setIsImageActionPending(false);
     }
@@ -239,11 +239,11 @@ export default function CloudinaryImageUploader({
         <div>
           <div className="flex items-center gap-2">
             <label className="block text-sm font-medium text-[#1C1A19]">
-              Product Images
+              صور المنتج
             </label>
           </div>
           <p className="text-xs text-[#736B63] mt-0.5">
-            Upload images and choose the cover before saving.
+            ارفع الصور واختر صورة الغلاف قبل الحفظ.
           </p>
         </div>
       </div>
@@ -275,7 +275,7 @@ export default function CloudinaryImageUploader({
             <div className="w-full max-w-xs space-y-3 py-2">
               <div className="flex items-center justify-center gap-2 text-sm font-medium text-[#1C1A19]">
                 <Loader2 className="w-4 h-4 animate-spin text-[#1C1A19]" />
-                <span>{statusMessage || 'Uploading image...'}</span>
+                <span>{statusMessage || 'جارٍ رفع الصورة...'}</span>
               </div>
               <div className="w-full bg-[#EAE4DC] h-2 rounded-full overflow-hidden">
                 <div
@@ -284,7 +284,7 @@ export default function CloudinaryImageUploader({
                 />
               </div>
               <div className="flex justify-between text-[11px] text-[#736B63] font-mono">
-                <span>Progress</span>
+                <span>التقدم</span>
                 <span>{uploadProgress}%</span>
               </div>
             </div>
@@ -295,14 +295,14 @@ export default function CloudinaryImageUploader({
               </div>
               <div>
                 <p className="text-sm font-medium text-[#1C1A19]">
-                  Upload images
+                  رفع الصور
                 </p>
                 <p className="text-xs text-[#736B63] mt-1">
-                  Supports WebP, PNG, JPEG, AVIF up to 10MB per file
+                  يدعم WebP وPNG وJPEG وAVIF حتى ١٠ ميجابايت للصورة
                 </p>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#EAE4DC] text-[11px] text-[#736B63]">
-                <span>{images.length} / {maxImages} images</span>
+                <span>{images.length} / {maxImages} صور</span>
               </div>
             </>
           )}
@@ -323,7 +323,7 @@ export default function CloudinaryImageUploader({
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium">Image Update Notice</p>
+              <p className="font-medium">تنبيه تحديث الصور</p>
               <p className="mt-0.5 text-red-700">{errorMessage}</p>
             </div>
           </div>
@@ -341,8 +341,8 @@ export default function CloudinaryImageUploader({
       {images.length > 0 && (
         <div className="space-y-2 pt-2">
           <div className="flex items-center justify-between text-xs text-[#736B63]">
-            <span>Uploaded Images ({images.length})</span>
-            <span className="text-[11px]">First image is the cover</span>
+            <span>الصور المرفوعة ({images.length})</span>
+            <span className="text-[11px]">الصورة الأولى هي الغلاف</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -366,7 +366,7 @@ export default function CloudinaryImageUploader({
                   {isPrimary && (
                     <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-[#1C1A19] text-white text-[10px] font-medium tracking-wider uppercase flex items-center gap-1 shadow-md">
                       <Star className="w-2.5 h-2.5 fill-current" />
-                      Primary
+                      الغلاف
                     </div>
                   )}
 
@@ -378,7 +378,7 @@ export default function CloudinaryImageUploader({
                         onClick={() => handleSetPrimary(idx)}
                         disabled={isImageActionPending}
                         className="p-1.5 rounded-full bg-white/90 hover:bg-white text-[#1C1A19] shadow transition-transform hover:scale-105"
-                        title="Set as Primary Cover Image"
+                        title="تعيين صورة كغلاف"
                       >
                         <Star className="w-4 h-4" />
                       </button>
@@ -388,7 +388,7 @@ export default function CloudinaryImageUploader({
                       onClick={() => handleRemoveImage(idx)}
                         disabled={isImageActionPending}
                         className="p-1.5 rounded-full bg-white/90 hover:bg-white text-red-600 shadow transition-transform hover:scale-105 disabled:cursor-wait disabled:opacity-50"
-                      title="Remove image"
+                      title="إزالة الصورة"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

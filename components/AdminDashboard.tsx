@@ -699,7 +699,7 @@ export default function AdminDashboard() {
     setEditingProject({
       id: `proj-${Date.now()}`,
       title: '',
-      subtitle: 'Tocco House Installation',
+      subtitle: 'مشروع مودرن هوم',
       location: '',
       year: String(new Date().getFullYear()),
       description: '',
@@ -725,7 +725,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div id="admin-studio-dashboard" className="pt-24 pb-24 bg-[#FAF8F5] min-h-screen">
+    <div id="admin-studio-dashboard" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {dashboardError && (
           <div className="flex items-start justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
@@ -734,7 +734,7 @@ export default function AdminDashboard() {
               type="button"
               onClick={() => setDashboardError(null)}
               className="text-rose-700 hover:text-rose-950"
-              aria-label="Dismiss error"
+                aria-label="إغلاق التنبيه"
             >
               <X className="w-4 h-4" />
             </button>
@@ -749,14 +749,14 @@ export default function AdminDashboard() {
                 className="text-xs uppercase tracking-wider text-[#736B63] hover:text-[#1C1A19] flex items-center gap-1"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Return to Live Store</span>
+                <span>العودة إلى المتجر</span>
               </button>
             </div>
             <h1 className="text-3xl font-normal tracking-tight text-[#1C1A19] mt-2">
-              Tocco House CMS
+              إدارة مودرن هوم
             </h1>
             <p className="text-xs text-[#736B63]">
-              Manage products, prices, deposit workflows, and content in real-time.
+              إدارة المنتجات والطلبات والمحتوى.
             </p>
           </div>
 
@@ -765,17 +765,17 @@ export default function AdminDashboard() {
         {/* Dashboard Navigation Tabs */}
         <div className="flex border-b border-[#EAE4DC] gap-1 overflow-x-auto pb-1 text-xs uppercase tracking-wider font-medium scrollbar-none">
           {[
-            { key: 'products', label: `Products (${products.length})`, icon: Package },
-            { key: 'orders', label: `Orders (${backendOrders.length})`, icon: DollarSign },
-            { key: 'categories', label: 'Categories & Subcategories', icon: FolderTree },
-            { key: 'events', label: `Events (${events.length})`, icon: Calendar },
-            { key: 'offers', label: `Offers (${offers.length})`, icon: Tag },
-            { key: 'collaborations', label: `Collaborations (${collaborations.length})`, icon: Compass },
-            { key: 'custom-requests', label: 'Custom Requests', icon: FileText },
-            { key: 'projects', label: `In Their Space (${projects.length})`, icon: ImageIcon },
-            { key: 'colors', label: `Colors (${colors.length})`, icon: Palette },
-            { key: 'users', label: 'Users & Roles', icon: Users },
-            { key: 'settings', label: 'Store & Deposit Settings', icon: Settings },
+            { key: 'products', label: `المنتجات (${products.length})`, icon: Package },
+            { key: 'orders', label: `الطلبات (${backendOrders.length})`, icon: DollarSign },
+            { key: 'categories', label: 'التصنيفات والأقسام الفرعية', icon: FolderTree },
+            { key: 'events', label: `الفعاليات (${events.length})`, icon: Calendar },
+            { key: 'offers', label: `العروض (${offers.length})`, icon: Tag },
+            { key: 'collaborations', label: `الشركاء (${collaborations.length})`, icon: Compass },
+            { key: 'custom-requests', label: 'طلبات التصنيع', icon: FileText },
+            { key: 'projects', label: `المشروعات (${projects.length})`, icon: ImageIcon },
+            { key: 'colors', label: `الألوان (${colors.length})`, icon: Palette },
+            { key: 'users', label: 'المستخدمون والصلاحيات', icon: Users },
+            { key: 'settings', label: 'إعدادات المتجر والمقدم', icon: Settings },
           ].map((t) => {
             const Icon = t.icon;
             const isCurrent = activeTab === t.key;
@@ -820,7 +820,7 @@ export default function AdminDashboard() {
                   }}
                   className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#D8CEBF] px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-[#524B45] hover:bg-[#F5F2EB]"
                 >
-                  {isArchivedProductsOpen ? 'Hide Archived' : 'View Archived'}
+                  {isArchivedProductsOpen ? 'إخفاء المؤرشف' : 'عرض المؤرشف'}
                 </button>
                 <button
                   type="button"
@@ -828,20 +828,20 @@ export default function AdminDashboard() {
                   className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D] shrink-0"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Add New Piece</span>
+                  <span>إضافة منتج</span>
                 </button>
               </div>
             </div>
 
             {isArchivedProductsOpen && (
-              <section className="rounded-xl border border-[#D8CEBF] bg-[#F5F2EB] p-4 sm:p-5" aria-label="Archived products">
+              <section className="rounded-xl border border-[#D8CEBF] bg-[#F5F2EB] p-4 sm:p-5" aria-label="المنتجات المؤرشفة">
                 <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-[#1C1A19]">Archived products</h4>
-                    <p className="mt-1 text-[11px] text-[#736B63]">Restoring a product requires all linked categories and subcategories to be active.</p>
+                    <h4 className="text-sm font-semibold text-[#17324A]">المنتجات المؤرشفة</h4>
+                    <p className="mt-1 text-xs text-[#6D6A64]">لاستعادة المنتج، يجب أن تكون التصنيفات المرتبطة به نشطة.</p>
                   </div>
                   <button type="button" onClick={() => void loadArchivedProducts()} disabled={isArchivedProductsLoading} className="text-xs font-medium text-[#643D26] underline underline-offset-2 disabled:opacity-50">
-                    {isArchivedProductsLoading ? 'Refreshing...' : 'Refresh'}
+                    {isArchivedProductsLoading ? 'جارٍ التحديث...' : 'تحديث'}
                   </button>
                 </div>
                 {archivedProductsSuccess && (
@@ -852,13 +852,13 @@ export default function AdminDashboard() {
                 {archivedProductsError && (
                   <div role="alert" className="mb-3 flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-900">
                     <span>{archivedProductsError}</span>
-                    <button type="button" onClick={() => void loadArchivedProducts()} className="shrink-0 font-semibold underline underline-offset-2">Retry</button>
+                    <button type="button" onClick={() => void loadArchivedProducts()} className="shrink-0 font-semibold underline underline-offset-2">إعادة المحاولة</button>
                   </div>
                 )}
                 {isArchivedProductsLoading ? (
-                  <p className="py-5 text-center text-xs text-[#736B63]" role="status">Loading archived products...</p>
+                  <p className="py-5 text-center text-sm text-[#6D6A64]" role="status">جارٍ تحميل المنتجات المؤرشفة...</p>
                 ) : archivedProducts.length === 0 && !archivedProductsError ? (
-                  <p className="py-5 text-center text-xs text-[#736B63]">No archived products.</p>
+                  <p className="py-5 text-center text-sm text-[#6D6A64]">لا توجد منتجات مؤرشفة.</p>
                 ) : (
                   <ul className="divide-y divide-[#EAE4DC] rounded-lg border border-[#EAE4DC] bg-white">
                     {archivedProducts.map((product) => (
@@ -871,7 +871,7 @@ export default function AdminDashboard() {
                           )}
                           <div className="min-w-0">
                             <p className="truncate text-xs font-medium text-[#1C1A19]">{product.name}</p>
-                            <p className="text-[10px] text-[#736B63]">ID {product.id} · {formatCurrency(product.price)}</p>
+                            <p className="text-[10px] text-[#6D6A64]">رقم {product.id} · {formatCurrency(product.price)}</p>
                           </div>
                         </div>
                         <button
@@ -881,7 +881,7 @@ export default function AdminDashboard() {
                           className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-[#BFD7C4] bg-[#EEF5EE] px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#28633D] disabled:cursor-wait disabled:opacity-50"
                         >
                           {restoringProductId === product.id && <Loader2 className="h-3 w-3 animate-spin" />}
-                          Restore product
+                          استعادة المنتج
                         </button>
                       </li>
                     ))}
@@ -895,12 +895,12 @@ export default function AdminDashboard() {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#FAF8F5] border-b border-[#EAE4DC] text-[#736B63] uppercase tracking-wider">
                     <tr>
-                      <th className="py-3 px-4">Piece</th>
-                      <th className="py-3 px-4">Category</th>
-                      <th className="py-3 px-4">Price / {settings.depositPercentage}% Deposit</th>
-                      <th className="py-3 px-4">Finishes</th>
-                      <th className="py-3 px-4">Featured</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
+                      <th className="py-3 px-4">المنتج</th>
+                      <th className="py-3 px-4">التصنيف</th>
+                      <th className="py-3 px-4">السعر / مقدم {settings.depositPercentage}%</th>
+                      <th className="py-3 px-4">التشطيب</th>
+                      <th className="py-3 px-4">مميز</th>
+                      <th className="py-3 px-4 text-right">الإجراءات</th>
                     </tr>
                   </thead>
                   {isCatalogLoading ? (
@@ -1011,7 +1011,7 @@ export default function AdminDashboard() {
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D] shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Create New Banner</span>
+                <span>إنشاء إعلان</span>
               </button>
             </div>
 
@@ -1020,12 +1020,12 @@ export default function AdminDashboard() {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#FAF8F5] border-b border-[#EAE4DC] text-[#736B63] uppercase tracking-wider">
                     <tr>
-                      <th className="py-3 px-4">Banner</th>
-                      <th className="py-3 px-4">Category & Badge</th>
-                      <th className="py-3 px-4">Highlight Pill / Code</th>
-                      <th className="py-3 px-4">Target Action</th>
-                      <th className="py-3 px-4">Active</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
+                      <th className="py-3 px-4">الإعلان</th>
+                      <th className="py-3 px-4">التصنيف والشارة</th>
+                      <th className="py-3 px-4">العنوان أو الكود</th>
+                      <th className="py-3 px-4">الإجراء</th>
+                      <th className="py-3 px-4">الحالة</th>
+                      <th className="py-3 px-4 text-right">الإجراءات</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#EAE4DC]">
@@ -1143,7 +1143,7 @@ export default function AdminDashboard() {
                 className="self-start sm:self-auto px-3.5 py-1.5 rounded-full border border-[#D8CEBF] text-xs text-[#524B45] hover:text-[#1C1A19] hover:border-[#1C1A19] flex items-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <RefreshCw className={`w-3 h-3 ${isOrdersLoading ? 'animate-spin' : ''}`} />
-                <span>Refresh Orders</span>
+                <span>تحديث الطلبات</span>
               </button>
             </div>
 
@@ -1194,16 +1194,16 @@ export default function AdminDashboard() {
               <div className="p-12 text-center bg-white rounded-2xl border border-[#EAE4DC] text-xs text-[#736B63] space-y-2">
                 {orderSearchQuery.trim() ? (
                   <>
-                    <p>No orders match &ldquo;{orderSearchQuery}&rdquo;.</p>
+                    <p>لا توجد طلبات تطابق «{orderSearchQuery}».</p>
                     <button
                       onClick={() => setOrderSearchQuery('')}
                       className="text-[#643D26] underline underline-offset-2"
                     >
-                      Clear search
+                      مسح البحث
                     </button>
                   </>
                 ) : (
-                  <p>No customer orders placed yet.</p>
+                  <p>لا توجد طلبات عملاء حتى الآن.</p>
                 )}
               </div>
             ) : (
@@ -1213,7 +1213,7 @@ export default function AdminDashboard() {
                   const isUpdating = updatingOrderId === ord.id;
                   const clientWhatsAppNumber = toWhatsAppNumber(ord.user?.phone);
                   const whatsappUrl = `https://wa.me/${clientWhatsAppNumber}?text=${encodeURIComponent(
-                    `Hello, this is Tocco House regarding Order #${ord.order_number}.`
+                    `مرحبًا، معك فريق مودرن هوم بخصوص الطلب رقم ${ord.order_number}.`
                   )}`;
 
                   return (
@@ -1234,16 +1234,16 @@ export default function AdminDashboard() {
                         {/* Status Pickers */}
                         <div className="flex flex-wrap items-center gap-2">
                           <div className="flex items-center gap-1.5 text-xs">
-                            <span className="text-[#736B63]">Status:</span>
+                            <span className="text-[#6D6A64]">الحالة:</span>
                             <select
                               value={ord.status}
                               disabled={isUpdating}
                               onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value as BackendOrderStatus)}
                               className="text-xs font-semibold py-1 px-2.5 rounded-lg border border-[#D8CEBF] bg-[#FAF8F5] focus:outline-none disabled:opacity-50"
                             >
-                              <option value="NOT_CONFIRMED">Not Confirmed (Pending)</option>
-                              <option value="CONFIRMED">Confirmed (In Production)</option>
-                              <option value="CANCELLED">Cancelled</option>
+                              <option value="NOT_CONFIRMED">غير مؤكد (قيد الانتظار)</option>
+                              <option value="CONFIRMED">مؤكد (قيد التنفيذ)</option>
+                              <option value="CANCELLED">ملغي</option>
                             </select>
                             {isUpdating && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#643D26]" />}
                           </div>
@@ -1253,7 +1253,7 @@ export default function AdminDashboard() {
                       {/* Customer & Address Details */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-[#524B45]">
                         <div>
-                          <span className="font-semibold text-[#1C1A19] block">Residence & Recipient:</span>
+                          <span className="font-semibold text-[#17324A] block">العنوان والمستلم:</span>
                           <p className="font-medium text-[#1C1A19]">{ord.shipping_address?.title || 'Private Residence'}</p>
                           <p className="text-[#736B63]">
                             {ord.user ? `${ord.user.first_name} ${ord.user.last_name}`.trim() || ord.user.email : 'Unknown customer'}
@@ -1261,7 +1261,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div>
-                          <span className="font-semibold text-[#1C1A19] block">Delivery Destination:</span>
+                          <span className="font-semibold text-[#17324A] block">عنوان التوصيل:</span>
                           {ord.shipping_address ? (
                             <>
                               <p>
@@ -1274,7 +1274,7 @@ export default function AdminDashboard() {
                               </p>
                             </>
                           ) : (
-                            <p className="text-[#8F8880]">No address record attached</p>
+                            <p className="text-[#817D75]">لا يوجد عنوان مرتبط بالطلب</p>
                           )}
                         </div>
 
@@ -1291,7 +1291,7 @@ export default function AdminDashboard() {
 
                       {ord.customer_notes && (
                         <div className="text-xs text-[#524B45] bg-[#FAF8F5] border border-[#EAE4DC] rounded-xl p-3">
-                          <span className="font-semibold text-[#1C1A19] block mb-0.5">Customer Notes:</span>
+                          <span className="font-semibold text-[#17324A] block mb-0.5">ملاحظات العميل:</span>
                           <p>{ord.customer_notes}</p>
                         </div>
                       )}
@@ -1334,7 +1334,7 @@ export default function AdminDashboard() {
                               ) : (
                                 <Check className="w-3 h-3" />
                               )}
-                              <span>Confirm Order</span>
+                              <span>تأكيد الطلب</span>
                             </button>
                           )}
 
@@ -1346,7 +1346,7 @@ export default function AdminDashboard() {
                               className="px-3 py-1.5 rounded-lg bg-[#2A2624] text-white text-xs font-medium flex items-center gap-1.5 hover:bg-[#3E3835] transition-colors"
                             >
                               <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-                              <span>WhatsApp Client</span>
+                              <span>مراسلة العميل</span>
                             </a>
                           ) : (
                             <span className="px-3 py-1.5 rounded-lg bg-[#EFEBE3] text-[#8F8880] text-xs font-medium">
@@ -1390,7 +1390,7 @@ export default function AdminDashboard() {
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Event</span>
+                <span>إضافة فعالية</span>
               </button>
             </div>
 
@@ -1470,7 +1470,7 @@ export default function AdminDashboard() {
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Project</span>
+                <span>إضافة مشروع</span>
               </button>
             </div>
 
@@ -1546,7 +1546,7 @@ export default function AdminDashboard() {
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D]"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Offer</span>
+                <span>إضافة عرض</span>
               </button>
             </div>
 
@@ -1561,8 +1561,8 @@ export default function AdminDashboard() {
               <SkeletonCardGrid count={4} columnsClassName="grid-cols-1 lg:grid-cols-2" showImage={false} />
             ) : offers.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[#D8CEBF] bg-white p-8 text-center">
-                <p className="text-sm text-[#1C1A19]">No offers are configured yet.</p>
-                <p className="text-xs text-[#736B63] mt-1">Create the first offer and it will be ready for customers.</p>
+                <p className="text-sm text-[#17324A]">لا توجد عروض حاليًا.</p>
+                <p className="text-xs text-[#6D6A64] mt-1">أنشئ عرضًا ليظهر للعملاء.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -1606,15 +1606,15 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="rounded-xl bg-[#FAF8F5] p-3 min-w-0">
-                        <span className="block text-[#8F8880]">Original</span>
+                        <span className="block text-[#817D75]">السعر الأصلي</span>
                         <span className="font-mono text-[#1C1A19] break-words">{formatCurrency(offer.original_price)}</span>
                       </div>
                       <div className="rounded-xl bg-[#FAF8F5] p-3 min-w-0">
-                        <span className="block text-[#8F8880]">Discount</span>
+                        <span className="block text-[#817D75]">الخصم</span>
                         <span className="font-mono text-[#1C1A19] break-words">{formatCurrency(offer.discount_amount)}</span>
                       </div>
                       <div className="rounded-xl bg-[#FAF8F5] p-3 min-w-0">
-                        <span className="block text-[#8F8880]">Final</span>
+                        <span className="block text-[#817D75]">بعد الخصم</span>
                         <span className="font-mono text-[#1C1A19] break-words">{formatCurrency(offer.offer_price)}</span>
                       </div>
                     </div>
@@ -1651,7 +1651,7 @@ export default function AdminDashboard() {
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D]"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Collaboration</span>
+                <span>إضافة شريك</span>
               </button>
             </div>
 
@@ -1666,8 +1666,8 @@ export default function AdminDashboard() {
               <SkeletonCardGrid count={6} imageAspectClassName="aspect-[4/3]" />
             ) : collaborations.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[#D8CEBF] bg-white p-8 text-center">
-                <p className="text-sm text-[#1C1A19]">No collaborations have been published yet.</p>
-                <p className="text-xs text-[#736B63] mt-1">Upload a Cloudinary image to save the first collaboration.</p>
+                <p className="text-sm text-[#17324A]">لا توجد جهات تعاون منشورة.</p>
+                <p className="text-xs text-[#6D6A64] mt-1">ارفع صورة لإضافة أول جهة تعاون.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1684,7 +1684,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="p-5 space-y-3">
                       <div>
-                        <span className="text-[10px] uppercase tracking-widest text-[#B85D38] font-semibold">Partner Feature</span>
+                        <span className="text-[10px] font-semibold text-[#A36046]">شريك مودرن هوم</span>
                         <h4 className="text-base font-semibold text-[#1C1A19] mt-1">{collaboration.title}</h4>
                       </div>
                       <div className="pt-2 border-t border-[#EAE4DC] flex justify-end">
@@ -1698,7 +1698,7 @@ export default function AdminDashboard() {
                           className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs uppercase tracking-wider text-[#B85D38] hover:bg-[#FFF5F0] disabled:opacity-60"
                         >
                           {deletingCollaborationId === collaboration.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                          <span>Delete</span>
+                          <span>حذف</span>
                         </button>
                       </div>
                     </div>
@@ -1726,7 +1726,7 @@ export default function AdminDashboard() {
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D]"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Color</span>
+                <span>إضافة لون</span>
               </button>
             </div>
 
@@ -1741,8 +1741,8 @@ export default function AdminDashboard() {
               <SkeletonCardGrid count={6} columnsClassName="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" showImage={false} />
             ) : colors.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[#D8CEBF] bg-white p-8 text-center">
-                <p className="text-sm text-[#1C1A19]">No colors have been created yet.</p>
-                <p className="text-xs text-[#736B63] mt-1">Add a color to make it available on product forms.</p>
+                <p className="text-sm text-[#17324A]">لم تتم إضافة ألوان بعد.</p>
+                <p className="text-xs text-[#6D6A64] mt-1">أضف لونًا لإتاحته في نماذج المنتجات.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1805,7 +1805,7 @@ export default function AdminDashboard() {
               </h4>
               <div className="text-xs">
                 <div>
-                  <label className="block text-[#736B63] mb-1">Handcrafted Deposit Percentage (%)</label>
+                  <label className="block text-[#6D6A64] mb-1">نسبة المقدم (%)</label>
                   <input
                     type="number"
                     min="0"
@@ -1839,7 +1839,7 @@ export default function AdminDashboard() {
 
               {/* InstaPay */}
               <div className="space-y-2 text-xs">
-                <label className="block font-medium text-[#1C1A19]">InstaPay IPA / Address</label>
+                <label className="block font-medium text-[#17324A]">عنوان إنستا باي</label>
                 <input
                   type="text"
                   value={instapayAddressValue}
@@ -1863,7 +1863,7 @@ export default function AdminDashboard() {
 
               {/* Mobile Wallet */}
               <div className="space-y-2 text-xs">
-                <label className="block font-medium text-[#1C1A19]">Mobile Wallet (Vodafone / Orange / Etisalat / WE Pay)</label>
+                <label className="block font-medium text-[#17324A]">المحفظة الإلكترونية (فودافون، أورنج، إي آند، وي)</label>
                 <input
                   type="text"
                   value={mobileWalletValue}
@@ -1911,7 +1911,7 @@ export default function AdminDashboard() {
               <div className="space-y-4 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Piece Title *</label>
+                    <label className="block text-[#17324A] font-medium mb-1">اسم المنتج *</label>
                     <input
                       type="text"
                       required
@@ -1928,7 +1928,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Category</label>
+                    <label className="block text-[#17324A] font-medium mb-1">التصنيف</label>
                     <select
                       value={editingProduct.categoryId}
                       onChange={(e) =>
@@ -1947,7 +1947,7 @@ export default function AdminDashboard() {
 
                 {/* Price */}
                 <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#EAE4DC]">
-                  <label className="block text-[#1C1A19] font-medium mb-1">Price (EGP)</label>
+                  <label className="block text-[#17324A] font-medium mb-1">السعر (جنيه)</label>
                   <input
                     type="number"
                     value={editingProduct.price || 0}
@@ -1962,7 +1962,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Description</label>
+                  <label className="block text-[#17324A] font-medium mb-1">الوصف</label>
                   <textarea
                     rows={3}
                     value={editingProduct.description}
@@ -1978,7 +1978,7 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Dimensions</label>
+                    <label className="block text-[#17324A] font-medium mb-1">الأبعاد</label>
                     <input
                       type="text"
                       value={editingProduct.dimensions}
@@ -1990,7 +1990,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Delivery Days</label>
+                    <label className="block text-[#17324A] font-medium mb-1">أيام التوصيل</label>
                     <input
                       type="number"
                       min="0"
@@ -2010,7 +2010,7 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Material</label>
+                    <label className="block text-[#17324A] font-medium mb-1">الخامة</label>
                     <input
                       type="text"
                       value={editingProduct.material}
@@ -2022,7 +2022,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Finish</label>
+                    <label className="block text-[#17324A] font-medium mb-1">التشطيب</label>
                     <div className="flex gap-2 p-2.5 rounded-lg border border-[#D8CEBF] bg-white">
                       {(['MATTE', 'GLOSSY'] as ProductFinish[]).map((finish) => {
                         const checked = editingProduct.finishes.includes(finish);
@@ -2050,10 +2050,10 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Subcategories *</label>
+                  <label className="block text-[#17324A] font-medium mb-1">الأقسام الفرعية *</label>
                   <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-[#D8CEBF] bg-[#FAF8F5] max-h-32 overflow-y-auto">
                     {subcategories.length === 0 ? (
-                      <p className="text-[#8F8880]">No subcategories available yet.</p>
+                      <p className="text-[#817D75]">لا توجد أقسام فرعية متاحة.</p>
                     ) : (
                       subcategories.map((sub) => {
                         const subId = String(sub.id);
@@ -2088,7 +2088,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Colors</label>
+                  <label className="block text-[#17324A] font-medium mb-1">الألوان</label>
                   <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-[#D8CEBF] bg-[#FAF8F5] max-h-32 overflow-y-auto">
                     {colors.length === 0 ? (
                       <p className="text-[#8F8880]">
@@ -2146,7 +2146,7 @@ export default function AdminDashboard() {
                       }
                       className="rounded border-[#D8CEBF]"
                     />
-                    <span>Feature on Homepage</span>
+                    <span>إظهار في الصفحة الرئيسية</span>
                   </label>
                 </div>
               </div>
@@ -2175,10 +2175,10 @@ export default function AdminDashboard() {
         {isCategoryModalOpen && editingCategory && (
           <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Category editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-[#EAE4DC] shadow-xl">
-              <h3 className="text-base font-medium text-[#1C1A19]">Category Details</h3>
+              <h3 className="text-base font-semibold text-[#17324A]">تفاصيل التصنيف</h3>
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-[#1C1A19] mb-1">Category Name</label>
+                  <label className="block text-[#17324A] mb-1">اسم التصنيف</label>
                   <input
                     type="text"
                     value={editingCategory.name}
@@ -2189,7 +2189,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[#1C1A19] mb-1">Description</label>
+                  <label className="block text-[#17324A] mb-1">الوصف</label>
                   <textarea
                     rows={2}
                     value={editingCategory.description}
@@ -2294,33 +2294,33 @@ export default function AdminDashboard() {
               <div className="space-y-4 text-xs">
                 <div>
                   <label className="mb-1 block font-medium text-[#1C1A19]">
-                    Event title <span className="text-rose-600">*</span>
+                    اسم الفعالية <span className="text-rose-600">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={editingEvent.title}
                     onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
-                    placeholder="e.g. Tocco House Spring Exhibition"
+                    placeholder="مثال: معرض مودرن هوم للأثاث"
                     className="w-full rounded-lg border border-[#D8CEBF] p-2.5 text-[#1C1A19] outline-none focus:border-[#1C1A19]"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1 block font-medium text-[#1C1A19]">Location <span className="font-normal text-[#8F8880]">(optional)</span></label>
+                    <label className="mb-1 block font-medium text-[#17324A]">الموقع <span className="font-normal text-[#817D75]">(اختياري)</span></label>
                     <input
                       type="text"
                       value={editingEvent.location}
                       onChange={(e) =>
                         setEditingEvent({ ...editingEvent, location: e.target.value })
                       }
-                      placeholder="e.g. Cairo Studio"
+                      placeholder="مثال: القاهرة الجديدة"
                       className="w-full rounded-lg border border-[#D8CEBF] p-2.5 text-[#1C1A19] outline-none focus:border-[#1C1A19]"
                     />
                   </div>
                   <div>
                     <label className="mb-1 block font-medium text-[#1C1A19]">
-                      Event date <span className="text-rose-600">*</span>
+                      تاريخ الفعالية <span className="text-rose-600">*</span>
                     </label>
                     <input
                       type="date"
@@ -2332,7 +2332,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <CloudinaryImageField
-                  label="Cover image"
+                  label="صورة الغلاف"
                   required
                   value={editingEvent.coverImage}
                   folder="tocco/events"
@@ -2353,7 +2353,7 @@ export default function AdminDashboard() {
                 />
                 <div>
                   <label className="mb-1 block font-medium text-[#1C1A19]">
-                    Description <span className="font-normal text-[#8F8880]">(optional)</span>
+                    الوصف <span className="font-normal text-[#817D75]">(اختياري)</span>
                   </label>
                   <textarea
                     rows={3}
@@ -2361,7 +2361,7 @@ export default function AdminDashboard() {
                     onChange={(e) =>
                       setEditingEvent({ ...editingEvent, description: e.target.value })
                     }
-                    placeholder="Add a short description for the event card."
+                    placeholder="أضف وصفًا مختصرًا للفعالية."
                     className="w-full rounded-lg border border-[#D8CEBF] p-2.5 text-[#1C1A19] outline-none focus:border-[#1C1A19]"
                   />
                 </div>
@@ -2376,7 +2376,7 @@ export default function AdminDashboard() {
                   disabled={isEventSaving}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63] disabled:opacity-50"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="submit"
@@ -2384,7 +2384,7 @@ export default function AdminDashboard() {
                   className="inline-flex min-w-32 items-center justify-center gap-2 rounded-full bg-[#1C1A19] px-5 py-2 text-xs uppercase tracking-wider text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isEventSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  {isEventSaving ? 'Saving...' : 'Save Event'}
+                  {isEventSaving ? 'جارٍ الحفظ...' : 'حفظ الفعالية'}
                 </button>
               </div>
             </form>
@@ -2396,7 +2396,7 @@ export default function AdminDashboard() {
           <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Project editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-medium text-[#1C1A19]">In Their Space Image</h3>
+                <h3 className="text-base font-semibold text-[#17324A]">صورة المشروع</h3>
                 <button
                   type="button"
                   onClick={() => setIsProjectModalOpen(false)}
@@ -2407,7 +2407,7 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-[#1C1A19] mb-1">Customer Name</label>
+                  <label className="block text-[#17324A] mb-1">اسم العميل أو المشروع</label>
                   <input
                     type="text"
                     value={editingProject.customerName || editingProject.title}
@@ -2416,7 +2416,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[#1C1A19] mb-1">Featured Caption</label>
+                  <label className="block text-[#17324A] mb-1">وصف المشروع</label>
                   <textarea
                     rows={3}
                     value={editingProject.description}
@@ -2425,7 +2425,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[#1C1A19] mb-1">Location <span className="font-normal text-[#8F8880]">(optional)</span></label>
+                  <label className="block text-[#17324A] mb-1">الموقع <span className="font-normal text-[#817D75]">(اختياري)</span></label>
                   <input
                     type="text"
                     value={editingProject.location}
@@ -2434,7 +2434,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <CloudinaryImageField
-                  label="Project Image"
+                  label="صورة المشروع"
                   required
                   value={editingProject.coverImage}
                   folder="space_projects"
@@ -2442,13 +2442,13 @@ export default function AdminDashboard() {
                   onUploadResult={(result) => setEditingProject({ ...editingProject, publicId: result.public_id, coverImage: result.secure_url || result.url })}
                 />
                 <div>
-                  <label className="block text-[#1C1A19] mb-1">Featured Product (Optional)</label>
+                  <label className="block text-[#17324A] mb-1">منتج مرتبط (اختياري)</label>
                   <select
                     value={editingProject.productId || ''}
                     onChange={(e) => setEditingProject({ ...editingProject, productId: e.target.value || undefined })}
                     className="w-full p-2.5 rounded-lg border border-[#D8CEBF] bg-white"
                   >
-                    <option value="">No linked product</option>
+                    <option value="">بدون منتج مرتبط</option>
                     {products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
                   </select>
                 </div>
@@ -2459,7 +2459,7 @@ export default function AdminDashboard() {
                   onClick={() => setIsProjectModalOpen(false)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="button"
@@ -2468,7 +2468,7 @@ export default function AdminDashboard() {
                   }}
                   className="px-5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider"
                 >
-                  Save Project
+                  حفظ المشروع
                 </button>
               </div>
             </div>
@@ -2481,9 +2481,9 @@ export default function AdminDashboard() {
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#EAE4DC]">
                 <div>
                   <h3 className="text-lg font-medium text-[#1C1A19]">
-                    {editingOffer.id ? 'Edit Offer' : 'Create Offer'}
+                    {editingOffer.id ? 'تعديل العرض' : 'إنشاء عرض'}
                   </h3>
-                  <p className="text-xs text-[#736B63] mt-1">Create a customer-ready offer for the catalogue.</p>
+                  <p className="text-xs text-[#6D6A64] mt-1">أنشئ عرضًا ليظهر للعملاء في المنتجات.</p>
                 </div>
                 <button
                   onClick={() => setEditingOffer(null)}
@@ -2503,7 +2503,7 @@ export default function AdminDashboard() {
               <div className="space-y-4 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Offer Name *</label>
+                    <label className="block text-[#17324A] font-medium mb-1">اسم العرض *</label>
                     <input
                       type="text"
                       value={editingOffer.name}
@@ -2512,7 +2512,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Offer Type</label>
+                    <label className="block text-[#17324A] font-medium mb-1">نوع العرض</label>
                     <select
                       value={editingOffer.offer_type}
                       onChange={(e) => setEditingOffer({
@@ -2523,12 +2523,12 @@ export default function AdminDashboard() {
                       })}
                       className="w-full p-2.5 rounded-lg border border-[#D8CEBF] bg-white"
                     >
-                      <option value="PERCENTAGE">Percentage Discount</option>
-                      <option value="BUNDLE">Bundle Price</option>
-                      <option value="FREE_SHIPPING">Free Shipping</option>
+                      <option value="PERCENTAGE">خصم بنسبة مئوية</option>
+                      <option value="BUNDLE">سعر مجموعة</option>
+                      <option value="FREE_SHIPPING">شحن مجاني</option>
                     </select>
                     <p className="mt-1 text-[10px] text-[#736B63]">
-                      Switching offer type requires entering a new value for that type.
+                      يتطلب تغيير نوع العرض إدخال قيمة جديدة مناسبة.
                     </p>
                   </div>
                 </div>
@@ -2536,7 +2536,7 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#FAF8F5] border border-[#EAE4DC]">
                   {editingOffer.offer_type === 'PERCENTAGE' && (
                     <div>
-                      <label className="block text-[#1C1A19] font-medium mb-1">Percentage (%) *</label>
+                      <label className="block text-[#17324A] font-medium mb-1">نسبة الخصم (%) *</label>
                       <input
                         type="number"
                         min="1"
@@ -2549,13 +2549,13 @@ export default function AdminDashboard() {
                         className="w-full p-2.5 rounded-lg border border-[#D8CEBF] font-mono bg-white"
                       />
                       <p className="mt-1 text-[10px] text-[#736B63]">
-                        Current combined listed value: {formatCurrency(getOfferListedValue(editingOffer.products, products))}. Repeated product rows and quantities are included. The backend rejects bundle prices above its current listed value; cart line subtotals reconcile to the bundle total.
+                        القيمة الإجمالية الحالية للمنتجات: {formatCurrency(getOfferListedValue(editingOffer.products, products))}. يشمل ذلك تكرار المنتجات والكميات. لا يمكن أن يتجاوز سعر المجموعة هذه القيمة.
                       </p>
                     </div>
                   )}
                   {editingOffer.offer_type === 'BUNDLE' && (
                     <div>
-                      <label className="block text-[#1C1A19] font-medium mb-1">Bundle Price (EGP) *</label>
+                      <label className="block text-[#17324A] font-medium mb-1">سعر المجموعة (جنيه) *</label>
                       <input
                         type="number"
                         min="1"
@@ -2567,7 +2567,7 @@ export default function AdminDashboard() {
                         className="w-full p-2.5 rounded-lg border border-[#D8CEBF] font-mono bg-white"
                       />
                       <p className="mt-1 text-[10px] text-[#736B63]">
-                        Combined listed value for the included quantities: {formatCurrency(getOfferListedValue(editingOffer.products, products))}. The bundle price must not exceed this amount. Cart line totals are allocated to reconcile to the bundle price, including across repeated product rows.
+                        القيمة الإجمالية للكميات المختارة: {formatCurrency(getOfferListedValue(editingOffer.products, products))}. يجب ألا يتجاوز سعر المجموعة هذا المبلغ.
                       </p>
                     </div>
                   )}
@@ -2578,13 +2578,13 @@ export default function AdminDashboard() {
                       onChange={(e) => setEditingOffer({ ...editingOffer, is_active: e.target.checked })}
                       className="rounded border-[#D8CEBF]"
                     />
-                    <span className="font-medium text-[#1C1A19]">Active</span>
+                    <span className="font-medium text-[#17324A]">نشط</span>
                   </label>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-3">
-                    <label className="block text-[#1C1A19] font-medium">Included Products *</label>
+                    <label className="block text-[#17324A] font-medium">المنتجات المشمولة *</label>
                     <button
                       type="button"
                       onClick={() => setEditingOffer({
@@ -2593,7 +2593,7 @@ export default function AdminDashboard() {
                       })}
                       className="text-[11px] uppercase tracking-wider text-[#B85D38] hover:text-[#1C1A19]"
                     >
-                      Add Product
+                      إضافة منتج
                     </button>
                   </div>
                   {editingOffer.products.map((item, index) => (
@@ -2608,7 +2608,7 @@ export default function AdminDashboard() {
                         }}
                         className="w-full p-2.5 rounded-lg border border-[#D8CEBF] bg-white min-w-0"
                       >
-                        <option value="">Select product</option>
+                        <option value="">اختر منتجًا</option>
                         {products
                           .filter((product) => Number.isInteger(Number(product.id)))
                           .map((product) => (
@@ -2644,7 +2644,7 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Starts At</label>
+                    <label className="block text-[#17324A] font-medium mb-1">يبدأ في</label>
                     <input
                       type="datetime-local"
                       value={editingOffer.starts_at}
@@ -2653,7 +2653,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Ends At</label>
+                    <label className="block text-[#17324A] font-medium mb-1">ينتهي في</label>
                     <input
                       type="datetime-local"
                       value={editingOffer.ends_at}
@@ -2670,7 +2670,7 @@ export default function AdminDashboard() {
                   onClick={() => setEditingOffer(null)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="button"
@@ -2679,7 +2679,7 @@ export default function AdminDashboard() {
                   className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium disabled:opacity-70"
                 >
                   {isOfferSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Save Offer</span>
+                  <span>حفظ العرض</span>
                 </button>
               </div>
             </div>
@@ -2692,8 +2692,8 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#EAE4DC]">
                 <div>
-                  <h3 className="text-base font-medium text-[#1C1A19]">Collaboration Details</h3>
-                  <p className="text-xs text-[#736B63] mt-1">Upload a collaboration image and preview it before saving.</p>
+                  <h3 className="text-base font-semibold text-[#17324A]">تفاصيل الشريك</h3>
+                  <p className="text-xs text-[#6D6A64] mt-1">ارفع صورة الشريك وراجعها قبل الحفظ.</p>
                 </div>
                 <button
                   onClick={() => setEditingCollaboration(null)}
@@ -2712,7 +2712,7 @@ export default function AdminDashboard() {
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Title *</label>
+                  <label className="block text-[#17324A] font-medium mb-1">الاسم *</label>
                   <input
                     type="text"
                     value={editingCollaboration.title}
@@ -2721,7 +2721,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <CloudinaryImageField
-                  label="Collaboration Image"
+                  label="صورة الشريك"
                   required
                   value={editingCollaboration.image}
                   folder="tocco/collaborations"
@@ -2748,7 +2748,7 @@ export default function AdminDashboard() {
                   onClick={() => setEditingCollaboration(null)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="button"
@@ -2757,7 +2757,7 @@ export default function AdminDashboard() {
                   className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider disabled:opacity-70"
                 >
                   {isCollaborationSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Save Collaboration</span>
+                  <span>حفظ الشريك</span>
                 </button>
               </div>
             </div>
@@ -2770,9 +2770,9 @@ export default function AdminDashboard() {
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#EAE4DC]">
                 <div>
                   <h3 className="text-base font-medium text-[#1C1A19]">
-                    {editingColor.id ? 'Edit Color' : 'Add Color'}
+                    {editingColor.id ? 'تعديل اللون' : 'إضافة لون'}
                   </h3>
-                  <p className="text-xs text-[#736B63] mt-1">Colors become selectable on every product form.</p>
+                  <p className="text-xs text-[#6D6A64] mt-1">ستظهر الألوان في نماذج المنتجات.</p>
                 </div>
                 <button
                   onClick={() => setEditingColor(null)}
@@ -2791,7 +2791,7 @@ export default function AdminDashboard() {
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Name *</label>
+                  <label className="block text-[#17324A] font-medium mb-1">اسم اللون *</label>
                   <input
                     type="text"
                     value={editingColor.name}
@@ -2800,7 +2800,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Hex Code *</label>
+                  <label className="block text-[#17324A] font-medium mb-1">رمز اللون *</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
@@ -2825,7 +2825,7 @@ export default function AdminDashboard() {
                   onClick={() => setEditingColor(null)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="button"
@@ -2834,7 +2834,7 @@ export default function AdminDashboard() {
                   className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider disabled:opacity-70"
                 >
                   {isColorSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Save Color</span>
+                  <span>حفظ اللون</span>
                 </button>
               </div>
             </div>
@@ -2846,7 +2846,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-8 space-y-5 my-8 border border-[#EAE4DC] shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center pb-4 border-b border-[#EAE4DC]">
                 <h3 className="text-lg font-medium text-[#1C1A19]">
-                  {editingBanner.title ? `Edit: ${editingBanner.title}` : 'Create New Banner Highlight'}
+                  {editingBanner.title ? `تعديل: ${editingBanner.title}` : 'إنشاء إعلان جديد'}
                 </h3>
                 <button
                   onClick={() => setIsBannerModalOpen(false)}
@@ -2859,15 +2859,15 @@ export default function AdminDashboard() {
               <div className="space-y-4 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Banner Type *</label>
+                    <label className="block text-[#17324A] font-medium mb-1">نوع الإعلان *</label>
                     <select
                       value={editingBanner.type}
                       onChange={(e) => {
                         const t = e.target.value as any;
-                        let catLabel = 'New Release';
-                        if (t === 'special_offer') catLabel = 'Design Privilege';
-                        if (t === 'upcoming_event') catLabel = 'Design Event';
-                        if (t === 'custom_service') catLabel = 'Bespoke Studio';
+                        let catLabel = 'وصل حديثًا';
+                        if (t === 'special_offer') catLabel = 'عرض خاص';
+                        if (t === 'upcoming_event') catLabel = 'فعالية';
+                        if (t === 'custom_service') catLabel = 'تصنيع حسب الطلب';
                         setEditingBanner({
                           ...editingBanner,
                           type: t,
@@ -2876,19 +2876,19 @@ export default function AdminDashboard() {
                       }}
                       className="w-full p-2.5 rounded-lg border border-[#D8CEBF] bg-white"
                     >
-                      <option value="new_product">منتج جديد (New Piece / Product)</option>
-                      <option value="special_offer">اوفر وعرض استثنائي (Special Privilege / Offer)</option>
-                      <option value="upcoming_event">ايفنت ومعرض (Upcoming Event / Exhibition)</option>
-                      <option value="custom_service">تنفيذ وتفصيل خاص (Bespoke Commission)</option>
+                      <option value="new_product">منتج جديد</option>
+                      <option value="special_offer">عرض خاص</option>
+                      <option value="upcoming_event">فعالية قادمة</option>
+                      <option value="custom_service">تصنيع حسب الطلب</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Badge Text *</label>
+                    <label className="block text-[#17324A] font-medium mb-1">نص الشارة *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. NEW RELEASE · 2026 EDITION"
+                      placeholder="مثال: مجموعة جديدة"
                       value={editingBanner.badgeText}
                       onChange={(e) =>
                         setEditingBanner({ ...editingBanner, badgeText: e.target.value })
@@ -2899,11 +2899,11 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Banner Title *</label>
+                  <label className="block text-[#17324A] font-medium mb-1">عنوان الإعلان *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. The Solis Monumental Dining Table"
+                    placeholder="مثال: طاولة سفرة مودرن"
                     value={editingBanner.title}
                     onChange={(e) =>
                       setEditingBanner({ ...editingBanner, title: e.target.value })
@@ -2913,11 +2913,11 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-[#1C1A19] font-medium mb-1">Subtitle / Description *</label>
+                  <label className="block text-[#17324A] font-medium mb-1">الوصف *</label>
                   <textarea
                     rows={2}
                     required
-                    placeholder="Describe the highlight piece, event details, or promotional terms..."
+                    placeholder="أضف تفاصيل المنتج أو الفعالية أو العرض..."
                     value={editingBanner.subtitle}
                     onChange={(e) =>
                       setEditingBanner({ ...editingBanner, subtitle: e.target.value })
@@ -2928,10 +2928,10 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Highlight Pill / Tag</label>
+                    <label className="block text-[#17324A] font-medium mb-1">عنوان مختصر أو وسم</label>
                     <input
                       type="text"
-                      placeholder="e.g. Oct 14-18, New Cairo or Code: TOCCOWHITE"
+                      placeholder="مثال: عرض لفترة محدودة أو كود: MODERNHOME"
                       value={editingBanner.tagHighlight || ''}
                       onChange={(e) =>
                         setEditingBanner({ ...editingBanner, tagHighlight: e.target.value })
@@ -2941,10 +2941,10 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Promo Code (if offer)</label>
+                    <label className="block text-[#17324A] font-medium mb-1">كود العرض (إن وجد)</label>
                     <input
                       type="text"
-                      placeholder="e.g. TOCCOWHITE"
+                      placeholder="MODERNHOME"
                       value={editingBanner.promoCode || ''}
                       onChange={(e) =>
                         setEditingBanner({
@@ -2960,11 +2960,11 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Button CTA Text *</label>
+                    <label className="block text-[#17324A] font-medium mb-1">نص الزر *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Explore New Piece"
+                      placeholder="مثال: اكتشف المنتج"
                       value={editingBanner.ctaText}
                       onChange={(e) =>
                         setEditingBanner({ ...editingBanner, ctaText: e.target.value })
@@ -2974,7 +2974,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-[#1C1A19] font-medium mb-1">Target Page</label>
+                    <label className="block text-[#17324A] font-medium mb-1">الصفحة المستهدفة</label>
                     <select
                       value={editingBanner.targetView || 'shop'}
                       onChange={(e) =>
@@ -2982,16 +2982,16 @@ export default function AdminDashboard() {
                       }
                       className="w-full p-2.5 rounded-lg border border-[#D8CEBF] bg-white"
                     >
-                      <option value="shop">Catalogue (Shop)</option>
-                      <option value="events">Events & Exhibitions</option>
-                      <option value="custom-design">Custom Design (Bespoke)</option>
-                      <option value="our-story">Our Story</option>
+                      <option value="shop">المنتجات</option>
+                      <option value="events">الفعاليات والمعارض</option>
+                      <option value="custom-design">التصنيع حسب الطلب</option>
+                      <option value="our-story">عن مودرن هوم</option>
                     </select>
                   </div>
                 </div>
 
                 <CloudinaryImageField
-                  label="Background Image"
+                  label="صورة الخلفية"
                   required
                   value={editingBanner.image}
                   folder="tocco/banners"
@@ -3008,7 +3008,7 @@ export default function AdminDashboard() {
                       }
                       className="rounded border-[#D8CEBF]"
                     />
-                    <span className="font-medium text-[#1C1A19]">Active (Display on Homepage)</span>
+                    <span className="font-medium text-[#17324A]">نشط (يظهر في الصفحة الرئيسية)</span>
                   </label>
                 </div>
               </div>
@@ -3019,7 +3019,7 @@ export default function AdminDashboard() {
                   onClick={() => setIsBannerModalOpen(false)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="button"
@@ -3031,7 +3031,7 @@ export default function AdminDashboard() {
                   }}
                   className="px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium hover:bg-[#332F2D]"
                 >
-                  Save Banner
+                  حفظ الإعلان
                 </button>
               </div>
             </div>
@@ -3039,9 +3039,9 @@ export default function AdminDashboard() {
         )}
         <ConfirmDialog
           isOpen={Boolean(pendingDelete)}
-          title={pendingDelete?.title || 'Confirm Delete'}
+          title={pendingDelete?.title || 'تأكيد الحذف'}
           description={pendingDelete?.description || ''}
-          confirmLabel="Delete"
+          confirmLabel="حذف"
           isLoading={isDeleteProcessing}
           onCancel={() => setPendingDelete(null)}
           onConfirm={handlePendingDelete}
