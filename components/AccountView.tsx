@@ -36,7 +36,6 @@ import {
   Copy,
 } from 'lucide-react';
 
-
 export default function AccountView() {
   const { orders, submitPaymentProof, settings, navigateTo } = useToccoStore();
   const {
