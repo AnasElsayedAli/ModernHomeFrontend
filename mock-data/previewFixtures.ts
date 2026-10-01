@@ -308,8 +308,8 @@ export const previewSettings: StoreSettings = {
   defaultLeadTime: 'حسب الطلب',
   defaultShippingTime: 'يتم تأكيد تفاصيل التوصيل بعد مراجعة الطلب',
   contact: {
-    phone: '01000000000',
-    whatsapp: '201000000000',
+    phone: '+201039323247',
+    whatsapp: '+201039323247',
     email: 'preview@example.invalid',
     atelierAddress: 'القاهرة، مصر',
     mapUrl: 'https://maps.google.com/?q=Cairo,Egypt',

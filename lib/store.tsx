@@ -51,8 +51,8 @@ const EMPTY_SETTINGS: StoreSettings = {
   defaultLeadTime: 'حسب الطلب',
   defaultShippingTime: 'تُؤكد تفاصيل التوصيل بعد مراجعة الطلب',
   contact: {
-    phone: '01080182663',
-    whatsapp: '01080182663',
+    phone: '+201039323247',
+    whatsapp: '+201039323247',
     email: '',
     atelierAddress: 'القاهرة الجديدة، القاهرة، مصر',
     mapUrl: 'https://www.google.com/maps/place/30%C2%B003%2700.6%22N+31%C2%B027%2720.0%22E/@30.0501537,31.4529839,17z/data=!3m1!4b1!4m4!3m3!8m2!3d30.0501537!4d31.4555588?hl=en&entry=ttu&g_ep=EgoyMDI2MDkxNi4wIKXMDSoASAFQAw%3D%3D',
