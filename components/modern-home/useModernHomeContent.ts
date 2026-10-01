@@ -14,10 +14,12 @@ export function useModernHomeContent() {
     categories,
     projects,
     events,
+    isCatalogLoading,
     storeDataErrors,
   } = useToccoStore();
   const isDevelopment = process.env.NODE_ENV !== 'production';
-  const usePreviewCatalog = isDevelopment && Boolean(storeDataErrors.catalog);
+  const usePreviewCatalog = !isCatalogLoading
+    && (Boolean(storeDataErrors.catalog) || products.length === 0);
   const usePreviewProjects = isDevelopment && Boolean(storeDataErrors.projects);
   const usePreviewEvents = isDevelopment && Boolean(storeDataErrors.events);
 
