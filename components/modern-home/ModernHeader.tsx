@@ -7,11 +7,9 @@ import { useAuth } from '@/lib/context/AuthContext';
 import { ToccoMark } from '@/components/ToccoLogo';
 
 const links: { label: string; view: AppView }[] = [
-  { label: 'المجموعة', view: 'shop' },
-  { label: 'تصنيع حسب الطلب', view: 'custom-design' },
-  { label: 'مشروعات الأعمال', view: 'b2b' },
-  { label: 'مشروعاتنا', view: 'projects' },
-  { label: 'الفعاليات', view: 'events' },
+  { label: 'تصنيع محلي', view: 'custom-design' },
+  { label: 'أثاث مستورد', view: 'imported' },
+  { label: 'الكتالوج الكامل', view: 'shop' },
   { label: 'حكايتنا', view: 'our-story' },
 ];
 

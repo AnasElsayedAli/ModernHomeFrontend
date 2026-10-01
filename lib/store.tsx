@@ -204,6 +204,7 @@ export type AppView =
   | 'shop'
   | 'product'
   | 'custom-design'
+  | 'imported'
   | 'b2b'
   | 'our-story'
   | 'events'
@@ -221,7 +222,7 @@ export type AppView =
   | 'admin';
 
 const APP_VIEWS = new Set<AppView>([
-  'home', 'shop', 'product', 'custom-design', 'b2b', 'our-story', 'events', 'projects',
+  'home', 'shop', 'product', 'custom-design', 'imported', 'b2b', 'our-story', 'events', 'projects',
   'cart', 'checkout', 'confirmation', 'account', 'shipping', 'returns', 'faq', 'contact',
   'privacy', 'terms', 'admin',
 ]);

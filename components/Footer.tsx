@@ -45,11 +45,9 @@ export default function Footer() {
               <h2 className="text-xs font-semibold text-[#E9CBA6]">اكتشف</h2>
               <ul className="space-y-3 text-sm text-white/75">
                 {([
-                  ['shop', 'المجموعة'],
-                  ['custom-design', 'تصنيع حسب الطلب'],
-                  ['b2b', 'مشروعات الأعمال'],
-                  ['projects', 'مشروعاتنا'],
-                  ['events', 'الفعاليات'],
+                  ['custom-design', 'تصنيع محلي'],
+                  ['imported', 'أثاث مستورد'],
+                  ['shop', 'الكتالوج الكامل'],
                   ['our-story', 'حكايتنا'],
                 ] as [AppView, string][]).map(([view, label]) => (
                   <li key={view}>
