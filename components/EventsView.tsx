@@ -9,7 +9,7 @@ import { useModernHomeContent } from './modern-home/useModernHomeContent';
 
 export default function EventsView() {
   const { settings, isEventsLoading, storeDataErrors, reloadStoreData } = useToccoStore();
-  const { events, usingPreviewEvents } = useModernHomeContent();
+  const { events } = useModernHomeContent();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
 
   const filteredEvents = events.filter((ev) => {
@@ -51,14 +51,11 @@ export default function EventsView() {
       </header>
 
       <main className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
-        {usingPreviewEvents && (
-          <p role="status" className="mt-5 border-r-2 border-[#A36046] bg-[#EEE7DC] px-3 py-2 text-xs text-[#625E57]">فعاليات معاينة محلية لعرض التصميم فقط.</p>
-        )}
         {isEventsLoading ? (
           <div className="flex min-h-64 items-center justify-center py-16 text-sm text-[#6D6A64]" role="status" aria-live="polite">
               جارٍ تحميل الفعاليات...
           </div>
-        ) : storeDataErrors.events && !usingPreviewEvents ? (
+        ) : storeDataErrors.events ? (
           <div role="alert" className="my-8 border-y border-[#DED5C9] px-5 py-10 text-center">
               <p className="text-sm font-semibold text-[#17324A]">تعذر تحميل الفعاليات</p>
             <p className="mt-2 text-xs text-[#736B63]">{storeDataErrors.events}</p>

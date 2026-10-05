@@ -10,6 +10,9 @@ import {
   Mail,
   Phone,
   MapPin,
+  Facebook,
+  Instagram,
+  Music2,
   MessageCircle,
   ChevronDown,
   ChevronUp,
@@ -246,6 +249,20 @@ export function ContactView() {
                     </div>
                   </div>
                 )}
+                <div className="flex flex-wrap gap-x-5 gap-y-3 border-t border-[#DED5C9] pt-5 text-xs">
+                  <a href={settings.contact.facebookUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[#524B45] hover:text-[#643D26]">
+                    <Facebook className="h-4 w-4" aria-hidden="true" />
+                    <span>فيسبوك</span>
+                  </a>
+                  <a href={`https://instagram.com/${settings.contact.instagramHandles[0]?.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[#524B45] hover:text-[#643D26]">
+                    <Instagram className="h-4 w-4" aria-hidden="true" />
+                    <span>إنستجرام</span>
+                  </a>
+                  <a href={settings.contact.tiktokUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[#524B45] hover:text-[#643D26]">
+                    <Music2 className="h-4 w-4" aria-hidden="true" />
+                    <span>تيك توك</span>
+                  </a>
+                </div>
               </div>
 
               <a

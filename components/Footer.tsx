@@ -4,7 +4,7 @@ import React from 'react';
 import { useToccoStore, AppView } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
 import ToccoLogo from './ToccoLogo';
-import { ArrowUpLeft, Instagram, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { ArrowUpLeft, Facebook, Instagram, Mail, MapPin, MessageCircle, Music2, Phone } from 'lucide-react';
 
 export default function Footer() {
   const { navigateTo, settings } = useToccoStore();
@@ -98,6 +98,14 @@ export default function Footer() {
                     <span>{handle}</span>
                   </a>
                 ))}
+                <a href={settings.contact.facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-white">
+                  <Facebook className="h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
+                  <span>فيسبوك</span>
+                </a>
+                <a href={settings.contact.tiktokUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-white">
+                  <Music2 className="h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
+                  <span>تيك توك</span>
+                </a>
               </div>
             </div>
           </div>

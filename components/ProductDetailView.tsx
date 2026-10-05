@@ -37,14 +37,12 @@ export default function ProductDetailView() {
     storeDataErrors,
     reloadStoreData,
   } = useToccoStore();
-  const { products, categories, usingPreviewCatalog } = useModernHomeContent();
+  const { categories } = useModernHomeContent();
 
   const product = useMemo(() => {
     if (!selectedProductId) return null;
-    return usingPreviewCatalog
-      ? products.find((item) => item.id === selectedProductId) || null
-      : getProductById(selectedProductId) || null;
-  }, [selectedProductId, getProductById, products, usingPreviewCatalog]);
+    return getProductById(selectedProductId) || null;
+  }, [selectedProductId, getProductById]);
 
   // Active state for configurable attributes
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
@@ -345,20 +343,18 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
                       <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: color.hex }} />
                     </button>
                   ))}
-                  {!usingPreviewCatalog && (
-                    <button
-                      type="button"
-                      onClick={() => void toggleColorMenu()}
-                      className={`grid h-10 w-10 place-items-center rounded-full border ${isCustomColorSelected ? 'border-[#17324A]' : 'border-[#D9CEBF]'}`}
-                      title="اختيار لون آخر"
-                      aria-label="اختيار لون آخر"
-                      aria-expanded={isColorMenuOpen}
-                    >
-                      {isCustomColorSelected
-                        ? <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: selectedColor.hex }} />
-                        : <Plus className="h-4 w-4 text-[#17324A]" aria-hidden="true" />}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => void toggleColorMenu()}
+                    className={`grid h-10 w-10 place-items-center rounded-full border ${isCustomColorSelected ? 'border-[#17324A]' : 'border-[#D9CEBF]'}`}
+                    title="اختيار لون آخر"
+                    aria-label="اختيار لون آخر"
+                    aria-expanded={isColorMenuOpen}
+                  >
+                    {isCustomColorSelected
+                      ? <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: selectedColor.hex }} />
+                      : <Plus className="h-4 w-4 text-[#17324A]" aria-hidden="true" />}
+                  </button>
                 </div>
 
                 {isColorMenuOpen && (
@@ -472,16 +468,14 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
                     id="add-to-cart-btn"
                     type="button"
                     onClick={handleAddToCart}
-                    disabled={isAddingToCart || usingPreviewCatalog}
+                    disabled={isAddingToCart}
                     className="flex min-h-12 flex-1 items-center justify-center gap-2 bg-[#17324A] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isAddingToCart ? <Loader2 className="h-4 w-4 animate-spin" /> : addedAnimation ? <Check className="h-4 w-4 text-[#65C987]" /> : null}
-                    <span>{usingPreviewCatalog ? 'للمعاينة فقط' : isAddingToCart ? 'جارٍ الإضافة...' : addedAnimation ? 'أُضيفت للحقيبة' : 'أضف إلى الحقيبة'}</span>
+                    <span>{isAddingToCart ? 'جارٍ الإضافة...' : addedAnimation ? 'أُضيفت للحقيبة' : 'أضف إلى الحقيبة'}</span>
                   </button>
                 )}
               </div>
-
-              {usingPreviewCatalog && product.price > 0 && <p className="text-xs leading-6 text-[#6D6A64]">بيانات القطعة تجريبية في وضع التطوير؛ لن تُرسل إلى سلة المتجر.</p>}
 
               {cartError && (
                 <div role="alert" className="flex items-start gap-2 border border-red-200 bg-red-50 p-3 text-xs text-red-800">

@@ -69,7 +69,9 @@ async function proxy(request: NextRequest) {
     responseHeaders.append('set-cookie', cookieValue);
   }
 
-  const body = await upstreamResponse.arrayBuffer();
+  const body = [204, 205, 304].includes(upstreamResponse.status)
+    ? null
+    : await upstreamResponse.arrayBuffer();
 
   return new NextResponse(body, {
     status: upstreamResponse.status,

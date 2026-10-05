@@ -20,7 +20,7 @@ export default function ShopCatalog() {
     storeDataErrors,
     reloadStoreData,
   } = useToccoStore();
-  const { products, categories, usingPreviewCatalog } = useModernHomeContent();
+  const { products, categories } = useModernHomeContent();
 
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>(
     selectedCategoryId || 'all'
@@ -46,16 +46,6 @@ export default function ShopCatalog() {
     const handle = setTimeout(() => {
       setIsSearching(true);
       setSearchError(null);
-      if (usingPreviewCatalog) {
-        const normalizedQuery = query.toLocaleLowerCase('ar');
-        setSearchResults(products.filter((product) =>
-          [product.name, product.description, product.material]
-            .some((value) => value.toLocaleLowerCase('ar').includes(normalizedQuery))
-        ));
-        setSearchResultsQuery(query);
-        setIsSearching(false);
-        return;
-      }
       productService
         .getProducts({ search: query })
         .then((backendProducts) => {
@@ -77,7 +67,7 @@ export default function ShopCatalog() {
       active = false;
       clearTimeout(handle);
     };
-  }, [searchQuery, searchRetryVersion, subcategories, usingPreviewCatalog, products]);
+  }, [searchQuery, searchRetryVersion, subcategories]);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
@@ -133,11 +123,6 @@ export default function ShopCatalog() {
 
   return (
     <div id="shop-catalog-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
-      {usingPreviewCatalog && (
-        <p role="status" className="border-b border-[#DED5C9] bg-[#EEE7DC] px-5 py-2.5 text-center text-xs text-[#625E57] sm:px-10">
-          مجموعة معاينة محلية · بيانات تجريبية لعرض التصميم فقط
-        </p>
-      )}
       <header className="border-b border-[#D8CEBF] bg-[#E8E3D9] py-8 sm:py-12 lg:py-16">
         <div className="mx-auto flex max-w-[1500px] flex-col justify-between gap-6 px-5 sm:px-10 lg:flex-row lg:items-end lg:px-14">
           <div className="max-w-3xl space-y-3">
@@ -260,6 +245,10 @@ export default function ShopCatalog() {
             <button type="button" onClick={() => void reloadStoreData()} className="mt-5 bg-[#17324A] px-5 py-3 text-sm font-semibold text-white hover:bg-[#24445E]">
               إعادة المحاولة
             </button>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="text-xl font-semibold text-[#17324A]">لا توجد منتجات معروضة حاليًا.</p>
           </div>
         ) : isSearchWaitingForCurrentQuery ? (
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 pt-8 md:grid-cols-12 md:gap-x-6 md:gap-y-12" role="status" aria-live="polite">

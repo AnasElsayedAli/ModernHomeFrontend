@@ -179,6 +179,8 @@ export interface StoreSettings {
     atelierAddress: string;
     mapUrl: string;
     instagramHandles: string[];
+    facebookUrl: string;
+    tiktokUrl: string;
     hours: string;
   };
   paymentMethods: {

@@ -8,7 +8,7 @@ import { useModernHomeContent } from './modern-home/useModernHomeContent';
 
 export default function ProjectsView() {
   const { navigateTo, isProjectsLoading, storeDataErrors, reloadStoreData } = useToccoStore();
-  const { projects, usingPreviewProjects } = useModernHomeContent();
+  const { projects } = useModernHomeContent();
   const leadProject = projects[0];
 
   return (
@@ -27,29 +27,30 @@ export default function ProjectsView() {
           </button>
         </div>
         <div className="relative min-h-[320px] overflow-hidden bg-[#6A5A48] sm:min-h-[500px] lg:col-span-7">
-          <Image
-            src={leadProject?.coverImage || 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1500&q=85'}
-            alt={leadProject?.title || 'مساحة منزلية نفذتها مودرن هوم'}
-            fill
-            priority
-            sizes="(max-width: 1024px) 100vw, 58vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#17324A]/40 to-transparent" />
-          <span className="absolute bottom-4 right-4 text-xs text-white sm:bottom-6 sm:right-7">القاهرة · مصر</span>
+          {leadProject?.coverImage && (
+            <>
+              <Image
+                src={leadProject.coverImage}
+                alt={leadProject.title}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#17324A]/40 to-transparent" />
+              {leadProject.location && <span className="absolute bottom-4 right-4 text-xs text-white sm:bottom-6 sm:right-7">{leadProject.location}</span>}
+            </>
+          )}
         </div>
       </section>
 
       <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
-        {usingPreviewProjects && (
-          <p role="status" className="mt-5 border-r-2 border-[#A36046] bg-[#EEE7DC] px-3 py-2 text-xs text-[#625E57]">مشروعات معاينة محلية لعرض التصميم فقط.</p>
-        )}
         <div className="space-y-12 py-8 sm:space-y-20 sm:py-14">
           {isProjectsLoading ? (
             <div className="flex min-h-64 items-center justify-center py-16 text-xs uppercase tracking-wider text-[#736B63]" role="status" aria-live="polite">
               جارٍ تحميل المشروعات...
             </div>
-          ) : storeDataErrors.projects && !usingPreviewProjects ? (
+          ) : storeDataErrors.projects ? (
             <div role="alert" className="rounded-xl border border-rose-200 bg-white p-8 text-center">
               <p className="text-sm font-semibold text-[#17324A]">تعذر تحميل المشروعات</p>
               <p className="mt-2 text-xs text-[#736B63]">{storeDataErrors.projects}</p>

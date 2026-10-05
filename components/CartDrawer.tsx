@@ -6,7 +6,6 @@ import { X, Plus, Minus, Trash2, ArrowLeft, ShieldCheck, ShoppingBag } from 'luc
 import Image from '@/components/SafeImage';
 import { useAccessibleDialog } from '@/hooks/use-accessible-dialog';
 import { normalizeApiError } from '@/lib/api/errors';
-import { previewCart } from '@/mock-data/previewFixtures';
 
 export default function CartDrawer() {
   const {
@@ -26,38 +25,24 @@ export default function CartDrawer() {
     navigateTo,
     settings,
     products,
-    storeDataErrors,
   } = useToccoStore();
   const [cartActionError, setCartActionError] = React.useState<string | null>(null);
   const [isCartActionPending, setIsCartActionPending] = React.useState(false);
   const primaryImagesByProductId = new Map(
     products.map((product) => [product.id, product.images[0]] as const)
   );
-  const isPreviewCart = process.env.NODE_ENV !== 'production'
-    && Boolean(storeDataErrors.cart)
-    && cart.length === 0;
-  const visibleCart = isPreviewCart ? previewCart : cart;
-  const visibleSubtotal = isPreviewCart
-    ? visibleCart.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
-    : cartSubtotal;
-  const visibleDeposit = isPreviewCart
-    ? Math.round(visibleSubtotal * settings.depositPercentage / 100)
-    : cartDepositAmount;
-  const visibleRemaining = visibleSubtotal - visibleDeposit;
-
   const closeDrawer = () => setIsCartDrawerOpen(false);
   const { dialogRef, handleDialogKeyDown } = useAccessibleDialog(isCartDrawerOpen, closeDrawer);
 
   if (!isCartDrawerOpen) return null;
 
   const handleCheckout = () => {
-    if (isPreviewCart) return;
     setIsCartDrawerOpen(false);
     navigateTo('checkout');
   };
 
   const runCartAction = async (action: () => Promise<void>) => {
-    if (isPreviewCart || isCartActionPending || isGuestCartSyncing) return;
+    if (isCartActionPending || isGuestCartSyncing) return;
     setCartActionError(null);
     setIsCartActionPending(true);
     try {
@@ -96,7 +81,7 @@ export default function CartDrawer() {
                   <div>
                     <p className="text-[10px] font-semibold text-[#A36046]">اختياراتك من مودرن هوم</p>
                     <h2 id="cart-drawer-title" className="mt-1 font-[family-name:var(--font-display)] text-2xl text-[#17324A] sm:text-3xl">
-                      الحقيبة <span className="me-1 font-[family-name:var(--font-brand)] text-sm font-normal text-[#81786C]">({visibleCart.reduce((count, item) => count + item.quantity, 0)})</span>
+                      الحقيبة <span className="me-1 font-[family-name:var(--font-brand)] text-sm font-normal text-[#81786C]">({cart.reduce((count, item) => count + item.quantity, 0)})</span>
                   </h2>
                 </div>
                 <button
@@ -110,11 +95,6 @@ export default function CartDrawer() {
               </div>
 
               <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
-                {isPreviewCart && (
-                  <p role="status" className="border-r-2 border-[#A36046] bg-[#EEE7DC] px-3 py-2.5 text-xs leading-6 text-[#625E57]">
-                    حقيبة معاينة محلية فقط. لن تُرسل هذه القطعة التجريبية إلى المتجر.
-                  </p>
-                )}
                 {isGuestCartSyncing && (
                   <p role="status" className="border border-[#D9CEBF] bg-white px-3 py-2 text-xs text-[#42515C]">
                     جارٍ نقل المنتجات المحفوظة إلى حسابك...
@@ -133,7 +113,7 @@ export default function CartDrawer() {
                 )}
                 {isCartActionPending && <p role="status" className="text-xs text-[#6D6A64]">جارٍ تحديث السلة...</p>}
 
-                {visibleCart.length === 0 ? (
+                {cart.length === 0 ? (
                   <div className="flex h-full flex-col items-start justify-center py-12 text-right">
                     <span className="font-[family-name:var(--font-brand)] text-6xl font-light text-[#C8BBA9]">00</span>
                     <div className="mt-3 space-y-2">
@@ -153,7 +133,7 @@ export default function CartDrawer() {
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    {visibleCart.map((item) => {
+                    {cart.map((item) => {
                       const itemSubtotal = item.subtotal ?? item.unitPrice * item.quantity;
                       const originalSubtotal = item.originalSubtotal ?? item.unitPrice * item.quantity;
                       return (
@@ -175,7 +155,7 @@ export default function CartDrawer() {
                                   <button
                                     type="button"
                                     onClick={() => void runCartAction(() => removeFromCart(item.id))}
-                                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                                    disabled={isGuestCartSyncing || isCartActionPending}
                                     className="grid h-8 w-8 shrink-0 place-items-center text-[#817D75] transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:cursor-wait disabled:opacity-50"
                                     title="إزالة المنتج"
                                     aria-label={`إزالة ${item.productName} من السلة`}
@@ -199,7 +179,7 @@ export default function CartDrawer() {
                                   <button
                                     type="button"
                                     onClick={() => void runCartAction(() => updateCartQuantity(item.id, item.quantity - 1))}
-                                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                                    disabled={isGuestCartSyncing || isCartActionPending}
                                     className="grid h-8 w-8 place-items-center text-[#42515C] hover:text-[#17324A] disabled:cursor-wait disabled:opacity-50"
                                     aria-label="تقليل الكمية"
                                   >
@@ -209,7 +189,7 @@ export default function CartDrawer() {
                                   <button
                                     type="button"
                                     onClick={() => void runCartAction(() => updateCartQuantity(item.id, item.quantity + 1))}
-                                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                                    disabled={isGuestCartSyncing || isCartActionPending}
                                     className="grid h-8 w-8 place-items-center text-[#42515C] hover:text-[#17324A] disabled:cursor-wait disabled:opacity-50"
                                     aria-label="زيادة الكمية"
                                   >
@@ -231,7 +211,7 @@ export default function CartDrawer() {
                 )}
               </div>
 
-              {visibleCart.length > 0 && (
+              {cart.length > 0 && (
                 <div className="space-y-4 border-t border-[#DED5C9] bg-[#FBF9F4] px-5 py-5 sm:px-7">
                   <div className="flex items-start gap-2 border-r-2 border-[#C8A77D] bg-[#EEE7DC] px-3 py-2.5 text-xs leading-6 text-[#42515C]">
                     <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-[#17324A]" aria-hidden="true" />
@@ -248,15 +228,15 @@ export default function CartDrawer() {
                     {cartFreeShipping && <div className="flex justify-between text-emerald-700"><span>الشحن</span><span className="font-medium">مجاني</span></div>}
                     <div className="flex justify-between">
                       <span>إجمالي الطلب</span>
-                      <span className="font-medium text-[#17324A]">{new Intl.NumberFormat('ar-EG').format(visibleSubtotal)} جنيه</span>
+                      <span className="font-medium text-[#17324A]">{new Intl.NumberFormat('ar-EG').format(cartSubtotal)} جنيه</span>
                     </div>
                     <div className="flex justify-between border-t border-[#E6DED2] pt-2 font-semibold text-[#17324A]">
                       <span>المقدم المستحق الآن</span>
-                      <span>{new Intl.NumberFormat('ar-EG').format(visibleDeposit)} جنيه</span>
+                      <span>{new Intl.NumberFormat('ar-EG').format(cartDepositAmount)} جنيه</span>
                     </div>
                     <div className="flex justify-between text-xs text-[#6D6A64]">
                       <span>المتبقي عند التسليم</span>
-                      <span>{new Intl.NumberFormat('ar-EG').format(visibleRemaining)} جنيه</span>
+                      <span>{new Intl.NumberFormat('ar-EG').format(cartRemainingAmount)} جنيه</span>
                     </div>
                   </div>
 
@@ -264,11 +244,11 @@ export default function CartDrawer() {
                     id="cart-proceed-checkout-btn"
                     type="button"
                     onClick={handleCheckout}
-                    disabled={isPreviewCart || isGuestCartSyncing || isCartActionPending}
+                    disabled={isGuestCartSyncing || isCartActionPending}
                     className="flex min-h-12 w-full items-center justify-center gap-2 bg-[#17324A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <span>{isPreviewCart ? 'معاينة فقط' : 'متابعة الطلب'}</span>
-                    {!isPreviewCart && <ArrowLeft className="h-4 w-4" aria-hidden="true" />}
+                    <span>متابعة الطلب</span>
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               )}

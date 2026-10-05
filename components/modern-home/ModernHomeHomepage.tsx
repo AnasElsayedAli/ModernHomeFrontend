@@ -18,10 +18,6 @@ import { useModernHomeContent } from './useModernHomeContent';
 
 // High-fidelity imagery
 const HERO_IMAGE = '/images/apple_hero_living_1790845941555.jpg';
-const CRAFT_IMAGE = '/images/apple_craft_details_1790845954723.jpg';
-const DINING_IMAGE = '/images/apple_dining_sculptural_1790845966979.jpg';
-const ARMCHAIR_IMAGE = '/images/apple_armchair_studio_1790845976502.jpg';
-
 const priceFormatter = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 });
 
 function formatPrice(price: number): string {
@@ -42,48 +38,13 @@ export default function ModernHomeHomepage() {
     return publishedProducts.slice(0, 8);
   }, [publishedProducts]);
 
-  // Real client homes showcase ("في بيوتكم")
-  const homeStories = useMemo(() => {
-    if (projects && projects.length > 0) {
-      return projects.slice(0, 4).map((p, idx) => ({
-        id: p.id,
-        title: p.title.replace('مشروع ', ''),
-        location: p.location || 'القاهرة',
-        image: p.coverImage || (idx === 0 ? HERO_IMAGE : idx === 1 ? DINING_IMAGE : idx === 2 ? ARMCHAIR_IMAGE : CRAFT_IMAGE),
-        pieces: p.featuredPieces?.join(' · ') || (p.productsUsed?.join(' · ')) || 'أثاث مودرن هوم',
-      }));
-    }
-    return [
-      {
-        id: 'home-1',
-        title: 'صالون المعيشة المعاصر',
-        location: 'الشيخ زايد',
-        image: HERO_IMAGE,
-        pieces: 'صوفا كونتور · طاولة ترافرتين طبيعي',
-      },
-      {
-        id: 'home-2',
-        title: 'ركن السفرة المفتوح',
-        location: 'التجمع الخامس',
-        image: DINING_IMAGE,
-        pieces: 'طاولة حجرية مضلعة · كراسي زان طبيعي',
-      },
-      {
-        id: 'home-3',
-        title: 'زاوية الاسترخاء والمطالعة',
-        location: 'المعادي',
-        image: ARMCHAIR_IMAGE,
-        pieces: 'كرسي تيمبو النحتي · طاولة خدمة',
-      },
-      {
-        id: 'home-4',
-        title: 'وحدة التخزين المعلقة',
-        location: 'القاهرة الجديدة',
-        image: CRAFT_IMAGE,
-        pieces: 'بوفيه خشب زان · تعشيقات يدوية',
-      },
-    ];
-  }, [projects]);
+  const homeStories = projects.slice(0, 4).map((project) => ({
+    id: project.id,
+    title: project.title.replace('مشروع ', ''),
+    location: project.location,
+    image: project.coverImage,
+    pieces: project.featuredPieces?.join(' · ') || project.productsUsed?.join(' · ') || '',
+  }));
 
   const handleProductSelect = (product: Product) => {
     navigateTo('product', { productId: product.id });
@@ -234,6 +195,7 @@ export default function ModernHomeHomepage() {
       {/* ─────────────────────────────────────────────────────────────
           3. CURATED SHOWCASE (MIX OF LOCAL & IMPORTED PIECES)
           ───────────────────────────────────────────────────────────── */}
+      {displayedProducts.length > 0 && (
       <section className="mx-auto max-w-[1440px] px-4 pt-12 sm:px-6 sm:pt-16 md:px-8">
         <div className="flex items-end justify-between border-b border-[#E6DED2] pb-4">
           <div>
@@ -258,7 +220,7 @@ export default function ModernHomeHomepage() {
         <div className="mt-6">
           <div className="flex snap-x snap-mandatory gap-3.5 overflow-x-auto pb-3 no-scrollbar sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:pb-0">
             {displayedProducts.map((product) => {
-              const primaryImage = product.images[0] || HERO_IMAGE;
+              const primaryImage = product.images[0];
               const isImported = product.categoryId === '802' || product.slug?.includes('imported') || product.allowsCustomization === false;
 
               return (
@@ -268,13 +230,15 @@ export default function ModernHomeHomepage() {
                   className="group cursor-pointer flex w-[74vw] max-w-[280px] shrink-0 snap-start flex-col rounded-2xl border border-[#E6DED2]/80 bg-white p-3 shadow-sm transition-all sm:w-auto sm:max-w-none hover:shadow-md"
                 >
                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F0EAE1]">
-                    <Image
-                      src={primaryImage}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 640px) 74vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+                    {primaryImage && (
+                      <Image
+                        src={primaryImage}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 640px) 74vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    )}
 
                     {/* Origin Badge: Local vs Imported */}
                     <span
@@ -317,11 +281,13 @@ export default function ModernHomeHomepage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           4. "في بيوتكم" (CREATIVE REAL CLIENT LIVING SPACES SHOWCASE)
           Replaces the old space studio with real living home photography
           ───────────────────────────────────────────────────────────── */}
+      {homeStories.length > 0 && (
       <section className="mx-auto max-w-[1440px] px-4 pt-12 sm:px-6 sm:pt-16 md:px-8">
         <div className="flex items-end justify-between border-b border-[#E6DED2] pb-4">
           <div>
@@ -357,19 +323,23 @@ export default function ModernHomeHomepage() {
               >
                 {/* Photo with Location badge */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F0EAE1]">
-                  <Image
-                    src={story.image}
-                    alt={story.title}
-                    fill
-                    sizes="(max-width: 640px) 78vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                  {story.image && (
+                    <>
+                      <Image
+                        src={story.image}
+                        alt={story.title}
+                        fill
+                        sizes="(max-width: 640px) 78vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                    </>
+                  )}
 
-                  <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-md border border-white/10">
+                  {story.location && <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-md border border-white/10">
                     <MapPin className="h-2.5 w-2.5 text-[#E9CBA6]" aria-hidden="true" />
                     <span>{story.location}</span>
-                  </span>
+                  </span>}
                 </div>
 
                 {/* Caption Details */}
@@ -378,9 +348,7 @@ export default function ModernHomeHomepage() {
                     <h3 className="font-bold text-sm text-[#18232D] group-hover:text-[#17324A] truncate">
                       {story.title}
                     </h3>
-                    <p className="mt-0.5 text-[11px] text-[#6D6A64] line-clamp-1">
-                      {story.pieces}
-                    </p>
+                    {story.pieces && <p className="mt-0.5 text-[11px] text-[#6D6A64] line-clamp-1">{story.pieces}</p>}
                   </div>
 
                   <div className="mt-3 flex items-center justify-between border-t border-[#F2ECE2] pt-2 text-[11px]">
@@ -396,6 +364,7 @@ export default function ModernHomeHomepage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           5. VIP CONCIERGE BANNER
