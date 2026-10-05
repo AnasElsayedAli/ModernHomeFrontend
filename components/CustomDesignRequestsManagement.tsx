@@ -21,9 +21,20 @@ import {
 } from 'lucide-react';
 
 function formatDimensions(dimensions: CustomDesignRequest['dimensions']): string {
+  const labels: Record<string, string> = {
+    width: 'العرض',
+    height: 'الارتفاع',
+    depth: 'العمق',
+    length: 'الطول',
+    diameter: 'القطر',
+  };
+
   return Object.entries(dimensions)
     .filter((entry): entry is [string, number] => typeof entry[1] === 'number')
-    .map(([key, value]) => `${key.replace('_cm', '').replace('_', ' ')}: ${value} cm`)
+    .map(([key, value]) => {
+      const dimension = key.replace('_cm', '').replace(/_.*/, '');
+      return `${labels[dimension] || 'البعد'}: ${value} سم`;
+    })
     .join(' · ');
 }
 
@@ -77,7 +88,7 @@ export default function CustomDesignRequestsManagement() {
       setConfirmDeleteId(null);
     } catch (deleteError) {
       const normalized = normalizeApiError(deleteError);
-      setError(`Could not confirm deletion of this request and its attached images. Refresh to verify the current state before retrying. ${normalized.message}`);
+      setError(`تعذر تأكيد حذف الطلب والصور المرفقة به. حدّث الصفحة للتحقق من الحالة الحالية قبل المحاولة مرة أخرى. ${normalized.message}`);
     } finally {
       setDeletingId(null);
     }
@@ -96,7 +107,7 @@ export default function CustomDesignRequestsManagement() {
           disabled={isLoading}
           className="inline-flex w-fit items-center gap-2 border border-[#D9CEBF] px-3.5 py-2 text-sm text-[#42515C] hover:border-[#17324A] hover:text-[#17324A] disabled:opacity-50"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} /> Refresh
+            <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} /> تحديث
         </button>
       </header>
 
@@ -121,7 +132,7 @@ export default function CustomDesignRequestsManagement() {
 
       {isLoading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-[#EAE4DC] bg-white p-10 text-xs text-[#736B63]">
-          <Loader2 className="h-4 w-4 animate-spin text-[#643D26]" /> Loading requests...
+          <Loader2 className="h-4 w-4 animate-spin text-[#643D26]" /> جارٍ تحميل الطلبات...
         </div>
       ) : requests.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[#D8CEBF] bg-white p-10 text-center">
@@ -143,18 +154,18 @@ export default function CustomDesignRequestsManagement() {
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-sm font-semibold text-[#1C1A19]">{request.title}</h3>
                       <span className={`rounded-full px-2 py-1 text-[9px] font-semibold uppercase tracking-wider ${request.request_type === 'BUSINESS' ? 'bg-[#E8F0F2] text-[#28596A]' : 'bg-[#F5F0E8] text-[#785132]'}`}>
-                        {request.request_type}
+                        {request.request_type === 'BUSINESS' ? 'مشروع أعمال' : 'تصنيع حسب الطلب'}
                       </span>
                       <span className="text-[10px] text-[#8F8880]">#{request.id}</span>
                     </div>
                     <p className="whitespace-pre-wrap text-xs leading-relaxed text-[#524B45]">{request.description}</p>
                     <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-[#736B63]">
-                      <span className="inline-flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5" />{formatDimensions(request.dimensions) || 'Dimensions not specified'}</span>
+                      <span className="inline-flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5" />{formatDimensions(request.dimensions) || 'الأبعاد غير محددة'}</span>
                       <span>الكمية: {request.quantity}</span>
                       {request.company_name && <span className="inline-flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5" />{request.company_name}</span>}
                       {request.project_location && <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{request.project_location}</span>}
                       {request.target_delivery_date && <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />الموعد المطلوب: {request.target_delivery_date}</span>}
-                      <span>{new Date(request.created_at).toLocaleDateString()}</span>
+                      <span>{new Date(request.created_at).toLocaleDateString('ar-EG')}</span>
                     </div>
                     {images.length > 0 && (
                       <div className="flex flex-wrap gap-2 pt-1">
@@ -166,7 +177,7 @@ export default function CustomDesignRequestsManagement() {
                             <div className="relative h-20 w-20 overflow-hidden rounded-md border border-[#D8CEBF] bg-[#FAF8F5]">
                               <SafeImage
                                 src={image.image}
-                                alt={`Reference image ${image.sort_order} for ${request.title}`}
+                                  alt={`صورة مرجعية رقم ${image.sort_order} للطلب ${request.title}`}
                                 fill
                                 sizes="80px"
                                 className="object-cover"
@@ -187,7 +198,7 @@ export default function CustomDesignRequestsManagement() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 rounded-full bg-[#1C1A19] px-3.5 py-2 text-[10px] font-medium uppercase tracking-wider text-white hover:bg-[#332F2D]"
                       >
-                        <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" /> WhatsApp client
+                        <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" /> مراسلة العميل عبر واتساب
                       </a>
                     ) : (
                       <span className="text-[10px] text-[#817D75]">لا يوجد رقم للتواصل</span>
@@ -198,7 +209,7 @@ export default function CustomDesignRequestsManagement() {
                         <button type="button" onClick={() => void handleDelete(request)} disabled={deletingId === request.id} className="rounded-md px-2 py-1.5 text-[10px] font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-60">
                           {deletingId === request.id ? 'جارٍ الحذف...' : 'تأكيد'}
                         </button>
-                        <button type="button" onClick={() => setConfirmDeleteId(null)} disabled={deletingId === request.id} className="rounded-md p-1.5 text-[#736B63] hover:bg-[#FAF8F5]" aria-label="Cancel delete">
+                        <button type="button" onClick={() => setConfirmDeleteId(null)} disabled={deletingId === request.id} className="rounded-md p-1.5 text-[#736B63] hover:bg-[#FAF8F5]" aria-label="إلغاء الحذف">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </div>

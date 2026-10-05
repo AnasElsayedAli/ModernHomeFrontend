@@ -36,35 +36,35 @@ function isHtmlDocument(value: string): boolean {
 }
 
 function messageForStatus(status?: number): string {
-  if (status === 401) return 'Please sign in to continue.';
-  if (status === 403) return "You don't have permission to do that.";
-  if (status === 404) return "We couldn't find what you're looking for.";
-  if (status === 409) return 'This item has changed. Please review it and try again.';
-  if (status === 429) return 'Too many attempts. Please wait a moment and try again.';
-  if (status && status >= 500) return 'Something went wrong on our side. Please try again shortly.';
-  return 'Something went wrong. Please try again.';
+  if (status === 401) return 'سجّل الدخول للمتابعة.';
+  if (status === 403) return 'ليس لديك صلاحية لتنفيذ هذا الإجراء.';
+  if (status === 404) return 'لم نعثر على ما تبحث عنه.';
+  if (status === 409) return 'تغير هذا العنصر. راجعه ثم حاول مرة أخرى.';
+  if (status === 429) return 'عدد المحاولات كبير. انتظر قليلًا ثم حاول مرة أخرى.';
+  if (status && status >= 500) return 'حدث خطأ من جانبنا. حاول مرة أخرى بعد قليل.';
+  return 'حدث خطأ غير متوقع. حاول مرة أخرى.';
 }
 
 function toUserFacingMessage(message: string, status?: number): string {
-  if (isHtmlDocument(message)) return 'Something went wrong. Please try again.';
+  if (isHtmlDocument(message)) return messageForStatus(status);
   if (/failed to fetch|networkerror|err_network|network request failed|\bnetwork error\b/i.test(message)) {
-    return "We couldn't connect. Check your internet connection and try again.";
+    return 'تعذر الاتصال. تحقق من اتصال الإنترنت ثم حاول مرة أخرى.';
   }
   if (/timed? ?out|timeout/i.test(message)) {
-    return 'This is taking longer than expected. Please try again.';
+    return 'استغرق الطلب وقتًا أطول من المتوقع. حاول مرة أخرى.';
   }
   if (/csrf|x-csrftoken|cross-site request forgery|cross[- ]origin|\btoken\b|\bjwt\b|\bcors\b|origin checking|trusted origin|\bcookie\b/i.test(message)) {
     return status === 401
-      ? 'Your sign-in has expired. Please sign in again.'
-      : 'We could not verify this request. Please refresh the page and try again.';
+      ? 'انتهت صلاحية تسجيل الدخول. سجّل الدخول مرة أخرى.'
+      : 'تعذر التحقق من الطلب. حدّث الصفحة ثم حاول مرة أخرى.';
   }
   if (/cloudinary|upload preset|cloud name|upload folder|folder header|folder values/i.test(message)) {
-    return "We couldn't upload this image. Please try again.";
+    return 'تعذر رفع الصورة. حاول مرة أخرى.';
   }
   if (/front[- ]?end|back[- ]?end|\bapi\b|\bhttp\b|\bhtml\b|\bjson\b|endpoint|\bproxy\b|\bserver\b|database|pagination|unauthorized|authentication|authorization|\bsession\b|stack trace|traceback|exception|keyerror|valueerror|typeerror|attributeerror|integrityerror|operationalerror|programmingerror|vercel|railway/i.test(message)) {
     return messageForStatus(status);
   }
-  return message;
+  return /[A-Za-z]/.test(message) ? messageForStatus(status) : message;
 }
 
 function toUserFacingFieldErrors(
@@ -86,7 +86,7 @@ function toUserFacingFieldErrors(
  */
 export function normalizeApiError(error: unknown, fallbackStatus?: number): NormalizedError {
   const fieldErrors: Record<string, string[]> = {};
-  let message = 'An unexpected error occurred. Please try again.';
+  let message = 'حدث خطأ غير متوقع. حاول مرة أخرى.';
   let status = fallbackStatus;
 
   if (!error) {
@@ -97,9 +97,9 @@ export function normalizeApiError(error: unknown, fallbackStatus?: number): Norm
   if (error instanceof ApiError) {
     let normalizedMessage = error.message;
     if (isHtmlDocument(normalizedMessage)) {
-      normalizedMessage = 'Something went wrong. Please try again.';
+      normalizedMessage = messageForStatus(error.status);
     } else if (normalizedMessage.includes('Failed to fetch') || normalizedMessage.includes('NetworkError')) {
-      normalizedMessage = "We couldn't connect. Check your internet connection and try again.";
+      normalizedMessage = 'تعذر الاتصال. تحقق من اتصال الإنترنت ثم حاول مرة أخرى.';
     }
     return {
       message: toUserFacingMessage(normalizedMessage, error.status),
@@ -113,10 +113,10 @@ export function normalizeApiError(error: unknown, fallbackStatus?: number): Norm
   if (error instanceof Error) {
     message = error.message;
     if (error.name === 'AbortError' || error.message.includes('timeout')) {
-      message = 'This is taking longer than expected. Please try again.';
+      message = 'استغرق الطلب وقتًا أطول من المتوقع. حاول مرة أخرى.';
       status = 408;
     } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-      message = "We couldn't connect. Check your internet connection and try again.";
+      message = 'تعذر الاتصال. تحقق من اتصال الإنترنت ثم حاول مرة أخرى.';
       status = 0;
     }
   }
@@ -135,7 +135,7 @@ export function normalizeApiError(error: unknown, fallbackStatus?: number): Norm
   }
 
   if (isHtmlDocument(message)) {
-    message = 'Something went wrong. Please try again.';
+    message = messageForStatus(status);
   }
 
   // If error is an object (e.g. parsed JSON response from DRF)
@@ -195,16 +195,16 @@ export function normalizeApiError(error: unknown, fallbackStatus?: number): Norm
 
   // HTTP Status-specific overrides if message is still too generic
   if (status) {
-    if (status === 401 && message === 'An unexpected error occurred. Please try again.') {
-      message = 'Please sign in to continue.';
-    } else if (status === 403 && message === 'An unexpected error occurred. Please try again.') {
-      message = 'You do not have permission to perform this action.';
-    } else if (status === 404 && message === 'An unexpected error occurred. Please try again.') {
-      message = "We couldn't find what you're looking for.";
-    } else if (status === 409 && message === 'An unexpected error occurred. Please try again.') {
-      message = 'This item has changed. Please review it and try again.';
+    if (status === 401 && message === 'حدث خطأ غير متوقع. حاول مرة أخرى.') {
+      message = messageForStatus(401);
+    } else if (status === 403 && message === 'حدث خطأ غير متوقع. حاول مرة أخرى.') {
+      message = messageForStatus(403);
+    } else if (status === 404 && message === 'حدث خطأ غير متوقع. حاول مرة أخرى.') {
+      message = messageForStatus(404);
+    } else if (status === 409 && message === 'حدث خطأ غير متوقع. حاول مرة أخرى.') {
+      message = messageForStatus(409);
     } else if (status === 429) {
-      message = 'Too many attempts. Please wait a moment and try again.';
+      message = messageForStatus(429);
     }
   }
 

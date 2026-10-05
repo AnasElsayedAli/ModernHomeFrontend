@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, Search, ShoppingBag, UserRound, X } from 'lucide-react';
+import { ArrowLeft, Search, ShoppingBag, SlidersHorizontal, UserRound, X } from 'lucide-react';
 import { useToccoStore, type AppView } from '@/lib/store';
 import { useAuth } from '@/lib/context/AuthContext';
 import { ToccoMark } from '@/components/ToccoLogo';
@@ -105,9 +105,12 @@ export default function ModernHeader() {
             <button
               type="button"
               onClick={() => goToView('admin')}
-              className="hidden min-h-9 border-r border-[#DED5C9] pe-3 text-[11px] font-medium text-[#6D6A64] hover:text-[#17324A] xl:block"
+              aria-label="إدارة المتجر"
+              title="إدارة المتجر"
+              className="grid h-10 w-10 shrink-0 place-items-center text-[#6D6A64] transition-colors hover:bg-[#EEE7DC] hover:text-[#17324A] sm:flex sm:w-auto sm:items-center sm:gap-2 sm:border-r sm:border-[#DED5C9] sm:pe-3 sm:text-[11px] sm:font-medium"
             >
-              إدارة المتجر
+              <SlidersHorizontal className="h-[17px] w-[17px]" aria-hidden="true" />
+              <span className="hidden sm:inline">إدارة المتجر</span>
             </button>
           )}
         </div>

@@ -23,7 +23,6 @@ import {
   Layers,
   Package,
   FolderTree,
-  Calendar,
   Image as ImageIcon,
   Settings,
   MessageCircle,
@@ -44,13 +43,11 @@ import {
   ArrowLeft,
   Flame,
   Tag,
-  Compass,
   AlertCircle,
   Loader2,
   Palette,
   Search,
   Users,
-  FileText,
 } from 'lucide-react';
 import Image from '@/components/SafeImage';
 import { orderService } from '@/lib/api/services/orderService';
@@ -95,11 +92,17 @@ type ColorDraft = {
 
 const formatCurrency = (value: string | number | null | undefined) => {
   const amount = Number(value || 0);
-  return new Intl.NumberFormat('en-EG', {
+  return new Intl.NumberFormat('ar-EG', {
     style: 'currency',
     currency: 'EGP',
     maximumFractionDigits: 0,
   }).format(amount);
+};
+
+const formatOfferType = (type: OfferType) => {
+  if (type === 'PERCENTAGE') return 'خصم بنسبة مئوية';
+  if (type === 'BUNDLE') return 'سعر مجموعة';
+  return 'شحن مجاني';
 };
 
 const toDateTimeInputValue = (value: string | null) => (value ? value.slice(0, 16) : '');
@@ -196,13 +199,13 @@ export default function AdminDashboard() {
     setEditingBanner({
       id: `ban-${Date.now()}`,
       type: 'new_product',
-      categoryLabel: 'New Release',
-      badgeText: 'NEW RELEASE · 2026 EDITION',
+      categoryLabel: 'إصدار جديد',
+      badgeText: 'إصدار جديد · ٢٠٢٦',
       title: '',
       subtitle: '',
       tagHighlight: '',
       image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
-      ctaText: 'Explore New Piece',
+      ctaText: 'اكتشف القطعة الجديدة',
       actionType: 'navigate',
       targetView: 'shop',
       targetId: '',
@@ -272,11 +275,11 @@ export default function AdminDashboard() {
       const result = await productService.restoreProduct(product.id);
       setArchivedProducts((current) => current.filter((item) => item.id !== product.id));
       await reloadStoreData();
-      setArchivedProductsSuccess(result.detail || `"${product.name}" was restored.`);
+      setArchivedProductsSuccess(`تمت استعادة المنتج «${product.name}».`);
     } catch (err) {
       const normalized = normalizeApiError(err);
       setArchivedProductsError(
-        `Could not restore "${product.name}". Check that all linked categories and subcategories are active, then retry. ${normalized.message}`
+        `تعذرت استعادة المنتج «${product.name}». تأكد من أن التصنيفات والأقسام المرتبطة به نشطة، ثم حاول مرة أخرى. ${normalized.message}`
       );
     } finally {
       setRestoringProductId(null);
@@ -402,7 +405,8 @@ export default function AdminDashboard() {
     try {
       const updated = await orderService.updateOrderStatus(orderId, { status: newStatus });
       setBackendOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
-      setStatusUpdateSuccess(`Order #${updated.order_number} status updated to ${newStatus}`);
+      const statusLabel = newStatus === 'CONFIRMED' ? 'مؤكد' : newStatus === 'CANCELLED' ? 'ملغي' : 'غير مؤكد';
+      setStatusUpdateSuccess(`تم تحديث حالة الطلب رقم ${updated.order_number} إلى «${statusLabel}».`);
       setTimeout(() => setStatusUpdateSuccess(null), 4000);
     } catch (err) {
       const normalized = normalizeApiError(err);
@@ -444,15 +448,15 @@ export default function AdminDashboard() {
       }))
       .filter((item) => Number.isInteger(item.product_id) && item.product_id > 0 && item.quantity > 0);
 
-    if (!draft.name.trim()) throw new Error('Offer name is required.');
-    if (!selectedProducts.length) throw new Error('Select at least one product for this offer.');
+    if (!draft.name.trim()) throw new Error('أدخل اسم العرض.');
+    if (!selectedProducts.length) throw new Error('اختر منتجًا واحدًا على الأقل لهذا العرض.');
     if (draft.offer_type === 'PERCENTAGE' && (!Number.isFinite(Number(draft.percentage)) || Number(draft.percentage) <= 0)) {
-      throw new Error('Enter a percentage greater than 0 for this offer type.');
+      throw new Error('أدخل نسبة خصم أكبر من صفر لهذا العرض.');
     }
     if (draft.offer_type === 'BUNDLE') {
       const bundlePrice = Number(draft.bundle_price);
       if (!Number.isFinite(bundlePrice) || bundlePrice <= 0) {
-        throw new Error('Enter a bundle price greater than 0 for this offer type.');
+        throw new Error('أدخل سعر مجموعة أكبر من صفر.');
       }
 
     }
@@ -508,9 +512,9 @@ export default function AdminDashboard() {
     setIsCollaborationSaving(true);
     setCollaborationsError(null);
     try {
-      if (!editingCollaboration.title.trim()) throw new Error('Collaboration title is required.');
+      if (!editingCollaboration.title.trim()) throw new Error('أدخل اسم الشريك.');
       if (!editingCollaboration.image || !editingCollaboration.public_id) {
-        throw new Error('Upload the collaboration image before saving.');
+        throw new Error('ارفع صورة الشريك قبل الحفظ.');
       }
       const payload: CollaborationCreateRequest = {
         title: editingCollaboration.title.trim(),
@@ -551,7 +555,7 @@ export default function AdminDashboard() {
     setIsColorSaving(true);
     setColorsError(null);
     try {
-      if (!editingColor.name.trim()) throw new Error('Color name is required.');
+      if (!editingColor.name.trim()) throw new Error('أدخل اسم اللون.');
       const payload: ColorCreateRequest = {
         name: editingColor.name.trim(),
         hex_code: editingColor.hex_code.trim(),
@@ -649,10 +653,10 @@ export default function AdminDashboard() {
       dimensions: '80 x 80 x 42 cm',
       deliveryDays: 21,
       height: '',
-      material: 'Reinforced marine-grade fiberglass with UV-stable gelcoat',
+      material: 'ألياف زجاجية بحرية معززة بطبقة جل مقاومة للأشعة فوق البنفسجية',
       faq: [],
-      leadTime: '21 days',
-      shippingTime: '5–7 days white-glove delivery',
+      leadTime: '٢١ يومًا',
+      shippingTime: 'توصيل وتركيب خلال ٥–٧ أيام',
       isFeatured: false,
       isPublished: true,
       inStock: true,
@@ -682,8 +686,8 @@ export default function AdminDashboard() {
     setEditingEvent({
       id: `ev-${Date.now()}`,
       title: '',
-      location: 'Cairo Studio',
-      city: 'Cairo',
+      location: 'استوديو القاهرة',
+      city: 'القاهرة',
       date: '2026-05-01',
       description: '',
       coverImage: '',
@@ -768,10 +772,7 @@ export default function AdminDashboard() {
             { key: 'products', label: `المنتجات (${products.length})`, icon: Package },
             { key: 'orders', label: `الطلبات (${backendOrders.length})`, icon: DollarSign },
             { key: 'categories', label: 'التصنيفات والأقسام الفرعية', icon: FolderTree },
-            { key: 'events', label: `الفعاليات (${events.length})`, icon: Calendar },
             { key: 'offers', label: `العروض (${offers.length})`, icon: Tag },
-            { key: 'collaborations', label: `الشركاء (${collaborations.length})`, icon: Compass },
-            { key: 'custom-requests', label: 'طلبات التصنيع', icon: FileText },
             { key: 'projects', label: `المشروعات (${projects.length})`, icon: ImageIcon },
             { key: 'colors', label: `الألوان (${colors.length})`, icon: Palette },
             { key: 'users', label: 'المستخدمون والصلاحيات', icon: Users },
@@ -804,10 +805,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Design Catalogue Archive
+                  أرشيف كتالوج المنتجات
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Manage active pieces and restore archived products.
+                  إدارة المنتجات النشطة واستعادة المنتجات المؤرشفة.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -938,13 +939,13 @@ export default function AdminDashboard() {
                                 {p.price?.toLocaleString()} EGP
                               </span>
                               <span className="text-[10px] text-[#736B63] block">
-                                Deposit: {Math.round((p.price || 0) * settings.depositPercentage / 100).toLocaleString()} EGP
+                                المقدم: {Math.round((p.price || 0) * settings.depositPercentage / 100).toLocaleString('ar-EG')} جنيه
                               </span>
                             </div>
                           </td>
 
                           <td className="py-3 px-4 text-[#736B63]">
-                            {p.finishes.join(', ')}
+                            {p.finishes.map((finish) => finish === 'MATTE' ? 'مطفي' : 'لامع').join('، ')}
                           </td>
 
                           <td className="py-3 px-4">
@@ -953,7 +954,7 @@ export default function AdminDashboard() {
                               className={`p-1 rounded-md ${
                                 p.isFeatured ? 'text-[#B85D38]' : 'text-[#D8CEBF] hover:text-[#736B63]'
                               }`}
-                              title="Toggle Featured on Homepage"
+                              title="إظهار المنتج المميز في الصفحة الرئيسية أو إخفاؤه"
                             >
                               <Star className="w-4 h-4 fill-current" />
                             </button>
@@ -966,18 +967,18 @@ export default function AdminDashboard() {
                                 setIsProductModalOpen(true);
                               }}
                               className="p-1.5 text-[#524B45] hover:text-[#1C1A19]"
-                              title="Edit Piece"
+                              title="تعديل المنتج"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => requestDeleteConfirmation(
-                                `Delete Piece: "${p.name}"`,
-                                'This action permanently removes the piece from the catalogue and cannot be undone.',
+                                `حذف المنتج: «${p.name}»`,
+                                'سيؤدي هذا الإجراء إلى حذف المنتج نهائيًا من الكتالوج، ولا يمكن التراجع عنه.',
                                 () => { void handleDeleteProduct(p.id); }
                               )}
                               className="p-1.5 text-[#B85D38] hover:text-red-700"
-                              title="Delete Piece"
+                              title="حذف المنتج"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -999,10 +1000,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Highlights & Banners
+                  الإعلانات واللافتات
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Manage mobile-first carousel banners for new arrivals, exclusive promotions, upcoming events, and bespoke commissions.
+                  أدر الإعلانات الدوارة للمنتجات الجديدة والعروض الحصرية والفعاليات القادمة وطلبات التصنيع حسب الطلب.
                 </p>
               </div>
               <button
@@ -1074,7 +1075,7 @@ export default function AdminDashboard() {
                           </td>
 
                           <td className="py-3 px-4 text-[#524B45]">
-                            <span className="capitalize">{b.actionType === 'copy_code' ? 'Copy Code' : `Go to ${b.targetView || 'link'}`}</span>
+                            <span>{b.actionType === 'copy_code' ? 'نسخ الكود' : `الانتقال إلى ${b.targetView === 'shop' ? 'المنتجات' : b.targetView === 'events' ? 'الفعاليات' : b.targetView === 'custom-design' ? 'التصنيع حسب الطلب' : b.targetView === 'our-story' ? 'عن مودرن هوم' : 'الرابط'}`}</span>
                             <span className="block text-[10px] text-[#8E867D]">{b.ctaText}</span>
                           </td>
 
@@ -1087,7 +1088,7 @@ export default function AdminDashboard() {
                                   : 'bg-stone-200 text-stone-600 hover:bg-stone-300'
                               }`}
                             >
-                              {b.isActive ? 'Live' : 'Hidden'}
+                              {b.isActive ? 'منشور' : 'مخفي'}
                             </button>
                           </td>
 
@@ -1098,18 +1099,18 @@ export default function AdminDashboard() {
                                 setIsBannerModalOpen(true);
                               }}
                               className="p-1.5 text-[#524B45] hover:text-[#1C1A19]"
-                              title="Edit Banner"
+                              title="تعديل الإعلان"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => requestDeleteConfirmation(
-                                `Delete Banner: "${b.title}"`,
-                                'This action permanently removes the banner and cannot be undone.',
+                                `حذف الإعلان: «${b.title}»`,
+                                'سيؤدي هذا الإجراء إلى حذف الإعلان نهائيًا، ولا يمكن التراجع عنه.',
                                 () => deleteBanner(b.id)
                               )}
                               className="p-1.5 text-[#B85D38] hover:text-red-700"
-                              title="Delete Banner"
+                              title="حذف الإعلان"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1130,10 +1131,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Customer Orders & Production Status
+                  طلبات العملاء وحالة التصنيع
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Authoritative backend orders registry: confirm commissions, inspect deliveries, and advance orders into production.
+                  سجل الطلبات المعتمد: أكّد الطلبات، وراجع تفاصيل التوصيل، وتابع انتقال الطلبات إلى التصنيع.
                 </p>
               </div>
 
@@ -1151,7 +1152,7 @@ export default function AdminDashboard() {
               <Search className="w-3.5 h-3.5 text-[#8F8880] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search by order number, customer name, email, phone, or status"
+                placeholder="ابحث برقم الطلب أو اسم العميل أو بريده الإلكتروني أو هاتفه أو حالته"
                 value={orderSearchQuery}
                 onChange={(e) => setOrderSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-8 py-2 rounded-lg border border-[#D8CEBF] bg-white text-xs font-mono text-[#1C1A19] placeholder:font-sans placeholder:text-[#8F8880] focus:outline-none focus:border-[#1C1A19]"
@@ -1183,7 +1184,7 @@ export default function AdminDashboard() {
                   onClick={() => fetchBackendOrders(orderSearchQuery.trim())}
                   className="px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-red-800 font-semibold"
                 >
-                  Retry
+                  إعادة المحاولة
                 </button>
               </div>
             )}
@@ -1224,10 +1225,10 @@ export default function AdminDashboard() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#EAE4DC] gap-2">
                         <div>
                           <span className="text-xs font-mono font-bold text-[#1C1A19]">
-                            Order #{ord.order_number}
+                            الطلب رقم {ord.order_number}
                           </span>
                           <span className="text-xs text-[#736B63] ml-2">
-                            · {new Date(ord.created_at).toLocaleString('en-GB')}
+                            · {new Date(ord.created_at).toLocaleString('ar-EG')}
                           </span>
                         </div>
 
@@ -1254,9 +1255,9 @@ export default function AdminDashboard() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-[#524B45]">
                         <div>
                           <span className="font-semibold text-[#17324A] block">العنوان والمستلم:</span>
-                          <p className="font-medium text-[#1C1A19]">{ord.shipping_address?.title || 'Private Residence'}</p>
+                          <p className="font-medium text-[#1C1A19]">{ord.shipping_address?.title || 'سكن خاص'}</p>
                           <p className="text-[#736B63]">
-                            {ord.user ? `${ord.user.first_name} ${ord.user.last_name}`.trim() || ord.user.email : 'Unknown customer'}
+                            {ord.user ? `${ord.user.first_name} ${ord.user.last_name}`.trim() || ord.user.email : 'عميل غير معروف'}
                           </p>
                         </div>
 
@@ -1265,11 +1266,11 @@ export default function AdminDashboard() {
                           {ord.shipping_address ? (
                             <>
                               <p>
-                                {ord.shipping_address.building_number ? `Bldg ${ord.shipping_address.building_number}, ` : ''}
+                                {ord.shipping_address.building_number ? `مبنى ${ord.shipping_address.building_number}، ` : ''}
                                 {ord.shipping_address.street}
                               </p>
                               <p>
-                                {ord.shipping_address.apartment_number ? `Apt ${ord.shipping_address.apartment_number}, ` : ''}
+                                {ord.shipping_address.apartment_number ? `شقة ${ord.shipping_address.apartment_number}، ` : ''}
                                 {ord.shipping_address.city}, {ord.shipping_address.country}
                               </p>
                             </>
@@ -1279,12 +1280,12 @@ export default function AdminDashboard() {
                         </div>
 
                         <div>
-                          <span className="font-semibold text-[#1C1A19] block">{Number(ord.deposit_percentage)}% Handcrafted Deposit:</span>
+                          <span className="font-semibold text-[#1C1A19] block">مقدم التصنيع {Number(ord.deposit_percentage)}٪:</span>
                           <p className="text-[#643D26] font-semibold text-sm font-mono">
-                            {deposit.toLocaleString()} EGP
+                            {deposit.toLocaleString('ar-EG')} جنيه
                           </p>
                           <p className="text-[#736B63] font-mono">
-                            Total: {Number(ord.total_price).toLocaleString()} EGP
+                            الإجمالي: {Number(ord.total_price).toLocaleString('ar-EG')} جنيه
                           </p>
                         </div>
                       </div>
@@ -1316,7 +1317,7 @@ export default function AdminDashboard() {
                                 {it.color_name ? ` (${it.color_name})` : ''} x{it.quantity}
                               </span>
                               <span className="font-mono text-[#736B63]">
-                                · {Number(it.subtotal).toLocaleString()} EGP
+                                · {Number(it.subtotal).toLocaleString('ar-EG')} جنيه
                               </span>
                             </div>
                           ))}
@@ -1350,7 +1351,7 @@ export default function AdminDashboard() {
                             </a>
                           ) : (
                             <span className="px-3 py-1.5 rounded-lg bg-[#EFEBE3] text-[#8F8880] text-xs font-medium">
-                              No Client Phone
+                              لا يوجد رقم هاتف للعميل
                             </span>
                           )}
                         </div>
@@ -1379,10 +1380,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Exhibitions & Showcases
+                  المعارض والفعاليات
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Manage presence at Cairo Design Week, pop-ups, and private studio viewings.
+                  أدر المشاركة في الفعاليات والمعارض وزيارات الاستوديو الخاصة.
                 </p>
               </div>
               <button
@@ -1412,7 +1413,7 @@ export default function AdminDashboard() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-white/90 text-[10px] uppercase font-semibold text-[#1C1A19]">
-                      {ev.isUpcoming ? 'Upcoming' : 'Past'}
+                      {ev.isUpcoming ? 'قادمة' : 'سابقة'}
                     </div>
                   </div>
 
@@ -1437,8 +1438,8 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       onClick={() => requestDeleteConfirmation(
-                        `Delete Event: "${ev.title}"`,
-                        'This action permanently removes the event and cannot be undone.',
+                        `حذف الفعالية: «${ev.title}»`,
+                        'سيؤدي هذا الإجراء إلى حذف الفعالية نهائيًا، ولا يمكن التراجع عنه.',
                         () => deleteEvent(ev.id)
                       )}
                       className="p-1.5 text-[#B85D38] hover:text-red-700"
@@ -1459,10 +1460,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  In Their Space (Architectural Portfolio)
+                  مشروعاتنا في المساحات (أعمال معمارية)
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Showcase real residential and hospitality installations.
+                  استعرض تنفيذات حقيقية للمنازل ومشروعات الضيافة.
                 </p>
               </div>
               <button
@@ -1513,8 +1514,8 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       onClick={() => requestDeleteConfirmation(
-                        `Delete Project: "${proj.title}"`,
-                        'This action permanently removes the project and cannot be undone.',
+                        `حذف المشروع: «${proj.title}»`,
+                        'سيؤدي هذا الإجراء إلى حذف المشروع نهائيًا، ولا يمكن التراجع عنه.',
                         () => deleteProject(proj.id)
                       )}
                       className="p-1.5 text-[#B85D38] hover:text-red-700"
@@ -1535,10 +1536,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Offers
+                  العروض
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Build percentage privileges, bundles, and free-shipping moments from catalogue products.
+                  أنشئ عروض الخصم والمجموعات والشحن المجاني باستخدام منتجات الكتالوج.
                 </p>
               </div>
               <button
@@ -1572,15 +1573,15 @@ export default function AdminDashboard() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-[10px] uppercase tracking-widest text-[#B85D38] font-semibold">
-                            {offer.offer_type.replace('_', ' ')}
+                            {formatOfferType(offer.offer_type)}
                           </span>
                           <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${offer.is_active ? 'bg-[#EAF4EA] text-[#2F6B3F]' : 'bg-[#EFEBE3] text-[#736B63]'}`}>
-                            {offer.is_active ? 'Active' : 'Paused'}
+                            {offer.is_active ? 'نشط' : 'متوقف مؤقتًا'}
                           </span>
                         </div>
                         <h4 className="text-base font-semibold text-[#1C1A19]">{offer.name}</h4>
                         <p className="text-xs text-[#736B63]">
-                          {offer.products.length} product{offer.products.length === 1 ? '' : 's'} · {formatCurrency(offer.offer_price)} offer price
+                          {offer.products.length} {offer.products.length === 1 ? 'منتج' : 'منتجات'} · سعر العرض {formatCurrency(offer.offer_price)}
                         </p>
                       </div>
                       <div className="flex gap-1 shrink-0">
@@ -1592,8 +1593,8 @@ export default function AdminDashboard() {
                         </button>
                         <button
                           onClick={() => requestDeleteConfirmation(
-                            `Delete Offer: "${offer.name}"`,
-                            'This action permanently removes the offer and cannot be undone.',
+                            `حذف العرض: «${offer.name}»`,
+                            'سيؤدي هذا الإجراء إلى حذف العرض نهائيًا، ولا يمكن التراجع عنه.',
                             () => { void handleDeleteOffer(offer); }
                           )}
                           disabled={deletingOfferId === offer.id}
@@ -1623,7 +1624,7 @@ export default function AdminDashboard() {
                       {offer.products.map((item) => (
                         <div key={`${offer.id}-${item.product_id}`} className="flex items-center justify-between gap-3 rounded-xl border border-[#EAE4DC] px-3 py-2 text-xs">
                           <span className="text-[#1C1A19] line-clamp-1">{item.product_name}</span>
-                          <span className="font-mono text-[#736B63] shrink-0">x{item.quantity}</span>
+                          <span className="font-mono text-[#736B63] shrink-0">× {item.quantity}</span>
                         </div>
                       ))}
                     </div>
@@ -1640,10 +1641,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Collaborations
+                  الشراكات
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Curate partner moments with uploaded images.
+                  أدر صور الجهات الشريكة ومحتواها.
                 </p>
               </div>
               <button
@@ -1690,8 +1691,8 @@ export default function AdminDashboard() {
                       <div className="pt-2 border-t border-[#EAE4DC] flex justify-end">
                         <button
                           onClick={() => requestDeleteConfirmation(
-                            `Delete Collaboration: "${collaboration.title}"`,
-                            'This action permanently removes the collaboration and cannot be undone.',
+                            `حذف الشراكة: «${collaboration.title}»`,
+                            'سيؤدي هذا الإجراء إلى حذف الشراكة نهائيًا، ولا يمكن التراجع عنه.',
                             () => { void handleDeleteCollaboration(collaboration); }
                           )}
                           disabled={deletingCollaborationId === collaboration.id}
@@ -1715,10 +1716,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                  Colors
+                  الألوان
                 </h3>
                 <p className="text-xs text-[#736B63]">
-                  Manage the swatch palette available for product color assignment.
+                  أدر مجموعة الألوان المتاحة لاختيارها في المنتجات.
                 </p>
               </div>
               <button
@@ -1762,19 +1763,19 @@ export default function AdminDashboard() {
                       <button
                         onClick={() => setEditingColor(createColorDraft(color))}
                         className="p-1.5 text-[#524B45] hover:text-[#1C1A19] hover:bg-[#EFEBE3] rounded-lg transition-colors"
-                        title="Edit Color"
+                        title="تعديل اللون"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => requestDeleteConfirmation(
-                          `Delete Color: "${color.name}"`,
-                          'This action permanently removes the color and cannot be undone.',
+                          `حذف اللون: «${color.name}»`,
+                          'سيؤدي هذا الإجراء إلى حذف اللون نهائيًا، ولا يمكن التراجع عنه.',
                           () => { void handleDeleteColor(color); }
                         )}
                         disabled={deletingColorId === color.id}
                         className="p-1.5 text-[#B85D38] hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-60"
-                        title="Delete Color"
+                        title="حذف اللون"
                       >
                         {deletingColorId === color.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                       </button>
@@ -1791,17 +1792,17 @@ export default function AdminDashboard() {
           <div className="space-y-8 max-w-3xl">
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wider text-[#1C1A19]">
-                Global Store & Payment Settings
+                إعدادات المتجر والدفع العامة
               </h3>
               <p className="text-xs text-[#736B63]">
-                Manage the deposit percentage and payment wallet details saved by the backend.
+                أدر نسبة المقدم وبيانات وسائل الدفع المحفوظة.
               </p>
             </div>
 
             {/* Deposit Configuration */}
             <div className="p-6 rounded-2xl bg-white border border-[#EAE4DC] shadow-sm space-y-4">
               <h4 className="text-xs uppercase tracking-wider font-semibold text-[#1C1A19]">
-                Deposit Parameters
+                إعدادات المقدم
               </h4>
               <div className="text-xs">
                 <div>
@@ -1834,7 +1835,7 @@ export default function AdminDashboard() {
             {/* Payment Methods Configuration */}
             <div className="p-6 rounded-2xl bg-white border border-[#EAE4DC] shadow-sm space-y-4">
               <h4 className="text-xs uppercase tracking-wider font-semibold text-[#1C1A19]">
-                Payment Wallets
+                وسائل الدفع
               </h4>
 
               {/* InstaPay */}
@@ -1894,11 +1895,11 @@ export default function AdminDashboard() {
 
         {/* ----------------- MODAL: EDIT PRODUCT ----------------- */}
         {isProductModalOpen && editingProduct && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Product editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر المنتج" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 my-8 border border-[#EAE4DC] shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center pb-4 border-b border-[#EAE4DC]">
                 <h3 className="text-lg font-medium text-[#1C1A19]">
-                  {editingProduct.name ? `Edit: ${editingProduct.name}` : 'Create New Design Piece'}
+                  {editingProduct.name ? `تعديل: ${editingProduct.name}` : 'إنشاء منتج جديد'}
                 </h3>
                 <button
                   onClick={() => setIsProductModalOpen(false)}
@@ -2000,7 +2001,7 @@ export default function AdminDashboard() {
                         setEditingProduct({
                           ...editingProduct,
                           deliveryDays: nextValue === '' ? null : Number(nextValue),
-                          leadTime: nextValue === '' ? '' : `${Number(nextValue)} days`,
+                          leadTime: nextValue === '' ? '' : `${Number(nextValue)} يوم`,
                         });
                       }}
                       className="w-full p-2.5 rounded-lg border border-[#D8CEBF] font-mono"
@@ -2041,7 +2042,7 @@ export default function AdminDashboard() {
                               }
                               className="rounded border-[#D8CEBF]"
                             />
-                            <span>{finish === 'MATTE' ? 'Matte' : 'Glossy'}</span>
+                            <span>{finish === 'MATTE' ? 'مطفي' : 'لامع'}</span>
                           </label>
                         );
                       })}
@@ -2092,7 +2093,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-[#D8CEBF] bg-[#FAF8F5] max-h-32 overflow-y-auto">
                     {colors.length === 0 ? (
                       <p className="text-[#8F8880]">
-                        No colors available yet. Add one from the Colors tab.
+                        لا توجد ألوان متاحة بعد. أضف لونًا من تبويب الألوان.
                       </p>
                     ) : (
                       colors.map((color) => {
@@ -2157,14 +2158,14 @@ export default function AdminDashboard() {
                   onClick={() => setIsProductModalOpen(false)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="button"
                   onClick={() => { void handleSaveProduct(); }}
                   className="px-6 py-2.5 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider font-medium"
                 >
-                  Save Piece
+                  حفظ المنتج
                 </button>
               </div>
             </div>
@@ -2173,7 +2174,7 @@ export default function AdminDashboard() {
 
         {/* ----------------- MODAL: EDIT CATEGORY ----------------- */}
         {isCategoryModalOpen && editingCategory && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Category editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر التصنيف" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-[#EAE4DC] shadow-xl">
               <h3 className="text-base font-semibold text-[#17324A]">تفاصيل التصنيف</h3>
               <div className="space-y-3 text-xs">
@@ -2200,7 +2201,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <CloudinaryImageField
-                  label="Cover Image"
+                  label="صورة الغلاف"
                   value={editingCategory.image}
                   folder="tocco/categories"
                   onChange={(image) => setEditingCategory({ ...editingCategory, image })}
@@ -2212,7 +2213,7 @@ export default function AdminDashboard() {
                   onClick={() => setIsCategoryModalOpen(false)}
                   className="px-4 py-2 text-xs uppercase tracking-wider text-[#736B63]"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="button"
@@ -2224,7 +2225,7 @@ export default function AdminDashboard() {
                   }}
                   className="px-5 py-2 rounded-full bg-[#1C1A19] text-white text-xs uppercase tracking-wider"
                 >
-                  Save Category
+                  حفظ التصنيف
                 </button>
               </div>
             </div>
@@ -2233,21 +2234,21 @@ export default function AdminDashboard() {
 
         {/* ----------------- MODAL: EDIT EVENT ----------------- */}
         {isEventModalOpen && editingEvent && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Event editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر الفعالية" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
                 setEventSaveError(null);
                 if (!editingEvent.title.trim()) {
-                  setEventSaveError('Please add an event title.');
+                  setEventSaveError('أدخل اسم الفعالية.');
                   return;
                 }
                 if (!editingEvent.date) {
-                  setEventSaveError('Please choose the event date.');
+                  setEventSaveError('اختر تاريخ الفعالية.');
                   return;
                 }
                 if (!editingEvent.coverImage || !editingEvent.publicId) {
-                  setEventSaveError('Please upload a cover image before saving.');
+                  setEventSaveError('ارفع صورة الغلاف قبل الحفظ.');
                   return;
                 }
 
@@ -2266,10 +2267,10 @@ export default function AdminDashboard() {
               <div className="flex items-start justify-between gap-4 space-y-1">
                 <div className="space-y-1">
                   <h3 className="text-lg font-medium text-[#1C1A19]">
-                    {Number.isInteger(Number(editingEvent.id)) ? 'Edit Event' : 'Add New Event'}
+                    {Number.isInteger(Number(editingEvent.id)) ? 'تعديل الفعالية' : 'إضافة فعالية جديدة'}
                   </h3>
                   <p className="text-xs leading-relaxed text-[#736B63]">
-                    Fields marked with <span className="text-rose-600">*</span> are required. Upload the cover image before saving.
+                    الحقول المميزة بعلامة <span className="text-rose-600">*</span> مطلوبة. ارفع صورة الغلاف قبل الحفظ.
                   </p>
                 </div>
                 <button
@@ -2393,7 +2394,7 @@ export default function AdminDashboard() {
 
         {/* ----------------- MODAL: EDIT PROJECT ----------------- */}
         {isProjectModalOpen && editingProject && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Project editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر المشروع" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-semibold text-[#17324A]">صورة المشروع</h3>
@@ -2476,7 +2477,7 @@ export default function AdminDashboard() {
         )}
         {/* ----------------- MODAL: EDIT OFFER ----------------- */}
         {editingOffer && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Offer editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر العرض" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-5 my-8 border border-[#EAE4DC] shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#EAE4DC]">
                 <div>
@@ -2688,7 +2689,7 @@ export default function AdminDashboard() {
 
         {/* ----------------- MODAL: EDIT COLLABORATION ----------------- */}
         {editingCollaboration && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Collaboration editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر الشريك" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#EAE4DC]">
                 <div>
@@ -2765,7 +2766,7 @@ export default function AdminDashboard() {
         )}
         {/* ----------------- MODAL: EDIT COLOR ----------------- */}
         {editingColor && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Color editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر اللون" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#EAE4DC]">
                 <div>
@@ -2842,7 +2843,7 @@ export default function AdminDashboard() {
         )}
         {/* ----------------- MODAL: EDIT BANNER ----------------- */}
         {isBannerModalOpen && editingBanner && (
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Banner editor" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="محرر الإعلان" tabIndex={-1} onKeyDown={handleDialogKeyDown} className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
             <div className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-8 space-y-5 my-8 border border-[#EAE4DC] shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center pb-4 border-b border-[#EAE4DC]">
                 <h3 className="text-lg font-medium text-[#1C1A19]">
@@ -2931,7 +2932,7 @@ export default function AdminDashboard() {
                     <label className="block text-[#17324A] font-medium mb-1">عنوان مختصر أو وسم</label>
                     <input
                       type="text"
-                      placeholder="مثال: عرض لفترة محدودة أو كود: MODERNHOME"
+                      placeholder="مثال: عرض لفترة محدودة أو رمز: عيد١٠"
                       value={editingBanner.tagHighlight || ''}
                       onChange={(e) =>
                         setEditingBanner({ ...editingBanner, tagHighlight: e.target.value })
@@ -2944,7 +2945,7 @@ export default function AdminDashboard() {
                     <label className="block text-[#17324A] font-medium mb-1">كود العرض (إن وجد)</label>
                     <input
                       type="text"
-                      placeholder="MODERNHOME"
+                      placeholder="عيد١٠"
                       value={editingBanner.promoCode || ''}
                       onChange={(e) =>
                         setEditingBanner({

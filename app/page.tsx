@@ -110,9 +110,7 @@ function ToccoApp() {
                   const labels: Record<string, string> = {
                     catalog: 'المنتجات والتصنيفات',
                     cart: 'السلة',
-                    events: 'الفعاليات',
                     projects: 'المشروعات',
-                    collaborations: 'الشركاء',
                     settings: 'الإعدادات',
                   };
                   return <li key={key}><span className="font-medium">{labels[key] || key}:</span> {message}</li>;

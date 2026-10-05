@@ -4,7 +4,7 @@ import React from 'react';
 import { useToccoStore, AppView } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
 import ToccoLogo from './ToccoLogo';
-import { ArrowUpLeft, Facebook, Instagram, Mail, MapPin, MessageCircle, Music2, Phone } from 'lucide-react';
+import { ArrowUpLeft, Facebook, Instagram, Mail, MessageCircle, Music2, Phone } from 'lucide-react';
 
 export default function Footer() {
   const { navigateTo, settings } = useToccoStore();
@@ -74,12 +74,8 @@ export default function Footer() {
             </div>
 
             <div className="col-span-2 space-y-4 sm:col-span-1">
-              <h2 className="text-xs font-semibold text-[#E9CBA6]">زورونا أو راسلونا</h2>
+              <h2 className="text-xs font-semibold text-[#E9CBA6]">تواصلوا معنا</h2>
               <div className="space-y-3 text-sm text-white/75">
-                <a href={settings.contact.mapUrl} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2.5 leading-7 hover:text-white">
-                  <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
-                  <span>{settings.contact.atelierAddress}</span>
-                </a>
                 {settings.contact.phone && (
                   <a href={`tel:${settings.contact.phone}`} className="flex items-center gap-2.5 hover:text-white">
                     <Phone className="h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />

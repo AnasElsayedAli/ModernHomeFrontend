@@ -69,7 +69,7 @@ export default function CloudinaryImageField({
           <>
             <Image
               src={value}
-              alt={`${label} preview`}
+              alt={`معاينة ${label}`}
               fill
               className="object-cover"
               referrerPolicy="no-referrer"

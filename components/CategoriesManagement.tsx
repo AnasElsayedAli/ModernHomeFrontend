@@ -243,7 +243,7 @@ export default function CategoriesManagement() {
           image: categoryFormData.image?.trim() || null,
           public_id: categoryFormData.public_id?.trim() || null,
         });
-        notifySuccess(`Category "${created.name}" created successfully.`);
+        notifySuccess(`تم إنشاء التصنيف «${created.name}» بنجاح.`);
       } else if (editingCategoryId) {
         const updated = await categoryService.updateCategory(
           editingCategoryId,
@@ -254,7 +254,7 @@ export default function CategoriesManagement() {
           },
           'PATCH'
         );
-        notifySuccess(`Category "${updated.name}" updated successfully.`);
+        notifySuccess(`تم تحديث التصنيف «${updated.name}» بنجاح.`);
       }
 
       setIsCategoryModalOpen(false);
@@ -314,7 +314,7 @@ export default function CategoriesManagement() {
           image: subcategoryFormData.image?.trim() || null,
           public_id: subcategoryFormData.public_id?.trim() || null,
         });
-        notifySuccess(`Subcategory "${created.name}" created successfully.`);
+        notifySuccess(`تم إنشاء القسم الفرعي «${created.name}» بنجاح.`);
       } else if (editingSubcategoryId) {
         const updated = await subcategoryService.updateSubcategory(
           editingSubcategoryId,
@@ -326,7 +326,7 @@ export default function CategoriesManagement() {
           },
           'PATCH'
         );
-        notifySuccess(`Subcategory "${updated.name}" updated successfully.`);
+        notifySuccess(`تم تحديث القسم الفرعي «${updated.name}» بنجاح.`);
       }
 
       setIsSubcategoryModalOpen(false);
@@ -366,7 +366,7 @@ export default function CategoriesManagement() {
       if (itemToDelete.type === 'category') {
         if (itemToDelete.mode === 'soft') {
           await categoryService.deleteCategory(itemToDelete.id);
-          notifySuccess(`Category "${itemToDelete.name}" soft-deleted. It can be restored from Archives.`);
+          notifySuccess(`تم نقل التصنيف «${itemToDelete.name}» إلى الأرشيف، ويمكن استعادته لاحقًا.`);
         } else {
           await categoryService.hardDeleteCategory(itemToDelete.id);
           notifySuccess(`تم حذف التصنيف "${itemToDelete.name}" نهائيًا.`);
@@ -374,7 +374,7 @@ export default function CategoriesManagement() {
       } else {
         if (itemToDelete.mode === 'soft') {
           await subcategoryService.deleteSubcategory(itemToDelete.id);
-          notifySuccess(`Subcategory "${itemToDelete.name}" soft-deleted. It can be restored from Archives.`);
+          notifySuccess(`تم نقل القسم الفرعي «${itemToDelete.name}» إلى الأرشيف، ويمكن استعادته لاحقًا.`);
         } else {
           await subcategoryService.hardDeleteSubcategory(itemToDelete.id);
           notifySuccess(`تم حذف القسم الفرعي "${itemToDelete.name}" نهائيًا.`);
@@ -386,7 +386,7 @@ export default function CategoriesManagement() {
     } catch (err: any) {
       const norm = normalizeApiError(err);
       const isCategoryHardDelete = itemToDelete.type === 'category' && itemToDelete.mode === 'hard';
-      const message = isCategoryHardDelete && norm.message === 'An unexpected error occurred. Please try again.'
+      const message = isCategoryHardDelete && norm.message === 'حدث خطأ غير متوقع. حاول مرة أخرى.'
         ? `لا يمكن حذف التصنيف "${itemToDelete.name}" نهائيًا لارتباطه بأقسام فرعية أو عناصر أخرى. أزل الارتباطات أو أعد تعيينها ثم حاول مرة أخرى.`
         : norm.message;
       notifyError(message);
@@ -402,7 +402,7 @@ export default function CategoriesManagement() {
     setActionLoading(true);
     try {
       const res = await categoryService.restoreCategory(cat.id);
-      notifySuccess(res.detail || `Category "${cat.name}" restored successfully.`);
+      notifySuccess(`تمت استعادة التصنيف «${cat.name}» بنجاح.`);
       await loadData(searchQuery.trim());
     } catch (err: any) {
       const norm = normalizeApiError(err);
@@ -416,12 +416,12 @@ export default function CategoriesManagement() {
     setActionLoading(true);
     try {
       const res = await subcategoryService.restoreSubcategory(sub.id);
-      notifySuccess(res.detail || `Subcategory "${sub.name}" restored successfully.`);
+      notifySuccess(`تمت استعادة القسم الفرعي «${sub.name}» بنجاح.`);
       await loadData(searchQuery.trim());
     } catch (err: any) {
       const norm = normalizeApiError(err);
       const message = norm.status === 409
-        ? `Cannot restore "${sub.name}". Its parent category must be active, and an active subcategory with the same name must not exist. ${norm.message}`
+        ? `تعذرت استعادة «${sub.name}». يجب تفعيل التصنيف الرئيسي، وألا يوجد قسم فرعي نشط بالاسم نفسه. ${norm.message}`
         : norm.message;
       notifyError(message);
     } finally {
@@ -801,7 +801,7 @@ export default function CategoriesManagement() {
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="text-base font-medium text-[#1C1A19] truncate">{sub.name}</h4>
                           <span className="shrink-0 px-2.5 py-0.5 rounded-full bg-[#EFEBE3] text-[#1C1A19] text-[10px] font-medium">
-                            {parentCat?.name || `Cat #${sub.category_id}`}
+                            {parentCat?.name || `تصنيف رقم ${sub.category_id}`}
                           </span>
                         </div>
                         <p className="text-[11px] text-[#8F8880]">
@@ -813,14 +813,14 @@ export default function CategoriesManagement() {
                     {/* Actions */}
                     <div className="pt-3 border-t border-[#EAE4DC] flex justify-between items-center text-xs">
                       <span className="text-[11px] font-mono text-[#736B63]">
-                        category_id: {sub.category_id}
+                        رقم التصنيف: {sub.category_id}
                       </span>
 
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleOpenEditSubcategory(sub)}
                           className="p-1.5 text-[#524B45] hover:text-[#1C1A19] hover:bg-[#EFEBE3] rounded-lg transition-colors"
-                          title="Edit Subcategory"
+                          title="تعديل القسم الفرعي"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
@@ -834,7 +834,7 @@ export default function CategoriesManagement() {
                             })
                           }
                           className="p-1.5 text-[#B85D38] hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-colors"
-                          title="Archive Subcategory"
+                          title="أرشفة القسم الفرعي"
                         >
                           <Archive className="w-3.5 h-3.5" />
                         </button>
@@ -1065,7 +1065,7 @@ export default function CategoriesManagement() {
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
-          aria-label={categoryFormMode === 'create' ? 'Add category' : 'Edit category'}
+          aria-label={categoryFormMode === 'create' ? 'إضافة تصنيف' : 'تعديل تصنيف'}
           tabIndex={-1}
           onKeyDown={handleDialogKeyDown}
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn"
@@ -1073,7 +1073,7 @@ export default function CategoriesManagement() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 my-8 border border-[#EAE4DC] shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-[#EAE4DC]">
               <h3 className="text-base font-medium text-[#1C1A19]">
-                {categoryFormMode === 'create' ? 'Add New Category' : 'Edit Category'}
+                {categoryFormMode === 'create' ? 'إضافة تصنيف جديد' : 'تعديل التصنيف'}
               </h3>
               <button
                 onClick={() => setIsCategoryModalOpen(false)}

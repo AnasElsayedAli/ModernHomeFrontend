@@ -5,7 +5,7 @@ describe('normalizeApiError', () => {
   it('does not show raw HTML response bodies in error messages', () => {
     const normalized = normalizeApiError('<!DOCTYPE html><html><body>CSRF failed</body></html>', 403);
 
-    expect(normalized.message).toBe('You do not have permission to perform this action.');
+    expect(normalized.message).toBe('ليس لديك صلاحية لتنفيذ هذا الإجراء.');
     expect(normalized.raw).toContain('<!DOCTYPE html>');
   });
 
@@ -14,20 +14,25 @@ describe('normalizeApiError', () => {
       detail: '<!DOCTYPE html><html><body>CSRF verification failed</body></html>',
     }, 403);
 
-    expect(normalized.message).toBe('Something went wrong. Please try again.');
+    expect(normalized.message).toBe('ليس لديك صلاحية لتنفيذ هذا الإجراء.');
     expect(normalized.message).not.toContain('<html>');
   });
 
-  it('keeps plain text response messages', () => {
+  it('keeps Arabic plain text response messages', () => {
+    expect(normalizeApiError('العنصر المحدد غير متاح.', 409).message)
+      .toBe('العنصر المحدد غير متاح.');
+  });
+
+  it('replaces unknown English response messages with an Arabic status message', () => {
     expect(normalizeApiError('The selected item is unavailable.', 409).message)
-      .toBe('The selected item is unavailable.');
+      .toBe('تغير هذا العنصر. راجعه ثم حاول مرة أخرى.');
   });
 
   it('normalizes network errors already wrapped in ApiError', () => {
     const error = new ApiError({ message: 'Failed to fetch', fieldErrors: {}, status: 0 });
 
     expect(normalizeApiError(error).message)
-      .toBe("We couldn't connect. Check your internet connection and try again.");
+      .toBe('تعذر الاتصال. تحقق من اتصال الإنترنت ثم حاول مرة أخرى.');
   });
 
   it('replaces technical security error details with plain language', () => {
@@ -36,8 +41,8 @@ describe('normalizeApiError', () => {
     }, 403);
 
     expect(normalized.message)
-      .toBe('We could not verify this request. Please refresh the page and try again.');
-    expect(normalized.message).not.toMatch(/csrf|token|backend|proxy/i);
+      .toBe('تعذر التحقق من الطلب. حدّث الصفحة ثم حاول مرة أخرى.');
+    expect(normalized.message).not.toMatch(/[A-Za-z]/);
   });
 
   it('does not expose internal details for server errors', () => {
@@ -45,14 +50,14 @@ describe('normalizeApiError', () => {
       detail: 'OperationalError: database connection failed at internal endpoint.',
     }, 500);
 
-    expect(normalized.message).toBe('Something went wrong on our side. Please try again shortly.');
-    expect(normalized.message).not.toMatch(/database|endpoint|OperationalError/i);
+    expect(normalized.message).toBe('حدث خطأ من جانبنا. حاول مرة أخرى بعد قليل.');
+    expect(normalized.message).not.toMatch(/[A-Za-z]/);
   });
 
   it('replaces image upload configuration errors with plain language', () => {
     const normalized = normalizeApiError({ message: 'The upload folder header is required.' }, 400);
 
-    expect(normalized.message).toBe("We couldn't upload this image. Please try again.");
-    expect(normalized.message).not.toMatch(/folder|header/i);
+    expect(normalized.message).toBe('تعذر رفع الصورة. حاول مرة أخرى.');
+    expect(normalized.message).not.toMatch(/[A-Za-z]/);
   });
 });

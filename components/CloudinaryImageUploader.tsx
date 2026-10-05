@@ -78,7 +78,7 @@ export default function CloudinaryImageUploader({
   const handleFileUpload = async (files: FileList | File[]) => {
     const fileArray = Array.from(files).filter((file) => file.type.startsWith('image/'));
     if (fileArray.length === 0) {
-      setErrorMessage('اختر ملف صورة صالحًا (JPEG أو PNG أو WebP أو AVIF أو GIF).');
+      setErrorMessage('اختر ملف صورة صالحًا (جيه بي إي جي أو بي إن جي أو ويب بي أو إيه في آي إف أو جيف).');
       return;
     }
 
@@ -298,7 +298,7 @@ export default function CloudinaryImageUploader({
                   رفع الصور
                 </p>
                 <p className="text-xs text-[#736B63] mt-1">
-                  يدعم WebP وPNG وJPEG وAVIF حتى ١٠ ميجابايت للصورة
+                  يدعم ويب بي وبي إن جي وجي بي إي جي وإيه في آي إف وجيف، حتى ١٠ ميجابايت للصورة.
                 </p>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#EAE4DC] text-[11px] text-[#736B63]">
@@ -357,7 +357,7 @@ export default function CloudinaryImageUploader({
                 >
                   <Image
                     src={url}
-                    alt={`Product preview ${idx + 1}`}
+                    alt={`معاينة صورة المنتج رقم ${idx + 1}`}
                     fill
                     className="object-cover"
                   />

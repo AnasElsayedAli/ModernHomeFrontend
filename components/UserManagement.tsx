@@ -173,15 +173,14 @@ export default function UserManagement() {
                       {user?.role === 'ADMIN' ? (
                         <div className="flex items-center gap-1.5">
                           <select
-                            value={u.role}
+                            value={u.role === 'MODERATOR' ? 'CUSTOMER' : u.role}
                             disabled={roleChangeLoadingId === u.id}
                             onChange={(e) =>
                               handleRoleChange(u.id, e.target.value as UserRole)
                             }
                             className="text-[11px] p-1.5 rounded border border-[#D8CEBF] bg-[#FAF8F5] text-[#1C1A19] focus:outline-none focus:border-[#1C1A19]"
                           >
-                            <option value="CUSTOMER">عميل</option>
-                            <option value="MODERATOR">مشرف</option>
+                            <option value="CUSTOMER">مستخدم</option>
                             <option value="ADMIN">مدير</option>
                           </select>
                           {roleChangeLoadingId === u.id && (
@@ -190,7 +189,7 @@ export default function UserManagement() {
                         </div>
                       ) : (
                         <span className="text-[11px] font-semibold text-[#1C1A19]">
-                          {u.role === 'ADMIN' ? 'مدير' : u.role === 'MODERATOR' ? 'مشرف' : 'عميل'}
+                          {u.role === 'ADMIN' ? 'مدير' : 'مستخدم'}
                         </span>
                       )}
                     </td>
