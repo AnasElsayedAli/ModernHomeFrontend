@@ -88,7 +88,6 @@ export default function ModernHeader() {
             className="hidden h-10 items-center gap-2 px-2 text-xs text-[#17324A] transition-colors hover:bg-[#EEE7DC] sm:flex"
           >
             <UserRound className="h-[17px] w-[17px]" aria-hidden="true" />
-            <span className="hidden sm:inline md:hidden lg:inline">{user ? 'حسابي' : 'دخول'}</span>
           </button>
           <button
             type="button"
@@ -108,7 +107,6 @@ export default function ModernHeader() {
               className="grid h-10 w-10 shrink-0 place-items-center rounded-md text-[#6D6A64] transition-colors hover:bg-[#EEE7DC] hover:text-[#17324A] sm:flex sm:w-auto sm:items-center sm:gap-2 sm:px-2 sm:text-[11px] sm:font-medium"
             >
               <SlidersHorizontal className="h-[17px] w-[17px]" aria-hidden="true" />
-              <span className="hidden lg:inline">إدارة المتجر</span>
             </button>
           )}
         </div>
