@@ -237,10 +237,13 @@ function parseAppLocation(url: URL): { view: AppView; productId: string | null; 
   const requestedView = url.searchParams.get('route');
   const productId = url.searchParams.get('product');
   const openCart = requestedView === 'cart';
+  const legacyCatalogRoute = requestedView === 'custom-design' || requestedView === 'imported';
   const view: AppView = productId
     ? 'product'
     : openCart
       ? 'home'
+      : legacyCatalogRoute
+        ? 'shop'
       : isAppView(requestedView)
         ? requestedView
         : 'home';
@@ -537,7 +540,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const syncFromLocation = () => {
-      const location = parseAppLocation(new URL(window.location.href));
+      const url = new URL(window.location.href);
+      const requestedView = url.searchParams.get('route');
+      const location = parseAppLocation(url);
+      if (requestedView === 'custom-design' || requestedView === 'imported') {
+        url.searchParams.set('route', 'shop');
+        window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+      }
       selectedProductIdRef.current = location.productId;
       selectedCategoryIdRef.current = location.categoryId;
       setActiveView(location.view);
@@ -558,34 +567,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       view: AppView,
       options?: { productId?: string; categoryId?: string }
     ) => {
-      setActiveView(view);
+      const resolvedView = view === 'custom-design' || view === 'imported' ? 'shop' : view;
+      const categoryId = resolvedView === 'shop'
+        ? options?.categoryId ?? ''
+        : options?.categoryId ?? selectedCategoryIdRef.current;
+      setActiveView(resolvedView);
       if (options?.productId !== undefined) {
         selectedProductIdRef.current = options.productId;
         setSelectedProductId(options.productId);
       }
-      if (options?.categoryId !== undefined) {
-        selectedCategoryIdRef.current = options.categoryId;
-        setSelectedCategoryId(options.categoryId);
+      if (resolvedView === 'shop' || options?.categoryId !== undefined) {
+        selectedCategoryIdRef.current = categoryId;
+        setSelectedCategoryId(categoryId);
       }
 
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
         const productId = options?.productId ?? selectedProductIdRef.current;
-        const categoryId = options?.categoryId ?? selectedCategoryIdRef.current;
 
-        if (view === 'home') {
+        if (resolvedView === 'home') {
           url.searchParams.delete('route');
         } else {
-          url.searchParams.set('route', view);
+          url.searchParams.set('route', resolvedView);
         }
 
-        if (view === 'product' && productId) {
+        if (resolvedView === 'product' && productId) {
           url.searchParams.set('product', productId);
         } else {
           url.searchParams.delete('product');
         }
 
-        if (view === 'shop' && categoryId) {
+        if (resolvedView === 'shop' && categoryId) {
           url.searchParams.set('category', categoryId);
         } else {
           url.searchParams.delete('category');

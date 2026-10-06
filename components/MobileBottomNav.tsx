@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useToccoStore, AppView } from '@/lib/store';
-import { House, Armchair, Hammer, ShoppingBag, UserRound, Plane } from 'lucide-react';
+import { House, Armchair, ShoppingBag, UserRound } from 'lucide-react';
 
 export default function MobileBottomNav() {
   const {
@@ -33,18 +33,11 @@ export default function MobileBottomNav() {
       isActive: activeView === 'home',
     },
     {
-      id: 'custom',
-      label: 'تصنيع محلي',
-      icon: Hammer,
-      action: () => navigateTo('custom-design'),
-      isActive: activeView === 'custom-design',
-    },
-    {
-      id: 'imported',
-      label: 'مستورد',
-      icon: Plane,
-      action: () => navigateTo('imported'),
-      isActive: activeView === 'imported',
+      id: 'shop',
+      label: 'المنتجات',
+      icon: Armchair,
+      action: () => navigateTo('shop', { categoryId: '' }),
+      isActive: activeView === 'shop',
     },
     {
       id: 'account',

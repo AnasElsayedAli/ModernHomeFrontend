@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=El+Messiri:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -12,7 +12,7 @@
 	--mh-border: #E6DED2;
 	--mh-clay: #A36046;
 	--font-arabic: 'IBM Plex Sans Arabic', 'Tahoma', sans-serif;
-	--font-display: 'Noto Naskh Arabic', 'IBM Plex Sans Arabic', serif;
+	--font-display: 'El Messiri', 'IBM Plex Sans Arabic', sans-serif;
 	--font-brand: 'DM Sans', 'Arial', sans-serif;
 }
 

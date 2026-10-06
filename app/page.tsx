@@ -12,8 +12,6 @@ import CartDrawer from '@/components/CartDrawer';
 import ModernHomeHomepage from '@/components/modern-home/ModernHomeHomepage';
 import ShopCatalog from '@/components/ShopCatalog';
 import ProductDetailView from '@/components/ProductDetailView';
-import CustomDesignView from '@/components/CustomDesignView';
-import ImportedFurnitureView from '@/components/ImportedFurnitureView';
 import B2BView from '@/components/B2BView';
 import OurStoryView from '@/components/OurStoryView';
 import EventsView from '@/components/EventsView';
@@ -155,10 +153,6 @@ function ToccoApp() {
         {activeView === 'shop' && <ShopCatalog />}
 
         {activeView === 'product' && <ProductDetailView />}
-
-        {activeView === 'custom-design' && <CustomDesignView />}
-
-        {activeView === 'imported' && <ImportedFurnitureView />}
 
         {activeView === 'b2b' && <B2BView />}
 

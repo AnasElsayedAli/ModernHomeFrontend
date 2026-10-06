@@ -3,10 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { useToccoStore } from '@/lib/store';
 import { normalizeApiError } from '@/lib/api/errors';
-import { colorService } from '@/lib/api/services/colorService';
 import { toWhatsAppNumber } from '@/lib/utils';
 import { ProductFinish, ProductColor, ProductSize } from '@/types';
-import { BackendColor } from '@/types/product';
 import Image from '@/components/SafeImage';
 import {
   ArrowLeft,
@@ -20,7 +18,6 @@ import {
   Clock,
   AlertCircle,
   Loader2,
-  Plus,
 } from 'lucide-react';
 import { useModernHomeContent } from './modern-home/useModernHomeContent';
 
@@ -52,14 +49,6 @@ export default function ProductDetailView() {
   const [selectedColor, setSelectedColor] = useState<ProductColor>(
     product?.colors[0] || { id: 'c-default', name: 'Default', hex: '#643D26' }
   );
-  const [sharedColors, setSharedColors] = useState<BackendColor[]>([]);
-  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
-  const [isSharedColorsLoading, setIsSharedColorsLoading] = useState(false);
-  const [isCustomColorSelected, setIsCustomColorSelected] = useState(false);
-  const [isCreatingCustomColor, setIsCreatingCustomColor] = useState(false);
-  const [customColorDraft, setCustomColorDraft] = useState('#A1B2C3');
-  const [hasChosenCustomColor, setHasChosenCustomColor] = useState(false);
-  const [customColorError, setCustomColorError] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<ProductSize | undefined>(
     product?.sizes?.[0]
   );
@@ -109,46 +98,6 @@ export default function ProductDetailView() {
   const productSubcategories = subcategories.filter((subcategory) =>
     product.subcategoryIds.includes(String(subcategory.id))
   );
-
-  const toggleColorMenu = async () => {
-    if (isColorMenuOpen) {
-      setIsColorMenuOpen(false);
-      return;
-    }
-    setIsColorMenuOpen(true);
-    setCustomColorError(null);
-    setIsSharedColorsLoading(true);
-    try {
-      setSharedColors(await colorService.getColors());
-    } catch (err) {
-      setCustomColorError(normalizeApiError(err).message);
-    } finally {
-      setIsSharedColorsLoading(false);
-    }
-  };
-
-  const selectSharedColor = (color: BackendColor) => {
-    setSelectedColor({ id: String(color.id), name: color.name, hex: color.hex_code });
-    setIsCustomColorSelected(true);
-    setIsColorMenuOpen(false);
-    setCustomColorError(null);
-  };
-
-  const createCustomColor = async (hexCode: string) => {
-    setIsCreatingCustomColor(true);
-    setCustomColorError(null);
-    try {
-      const color = await colorService.createCustomColor(hexCode.toUpperCase());
-      setSharedColors((current) =>
-        current.some((item) => item.id === color.id) ? current : [color, ...current]
-      );
-      selectSharedColor(color);
-    } catch (err) {
-      setCustomColorError(normalizeApiError(err).message);
-    } finally {
-      setIsCreatingCustomColor(false);
-    }
-  };
 
   // Base price + size price delta
   const unitPrice = (product.price || 0) + (selectedSize?.priceDelta || 0);
@@ -321,7 +270,7 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
               </fieldset>
             )}
 
-            {(product.colors.length > 0 || product.allowsCustomization) && (
+            {product.colors.length > 0 && (
               <fieldset className="space-y-3">
                 <legend className="text-sm font-semibold text-[#17324A]">
                   اللون <span className="font-normal text-[#6D6A64]">· {selectedColor.name}</span>
@@ -331,10 +280,7 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
                     <button
                       key={color.id}
                       type="button"
-                      onClick={() => {
-                        setSelectedColor(color);
-                        setIsCustomColorSelected(false);
-                      }}
+                      onClick={() => setSelectedColor(color)}
                       aria-label={`اختيار اللون ${color.name}`}
                       aria-pressed={selectedColor.id === color.id}
                       title={color.name}
@@ -343,74 +289,7 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
                       <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: color.hex }} />
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => void toggleColorMenu()}
-                    className={`grid h-10 w-10 place-items-center rounded-full border ${isCustomColorSelected ? 'border-[#17324A]' : 'border-[#D9CEBF]'}`}
-                    title="اختيار لون آخر"
-                    aria-label="اختيار لون آخر"
-                    aria-expanded={isColorMenuOpen}
-                  >
-                    {isCustomColorSelected
-                      ? <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: selectedColor.hex }} />
-                      : <Plus className="h-4 w-4 text-[#17324A]" aria-hidden="true" />}
-                  </button>
                 </div>
-
-                {isColorMenuOpen && (
-                  <div className="space-y-4 border border-[#E6DED2] bg-white p-4">
-                    <p className="text-xs text-[#6D6A64]">ألوان إضافية</p>
-                    {isSharedColorsLoading ? (
-                      <div className="flex justify-center py-2" aria-label="جارٍ تحميل الألوان">
-                        <Loader2 className="h-4 w-4 animate-spin text-[#17324A]" />
-                      </div>
-                    ) : sharedColors.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {sharedColors.map((color) => (
-                          <button
-                            key={color.id}
-                            type="button"
-                            onClick={() => selectSharedColor(color)}
-                            className={`h-9 w-9 rounded-full border-2 ${selectedColor.id === String(color.id) ? 'border-[#17324A]' : 'border-[#D9CEBF]'}`}
-                            style={{ backgroundColor: color.hex_code }}
-                            title={color.hex_code}
-                            aria-label={`اختيار اللون ${color.hex_code}`}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-[#6D6A64]">لا توجد ألوان إضافية حاليًا.</p>
-                    )}
-                    <div className="flex flex-wrap items-center gap-3 border-t border-[#E6DED2] pt-3">
-                      <span className="text-xs text-[#6D6A64]">تبحث عن درجة محددة؟</span>
-                      <label className="relative inline-flex min-h-10 cursor-pointer items-center gap-2 border border-[#D9CEBF] px-3 text-xs text-[#42515C]">
-                        <span className="h-4 w-4 rounded-full border border-black/15" style={{ backgroundColor: customColorDraft }} />
-                        <span>اختر درجة</span>
-                        <input
-                          type="color"
-                          value={customColorDraft}
-                          aria-label="اختيار درجة لون مخصصة"
-                          disabled={isCreatingCustomColor}
-                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                          onChange={(event) => {
-                            setCustomColorDraft(event.target.value.toUpperCase());
-                            setHasChosenCustomColor(true);
-                          }}
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => void createCustomColor(customColorDraft)}
-                        disabled={!hasChosenCustomColor || isCreatingCustomColor}
-                        className="inline-flex min-h-10 items-center gap-2 bg-[#17324A] px-3 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-45"
-                      >
-                        {isCreatingCustomColor ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-                        <span>{isCreatingCustomColor ? 'جارٍ الإضافة...' : 'إضافة اللون'}</span>
-                      </button>
-                    </div>
-                    {customColorError && <p role="alert" className="text-xs text-[#A33B2B]">{customColorError}</p>}
-                  </div>
-                )}
               </fieldset>
             )}
 

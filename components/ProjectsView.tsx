@@ -13,35 +13,33 @@ export default function ProjectsView() {
 
   return (
     <div id="projects-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
-      <section className="grid grid-cols-1 bg-[#E8E3D9] lg:min-h-[560px] lg:grid-cols-12">
-        <div className="flex flex-col justify-center px-5 py-10 sm:px-10 sm:py-14 lg:col-span-5 lg:px-14 lg:py-20">
+      <section className={leadProject?.coverImage ? 'grid grid-cols-1 bg-[#E8E3D9] lg:min-h-[480px] lg:grid-cols-12' : 'bg-[#E8E3D9]'}>
+        <div className={`flex flex-col justify-center px-5 py-7 sm:px-10 sm:py-9 ${leadProject?.coverImage ? 'lg:col-span-5 lg:px-14 lg:py-12' : 'mx-auto w-full max-w-[1500px] lg:px-14'}`}>
           <p className="text-xs font-semibold text-[#A36046]">دفتر المساحات · مودرن هوم</p>
-          <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl leading-[1.55] text-[#17324A] sm:text-5xl">
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-2xl leading-[1.35] text-[#17324A] sm:text-4xl">
             أثاث في مكانه الحقيقي.
           </h1>
-          <p className="mt-4 max-w-lg text-sm leading-8 text-[#625E57] sm:text-base">
+          <p className="mt-3 max-w-lg text-sm leading-7 text-[#625E57] sm:text-base">
             مساحات صُممت لتُعاش، وقطع تجد مكانها بين تفاصيل البيت اليومية.
           </p>
-          <button type="button" onClick={() => navigateTo('custom-design')} className="mt-7 inline-flex min-h-10 w-fit items-center gap-2 border-b border-[#A36046] text-sm font-semibold text-[#17324A]">
+          <button type="button" onClick={() => navigateTo('custom-design')} className="mt-5 inline-flex min-h-10 w-fit items-center gap-2 border-b border-[#A36046] text-sm font-semibold text-[#17324A]">
             <span>ناقش مساحة مشروعك</span><ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
-        <div className="relative min-h-[320px] overflow-hidden bg-[#6A5A48] sm:min-h-[500px] lg:col-span-7">
-          {leadProject?.coverImage && (
-            <>
-              <Image
-                src={leadProject.coverImage}
-                alt={leadProject.title}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#17324A]/40 to-transparent" />
-              {leadProject.location && <span className="absolute bottom-4 right-4 text-xs text-white sm:bottom-6 sm:right-7">{leadProject.location}</span>}
-            </>
-          )}
-        </div>
+        {leadProject?.coverImage && (
+          <div className="relative min-h-[220px] overflow-hidden bg-[#6A5A48] sm:min-h-[360px] lg:col-span-7">
+            <Image
+              src={leadProject.coverImage}
+              alt={leadProject.title}
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 58vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#17324A]/40 to-transparent" />
+            {leadProject.location && <span className="absolute bottom-4 right-4 text-xs text-white sm:bottom-6 sm:right-7">{leadProject.location}</span>}
+          </div>
+        )}
       </section>
 
       <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
@@ -59,7 +57,7 @@ export default function ProjectsView() {
           ) : projects.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm text-[#6D6A64]">لا توجد مشروعات معروضة حاليًا.</p>
-              <button type="button" onClick={() => navigateTo('custom-design')} className="mt-3 text-sm font-medium text-[#17324A] underline underline-offset-2">ناقش مشروعك</button>
+              <button type="button" onClick={() => navigateTo('custom-design')} className="mt-3 text-sm font-medium text-[#17324A] underline underline-offset-2">اتفرج على منتجاتنا</button>
             </div>
           ) : (
           <>

@@ -24,12 +24,12 @@ export default function EventsView() {
 
   return (
     <div id="events-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
-      <header className="bg-[#17324A] py-9 text-white sm:py-14 lg:py-20">
-        <div className="mx-auto flex max-w-[1500px] flex-col justify-between gap-6 px-5 sm:px-10 lg:flex-row lg:items-end lg:px-14">
-          <div className="max-w-2xl space-y-3">
+      <header className="bg-[#17324A] py-6 text-white sm:py-8 lg:py-10">
+        <div className="mx-auto flex max-w-[1500px] flex-col justify-between gap-4 px-5 sm:px-10 lg:flex-row lg:items-end lg:px-14">
+          <div className="max-w-2xl space-y-2">
             <p className="text-xs font-semibold text-[#E9CBA6]">لقاءات مودرن هوم</p>
-            <h1 className="font-[family-name:var(--font-display)] text-3xl leading-relaxed sm:text-5xl">نلتقي حول تفاصيل البيت.</h1>
-            <p className="max-w-xl text-sm leading-7 text-white/75">معارض ولقاءات نشارك فيها أفكارًا وقطعًا جديدة من عالم الأثاث.</p>
+            <h1 className="font-[family-name:var(--font-display)] text-2xl leading-tight sm:text-3xl">نلتقي حول تفاصيل البيت.</h1>
+            <p className="max-w-xl text-sm leading-6 text-white/75">معارض ولقاءات نشارك فيها أفكارًا وقطعًا جديدة من عالم الأثاث.</p>
           </div>
           <div role="group" aria-label="تصفية الفعاليات" className="flex w-fit border border-white/30">
             {(['all', 'upcoming', 'past'] as const).map((f) => (

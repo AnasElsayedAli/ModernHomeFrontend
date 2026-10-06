@@ -5,7 +5,8 @@ import { useToccoStore, mapBackendProduct } from '@/lib/store';
 import { productService } from '@/lib/api/services/productService';
 import { normalizeApiError } from '@/lib/api/errors';
 import { Product } from '@/types';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search, SlidersHorizontal, X } from 'lucide-react';
+import Image from '@/components/SafeImage';
 import ModernHomeProductCard from './ModernHomeProductCard';
 import { useModernHomeContent } from './modern-home/useModernHomeContent';
 
@@ -22,9 +23,8 @@ export default function ShopCatalog() {
   } = useToccoStore();
   const { products, categories } = useModernHomeContent();
 
-  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>(
-    selectedCategoryId || 'all'
-  );
+  const activeCategoryFilter = selectedCategoryId || 'all';
+  const [activeSubcategoryFilter, setActiveSubcategoryFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'newest' | 'price-asc' | 'price-desc'>('featured');
 
   // Server-side search results (name/description/material), debounced
@@ -99,6 +99,10 @@ export default function ShopCatalog() {
         return false;
       }
 
+      if (activeSubcategoryFilter !== 'all' && !product.subcategoryIds.includes(activeSubcategoryFilter)) {
+        return false;
+      }
+
       return true;
     }).sort((a, b) => {
       if (sortBy === 'newest') {
@@ -113,24 +117,39 @@ export default function ShopCatalog() {
       // 'featured'
       return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
     });
-  }, [products, searchResults, searchResultsQuery, activeCategoryFilter, searchQuery, sortBy, subcategories]);
+  }, [products, searchResults, searchResultsQuery, activeCategoryFilter, activeSubcategoryFilter, searchQuery, sortBy, subcategories]);
 
   const visibleCategories = categories.filter((c) => c.isVisible);
+  const selectedCategory = visibleCategories.find((category) => category.id === activeCategoryFilter);
+  const visibleSubcategories = activeCategoryFilter === 'all'
+    ? []
+    : subcategories.filter((subcategory) => String(subcategory.category_id) === activeCategoryFilter);
   const hasSearchQuery = Boolean(searchQuery.trim());
+  const showCategoryLanding = activeCategoryFilter === 'all' && !hasSearchQuery;
   const isSearchWaitingForCurrentQuery = hasSearchQuery
     && !searchError
     && (isSearching || searchResultsQuery !== searchQuery.trim());
 
   return (
     <div id="shop-catalog-page" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24">
-      <header className="border-b border-[#D8CEBF] bg-[#E8E3D9] py-8 sm:py-12 lg:py-16">
-        <div className="mx-auto flex max-w-[1500px] flex-col justify-between gap-6 px-5 sm:px-10 lg:flex-row lg:items-end lg:px-14">
-          <div className="max-w-3xl space-y-3">
-            <p className="text-xs font-semibold text-[#A36046]">معرض مودرن هوم <span className="me-2 font-[family-name:var(--font-brand)] text-[#8F867A]">04</span></p>
-            <h1 className="font-[family-name:var(--font-display)] text-3xl leading-relaxed text-[#17324A] sm:text-5xl">قطع تُكمل حكاية بيتك</h1>
-            <p className="max-w-xl text-sm leading-7 text-[#625E57]">تصفّح القطع الجاهزة، أو ابدأ من قطعة تُصنع على مقاس مساحتك.</p>
+      <header className="border-b border-[#D8CEBF] bg-[#E8E3D9] py-5 sm:py-7 lg:py-9">
+        <div className="mx-auto flex max-w-[1500px] flex-col justify-between gap-4 px-5 sm:px-10 lg:flex-row lg:items-end lg:px-14">
+          <div className="max-w-3xl space-y-2">
+            <p className="text-xs font-semibold text-[#A36046]">معرض مودرن هوم</p>
+            <h1 className="font-[family-name:var(--font-display)] text-2xl leading-tight text-[#17324A] sm:text-3xl">
+              {showCategoryLanding ? 'اختر التصنيف' : selectedCategory?.name || (hasSearchQuery ? 'نتائج البحث' : 'المنتجات')}
+            </h1>
+            <p className="max-w-xl text-sm leading-6 text-[#625E57]">
+              {showCategoryLanding
+                ? 'ابدأ باختيار التصنيف لتستعرض المنتجات والتصنيفات الفرعية.'
+                : selectedCategory?.description || 'اكتشف المنتجات واختر التصنيف الفرعي المناسب لك.'}
+            </p>
           </div>
-          <p className="text-xs text-[#6D6A64]">{products.filter((product) => product.isPublished).length} قطعة مختارة</p>
+          <p className="text-xs text-[#6D6A64]">
+            {showCategoryLanding
+              ? `${visibleCategories.length} تصنيف`
+              : `${filteredProducts.length} منتج`}
+          </p>
         </div>
       </header>
 
@@ -157,33 +176,29 @@ export default function ShopCatalog() {
               </button>
             )}
           </div>
+        {!showCategoryLanding && (
         <section className="border-b border-[#DED5C9] py-5" aria-label="تصفية المنتجات">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-              <button
-                type="button"
-                onClick={() => setActiveCategoryFilter('all')}
-                aria-pressed={activeCategoryFilter === 'all'}
-                className={`shrink-0 border-b-2 px-3 py-2 text-sm transition-colors ${activeCategoryFilter === 'all' ? 'border-[#17324A] font-semibold text-[#17324A]' : 'border-transparent text-[#6D6A64] hover:text-[#17324A]'}`}
-              >
-                الكل ({products.filter((product) => product.isPublished).length})
-              </button>
-              {visibleCategories.map((category) => {
-                const count = products.filter((product) => product.categoryId === category.id && product.isPublished).length;
-                const isSelected = activeCategoryFilter === category.id;
-                return (
-                  <button
-                    type="button"
-                    key={category.id}
-                    onClick={() => setActiveCategoryFilter(category.id)}
-                    aria-pressed={isSelected}
-                    className={`shrink-0 border-b-2 px-3 py-2 text-sm transition-colors ${isSelected ? 'border-[#17324A] font-semibold text-[#17324A]' : 'border-transparent text-[#6D6A64] hover:text-[#17324A]'}`}
-                  >
-                    {category.name} ({count})
-                  </button>
-                );
-              })}
-            </div>
+            {selectedCategory ? (
+              <div className="flex min-h-11 items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveSubcategoryFilter('all');
+                    setSearchQuery('');
+                    navigateTo('shop', { categoryId: '' });
+                  }}
+                  className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-[#17324A] hover:text-[#A36046]"
+                >
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  كل التصنيفات
+                </button>
+                <span className="h-5 border-r border-[#D8CEBF]" aria-hidden="true" />
+                <span className="text-sm font-semibold text-[#625E57]">{selectedCategory.name}</span>
+              </div>
+            ) : (
+              <p className="text-sm font-semibold text-[#17324A]">نتائج البحث في المنتجات</p>
+            )}
 
             <label className="flex min-h-11 items-center gap-2 border-b border-[#BFB4A6] px-1 text-sm text-[#42515C] lg:min-w-56">
               <SlidersHorizontal className="h-4 w-4 text-[#A36046]" aria-hidden="true" />
@@ -201,7 +216,41 @@ export default function ShopCatalog() {
               </select>
             </label>
           </div>
+          {visibleSubcategories.length > 0 && (
+            <div className="mt-4 border-r-2 border-[#A36046] pr-3" aria-label="التصنيفات الفرعية">
+              <p className="mb-2 text-[11px] font-semibold text-[#81786C]">التصنيف الفرعي</p>
+              <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveSubcategoryFilter('all')}
+                  aria-pressed={activeSubcategoryFilter === 'all'}
+                  className={`shrink-0 border px-3 py-2 text-xs transition-colors ${activeSubcategoryFilter === 'all' ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#DED5C9] text-[#625E57] hover:border-[#17324A]'}`}
+                >
+                  كل المنتجات
+                </button>
+                {visibleSubcategories.map((subcategory) => {
+                  const subcategoryId = String(subcategory.id);
+                  const isSelected = activeSubcategoryFilter === subcategoryId;
+                  const count = products.filter((product) =>
+                    product.isPublished && product.subcategoryIds.includes(subcategoryId)
+                  ).length;
+                  return (
+                    <button
+                      type="button"
+                      key={subcategoryId}
+                      onClick={() => setActiveSubcategoryFilter(subcategoryId)}
+                      aria-pressed={isSelected}
+                      className={`shrink-0 border px-3 py-2 text-xs transition-colors ${isSelected ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#DED5C9] text-[#625E57] hover:border-[#17324A]'}`}
+                    >
+                      {subcategory.name} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </section>
+        )}
 
         {searchError && (
           <div role="alert" className="mt-4 flex items-center justify-between gap-3 border-y border-[#DED5C9] px-1 py-3 text-sm text-[#42515C]">
@@ -225,7 +274,63 @@ export default function ShopCatalog() {
           </div>
         )}
 
-        {isCatalogLoading && products.length === 0 ? (
+        {showCategoryLanding ? (
+          isCatalogLoading && visibleCategories.length === 0 ? (
+            <div className="grid grid-cols-2 gap-3 pt-8 sm:grid-cols-3 lg:grid-cols-4" role="status" aria-live="polite">
+              {Array.from({ length: 4 }, (_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="aspect-[4/3] bg-[#E6DED2]" />
+                  <div className="mt-3 h-4 w-2/3 bg-[#DED5C9]" />
+                </div>
+              ))}
+            </div>
+          ) : storeDataErrors.catalog && visibleCategories.length === 0 ? (
+            <div role="alert" className="my-8 border-y border-[#DED5C9] px-5 py-10 text-center">
+              <p className="text-base font-semibold text-[#17324A]">تعذر تحميل التصنيفات</p>
+              <p className="mt-2 text-sm text-[#6D6A64]">{storeDataErrors.catalog}</p>
+              <button type="button" onClick={() => void reloadStoreData()} className="mt-5 bg-[#17324A] px-5 py-3 text-sm font-semibold text-white hover:bg-[#24445E]">
+                إعادة المحاولة
+              </button>
+            </div>
+          ) : visibleCategories.length === 0 ? (
+            <div className="py-20 text-center">
+              <p className="text-xl font-semibold text-[#17324A]">لا توجد تصنيفات متاحة حاليًا.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 pt-8 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+              {visibleCategories.map((category) => {
+                const count = products.filter((product) => product.isPublished && product.categoryId === category.id).length;
+                return (
+                  <button
+                    type="button"
+                    key={category.id}
+                    onClick={() => {
+                      setActiveSubcategoryFilter('all');
+                      navigateTo('shop', { categoryId: category.id });
+                    }}
+                    className="group relative aspect-[4/3] overflow-hidden bg-[#17324A] text-right text-white"
+                  >
+                    <Image
+                      src={category.image || '/images/apple_hero_living_1790845941555.jpg'}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute inset-0 bg-gradient-to-t from-[#112334]/95 via-[#17324A]/15 to-transparent" />
+                    <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
+                      <span>
+                        <span className="block font-[family-name:var(--font-display)] text-base font-semibold sm:text-xl">{category.name}</span>
+                        <span className="mt-1 block text-[10px] text-white/75 sm:text-xs">{count} منتج</span>
+                      </span>
+                      <ArrowLeft className="mb-1 h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )
+        ) : isCatalogLoading && products.length === 0 ? (
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 pt-8 md:grid-cols-12 md:gap-x-6 md:gap-y-12" role="status" aria-live="polite">
             {Array.from({ length: 4 }, (_, index) => (
               <div key={index} className="animate-pulse">
@@ -271,12 +376,13 @@ export default function ShopCatalog() {
             <button
               type="button"
               onClick={() => {
-                setActiveCategoryFilter('all');
                 setSearchQuery('');
+                setActiveSubcategoryFilter('all');
+                navigateTo('shop', { categoryId: '' });
               }}
               className="mt-5 border-b border-[#C8A77D] pb-1 text-sm font-semibold text-[#17324A]"
             >
-              عرض كل المنتجات
+              العودة للتصنيفات
             </button>
           </div>
         ) : (

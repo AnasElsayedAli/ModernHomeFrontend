@@ -7,9 +7,7 @@ import { useAuth } from '@/lib/context/AuthContext';
 import { ToccoMark } from '@/components/ToccoLogo';
 
 const links: { label: string; view: AppView }[] = [
-  { label: 'تصنيع محلي', view: 'custom-design' },
-  { label: 'أثاث مستورد', view: 'imported' },
-  { label: 'الكتالوج الكامل', view: 'shop' },
+  { label: 'المنتجات', view: 'shop' },
   { label: 'حكايتنا', view: 'our-story' },
 ];
 
@@ -58,7 +56,7 @@ export default function ModernHeader() {
           </span>
         </button>
 
-        <nav aria-label="التنقل الرئيسي" className="hidden items-center gap-5 lg:flex xl:gap-8">
+        <nav aria-label="التنقل الرئيسي" className="hidden items-center gap-4 md:flex lg:gap-5 xl:gap-8">
           {links.map((link) => (
             <button
               key={link.view}
@@ -90,7 +88,7 @@ export default function ModernHeader() {
             className="hidden h-10 items-center gap-2 px-2 text-xs text-[#17324A] transition-colors hover:bg-[#EEE7DC] sm:flex"
           >
             <UserRound className="h-[17px] w-[17px]" aria-hidden="true" />
-            <span>{user ? 'حسابي' : 'دخول'}</span>
+            <span className="hidden sm:inline md:hidden lg:inline">{user ? 'حسابي' : 'دخول'}</span>
           </button>
           <button
             type="button"
@@ -107,10 +105,10 @@ export default function ModernHeader() {
               onClick={() => goToView('admin')}
               aria-label="إدارة المتجر"
               title="إدارة المتجر"
-              className="grid h-10 w-10 shrink-0 place-items-center text-[#6D6A64] transition-colors hover:bg-[#EEE7DC] hover:text-[#17324A] sm:flex sm:w-auto sm:items-center sm:gap-2 sm:border-r sm:border-[#DED5C9] sm:pe-3 sm:text-[11px] sm:font-medium"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-md text-[#6D6A64] transition-colors hover:bg-[#EEE7DC] hover:text-[#17324A] sm:flex sm:w-auto sm:items-center sm:gap-2 sm:px-2 sm:text-[11px] sm:font-medium"
             >
               <SlidersHorizontal className="h-[17px] w-[17px]" aria-hidden="true" />
-              <span className="hidden sm:inline">إدارة المتجر</span>
+              <span className="hidden lg:inline">إدارة المتجر</span>
             </button>
           )}
         </div>

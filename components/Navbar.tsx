@@ -136,7 +136,7 @@ export default function Navbar() {
                 : 'text-[#42515C] hover:text-[#17324A] hover:bg-[#EEE5D9]'
             }`}
               title="حسابي وطلباتي"
-              aria-label="حسابي"
+              aria-label=""
           >
             <div className="relative">
               <User className="w-4 h-4" />
