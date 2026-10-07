@@ -117,9 +117,7 @@ export function StoryTeaserSection() {
     <section id="story-teaser-section" dir="rtl" className="border-b border-[#E6DED2] bg-[#F7F3EC] py-14 sm:py-20">
       <div className="mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-8 px-4 sm:px-8 lg:grid-cols-12 lg:gap-14 lg:px-12">
         <div className="space-y-5 lg:col-span-5 sm:space-y-7">
-          <div className="grid h-11 w-11 place-items-center bg-[#17324A]">
-            <ToccoMark size={27} fillColor="#FFFFFF" circleBg="transparent" hasCircle={false} />
-          </div>
+          <ToccoMark size={44} />
           <div className="space-y-3">
             <span className="text-xs font-semibold text-[#A36046]">حكاية مودرن هوم</span>
             <h2 className="text-2xl font-semibold leading-relaxed text-[#17324A] sm:text-4xl">
@@ -344,6 +342,8 @@ export function CustomDesignTeaser() {
   );
 }
 
+const PROJECTS_SHOWCASE_ENABLED = false;
+
 export function ProjectsAndInstagramSection() {
   const { projects, navigateTo, settings } = useToccoStore();
   const instagramHandles = settings.contact.instagramHandles.filter((handle) => !/tocco/i.test(handle));
@@ -351,7 +351,9 @@ export function ProjectsAndInstagramSection() {
   return (
     <section id="projects-journal-section" dir="rtl" className="bg-[#F7F3EC] py-14 sm:py-20">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
-        <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+        {PROJECTS_SHOWCASE_ENABLED && (
+          <>
+            <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
             <span className="text-xs font-semibold text-[#A36046]">من بيوتنا ومشروعاتنا</span>
             <h2 className="text-2xl font-semibold text-[#17324A] sm:text-4xl">أثاث في مساحته الحقيقية</h2>
@@ -365,10 +367,10 @@ export function ProjectsAndInstagramSection() {
             <span>اكتشف المشروعات</span>
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </button>
-        </div>
+            </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
-          {projects.slice(0, 3).map((project) => (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
+              {projects.slice(0, 3).map((project) => (
             <button
               key={project.id}
               type="button"
@@ -390,8 +392,10 @@ export function ProjectsAndInstagramSection() {
                 <p className="line-clamp-2 text-xs leading-6 text-[#6D6A64]">{project.description}</p>
               </div>
             </button>
-          ))}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
 
         {instagramHandles.length > 0 && (
           <div className="mt-10 flex flex-col gap-4 border-t border-[#E6DED2] pt-7 sm:mt-14 sm:flex-row sm:items-center sm:justify-between">

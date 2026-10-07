@@ -20,6 +20,15 @@ html {
 	direction: rtl;
 }
 
+.scrollbar-none {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+	display: none;
+}
+
 .mh-body {
 	font-family: var(--font-arabic);
 	background-color: var(--mh-ivory);

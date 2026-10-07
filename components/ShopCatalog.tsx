@@ -5,12 +5,12 @@ import { useToccoStore, mapBackendProduct } from '@/lib/store';
 import { productService } from '@/lib/api/services/productService';
 import { normalizeApiError } from '@/lib/api/errors';
 import { Product } from '@/types';
-import { ArrowLeft, ArrowRight, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
 import Image from '@/components/SafeImage';
 import ModernHomeProductCard from './ModernHomeProductCard';
 import { useModernHomeContent } from './modern-home/useModernHomeContent';
 
-export default function ShopCatalog() {
+export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: boolean }) {
   const {
     subcategories,
     selectedCategoryId,
@@ -23,7 +23,7 @@ export default function ShopCatalog() {
   } = useToccoStore();
   const { products, categories } = useModernHomeContent();
 
-  const activeCategoryFilter = selectedCategoryId || 'all';
+  const activeCategoryFilter = featuredOnly ? 'all' : selectedCategoryId || 'all';
   const [activeSubcategoryFilter, setActiveSubcategoryFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'newest' | 'price-asc' | 'price-desc'>('featured');
 
@@ -94,12 +94,14 @@ export default function ShopCatalog() {
       // Must be published
       if (!product.isPublished) return false;
 
+      if (featuredOnly && !product.isFeatured) return false;
+
       // Category filter
-      if (activeCategoryFilter !== 'all' && product.categoryId !== activeCategoryFilter) {
+      if (!featuredOnly && activeCategoryFilter !== 'all' && product.categoryId !== activeCategoryFilter) {
         return false;
       }
 
-      if (activeSubcategoryFilter !== 'all' && !product.subcategoryIds.includes(activeSubcategoryFilter)) {
+      if (!featuredOnly && activeSubcategoryFilter !== 'all' && !product.subcategoryIds.includes(activeSubcategoryFilter)) {
         return false;
       }
 
@@ -117,7 +119,7 @@ export default function ShopCatalog() {
       // 'featured'
       return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
     });
-  }, [products, searchResults, searchResultsQuery, activeCategoryFilter, activeSubcategoryFilter, searchQuery, sortBy, subcategories]);
+  }, [products, searchResults, searchResultsQuery, activeCategoryFilter, activeSubcategoryFilter, featuredOnly, searchQuery, sortBy, subcategories]);
 
   const visibleCategories = categories.filter((c) => c.isVisible);
   const selectedCategory = visibleCategories.find((category) => category.id === activeCategoryFilter);
@@ -125,7 +127,7 @@ export default function ShopCatalog() {
     ? []
     : subcategories.filter((subcategory) => String(subcategory.category_id) === activeCategoryFilter);
   const hasSearchQuery = Boolean(searchQuery.trim());
-  const showCategoryLanding = activeCategoryFilter === 'all' && !hasSearchQuery;
+  const showCategoryLanding = !featuredOnly && activeCategoryFilter === 'all' && !hasSearchQuery;
   const isSearchWaitingForCurrentQuery = hasSearchQuery
     && !searchError
     && (isSearching || searchResultsQuery !== searchQuery.trim());
@@ -137,10 +139,12 @@ export default function ShopCatalog() {
           <div className="max-w-3xl space-y-2">
             <p className="text-xs font-semibold text-[#A36046]">معرض مودرن هوم</p>
             <h1 className="font-[family-name:var(--font-display)] text-2xl leading-tight text-[#17324A] sm:text-3xl">
-              {showCategoryLanding ? 'اختر التصنيف' : selectedCategory?.name || (hasSearchQuery ? 'نتائج البحث' : 'المنتجات')}
+              {featuredOnly ? 'مختارات مودرن هوم' : showCategoryLanding ? 'اختر التصنيف' : selectedCategory?.name || (hasSearchQuery ? 'نتائج البحث' : 'المنتجات')}
             </h1>
             <p className="max-w-xl text-sm leading-6 text-[#625E57]">
-              {showCategoryLanding
+              {featuredOnly
+                ? 'قطع اختارها فريق مودرن هوم لتكون من أبرز اختيارات التشكيلة.'
+                : showCategoryLanding
                 ? 'ابدأ باختيار التصنيف لتستعرض المنتجات والتصنيفات الفرعية.'
                 : selectedCategory?.description || 'اكتشف المنتجات واختر التصنيف الفرعي المناسب لك.'}
             </p>
@@ -148,85 +152,70 @@ export default function ShopCatalog() {
           <p className="text-xs text-[#6D6A64]">
             {showCategoryLanding
               ? `${visibleCategories.length} تصنيف`
-              : `${filteredProducts.length} منتج`}
+              : featuredOnly
+                ? `${filteredProducts.length} قطعة مختارة`
+                : `${filteredProducts.length} منتج`}
           </p>
         </div>
       </header>
 
       <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
-          <div className="relative mt-6 max-w-2xl">
-            <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#817D75]" aria-hidden="true" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="ابحث عن كرسي، طاولة، بوفيه..."
-              aria-label="ابحث في المنتجات"
-              className="min-h-12 w-full border-b border-[#BFB4A6] bg-transparent py-3 pe-11 ps-12 text-right text-sm text-[#18232D] outline-none placeholder:text-[#817D75] focus:border-[#17324A]"
-              dir="rtl"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute left-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center text-[#6D6A64] hover:text-[#17324A]"
-                aria-label="مسح البحث"
-              >
-                <X className="h-4 w-4" aria-hidden="true" />
-              </button>
-            )}
-          </div>
         {!showCategoryLanding && (
-        <section className="border-b border-[#DED5C9] py-5" aria-label="تصفية المنتجات">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {selectedCategory ? (
-              <div className="flex min-h-11 items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveSubcategoryFilter('all');
-                    setSearchQuery('');
-                    navigateTo('shop', { categoryId: '' });
-                  }}
-                  className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-[#17324A] hover:text-[#A36046]"
-                >
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  كل التصنيفات
-                </button>
-                <span className="h-5 border-r border-[#D8CEBF]" aria-hidden="true" />
-                <span className="text-sm font-semibold text-[#625E57]">{selectedCategory.name}</span>
+          <div className="mt-6 rounded-[22px] border border-[#E9E0D4] bg-[#FBF9F4] p-3 shadow-[0_8px_18px_rgba(23,50,74,0.03)]">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="relative flex-1">
+                <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#817D75]" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="بحث..."
+                  aria-label="ابحث في المنتجات"
+                  className="min-h-11 w-full rounded-full border border-[#E3D9CC] bg-white py-2.5 pe-11 ps-11 text-right text-sm text-[#18232D] outline-none placeholder:text-[#817D75] transition-colors focus:border-[#17324A]"
+                  dir="rtl"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute left-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-[#6D6A64] transition-colors hover:bg-[#F2E9E1] hover:text-[#17324A]"
+                    aria-label="مسح البحث"
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
               </div>
-            ) : (
-              <p className="text-sm font-semibold text-[#17324A]">نتائج البحث في المنتجات</p>
-            )}
 
-            <label className="flex min-h-11 items-center gap-2 border-b border-[#BFB4A6] px-1 text-sm text-[#42515C] lg:min-w-56">
-              <SlidersHorizontal className="h-4 w-4 text-[#A36046]" aria-hidden="true" />
-              <span className="shrink-0 text-xs">ترتيب حسب</span>
-              <select
-                value={sortBy}
-                onChange={(event) => setSortBy(event.target.value as typeof sortBy)}
-                aria-label="ترتيب المنتجات"
-                className="min-w-0 flex-1 bg-transparent text-right text-xs outline-none"
-              >
-                <option value="featured">الأكثر تميزًا</option>
-                <option value="newest">الأحدث</option>
-                <option value="price-asc">السعر: من الأقل</option>
-                <option value="price-desc">السعر: من الأعلى</option>
-              </select>
-            </label>
-          </div>
-          {visibleSubcategories.length > 0 && (
-            <div className="mt-4 border-r-2 border-[#A36046] pr-3" aria-label="التصنيفات الفرعية">
-              <p className="mb-2 text-[11px] font-semibold text-[#81786C]">التصنيف الفرعي</p>
-              <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+              <div className="flex w-fit shrink-0 items-center gap-2 rounded-full border border-[#E5DCCB] bg-[#F7F3EE] px-2 py-1.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#A36046] shadow-sm">
+                  <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+                </div>
+                <div className="relative flex items-center rounded-full bg-white px-2 py-1.5">
+                  <select
+                    value={sortBy}
+                    onChange={(event) => setSortBy(event.target.value as typeof sortBy)}
+                    aria-label="ترتيب المنتجات"
+                    className="cursor-pointer appearance-none bg-transparent py-1 pl-5 pr-2 text-right text-sm font-medium text-[#17324A] outline-none"
+                  >
+                    <option value="featured">الأكثر تميزًا</option>
+                    <option value="newest">الأحدث</option>
+                    <option value="price-asc">السعر: الأقل</option>
+                    <option value="price-desc">السعر: الأعلى</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute left-1 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6D6A64]" aria-hidden="true" />
+                </div>
+              </div>
+            </div>
+
+            {visibleSubcategories.length > 0 && (
+              <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1" aria-label="التصنيفات الفرعية">
                 <button
                   type="button"
                   onClick={() => setActiveSubcategoryFilter('all')}
                   aria-pressed={activeSubcategoryFilter === 'all'}
-                  className={`shrink-0 border px-3 py-2 text-xs transition-colors ${activeSubcategoryFilter === 'all' ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#DED5C9] text-[#625E57] hover:border-[#17324A]'}`}
+                  className={`shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors ${activeSubcategoryFilter === 'all' ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#E3D9CC] bg-white text-[#625E57] hover:border-[#17324A]'}`}
                 >
-                  كل المنتجات
+                  الكل
                 </button>
                 {visibleSubcategories.map((subcategory) => {
                   const subcategoryId = String(subcategory.id);
@@ -240,16 +229,15 @@ export default function ShopCatalog() {
                       key={subcategoryId}
                       onClick={() => setActiveSubcategoryFilter(subcategoryId)}
                       aria-pressed={isSelected}
-                      className={`shrink-0 border px-3 py-2 text-xs transition-colors ${isSelected ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#DED5C9] text-[#625E57] hover:border-[#17324A]'}`}
+                      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors ${isSelected ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#E3D9CC] bg-white text-[#625E57] hover:border-[#17324A]'}`}
                     >
                       {subcategory.name} ({count})
                     </button>
                   );
                 })}
               </div>
-            </div>
-          )}
-        </section>
+            )}
+          </div>
         )}
 
         {searchError && (
@@ -371,8 +359,8 @@ export default function ShopCatalog() {
           <div className="py-16 text-center text-sm text-[#6D6A64]">تعذر إتمام البحث. أعد المحاولة من الأعلى.</div>
         ) : filteredProducts.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-xl font-semibold text-[#17324A]">لم نجد ما تبحث عنه</p>
-            <p className="mx-auto mt-2 max-w-sm text-sm leading-7 text-[#6D6A64]">جرّب كلمة بحث مختلفة أو غيّر التصنيف.</p>
+            <p className="text-xl font-semibold text-[#17324A]">{featuredOnly && !hasSearchQuery ? 'لا توجد مختارات معروضة حاليًا' : 'لم نجد ما تبحث عنه'}</p>
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-7 text-[#6D6A64]">{featuredOnly && !hasSearchQuery ? 'ستظهر هنا المنتجات التي يحددها فريق مودرن هوم من لوحة التحكم.' : 'جرّب كلمة بحث مختلفة أو غيّر التصنيف.'}</p>
             <button
               type="button"
               onClick={() => {
@@ -382,7 +370,7 @@ export default function ShopCatalog() {
               }}
               className="mt-5 border-b border-[#C8A77D] pb-1 text-sm font-semibold text-[#17324A]"
             >
-              العودة للتصنيفات
+              {featuredOnly ? 'عرض كل المنتجات' : 'العودة للتصنيفات'}
             </button>
           </div>
         ) : (

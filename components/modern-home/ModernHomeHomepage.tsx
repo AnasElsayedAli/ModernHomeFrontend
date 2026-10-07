@@ -3,41 +3,35 @@
 import React, { useMemo } from 'react';
 import {
   ArrowLeft,
-  ArrowUpLeft,
   MapPin,
   MessageCircle,
-  Phone,
+  ShieldCheck,
 } from 'lucide-react';
 import Image from '@/components/SafeImage';
 import { useToccoStore } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
 import type { Product } from '@/types';
+import ModernHomeProductCard from '@/components/ModernHomeProductCard';
 import { useModernHomeContent } from './useModernHomeContent';
 
-// High-fidelity imagery
 const HERO_IMAGE = '/images/apple_hero_living_1790845941555.jpg';
-const priceFormatter = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 });
-
-function formatPrice(price: number): string {
-  if (price <= 0) return 'استفسار عن السعر';
-  return `${priceFormatter.format(price)} ج.م`;
-}
+const PROJECTS_SHOWCASE_ENABLED = false;
 
 export default function ModernHomeHomepage() {
-  const { navigateTo, settings } = useToccoStore();
+  const { navigateTo, settings, setSearchQuery } = useToccoStore();
   const { products, categories, projects } = useModernHomeContent();
 
-  // Featured products from the active catalog
   const publishedProducts = useMemo(() => {
-    return products.filter((p) => p.isPublished !== false);
+    return products.filter((product) => product.isPublished !== false);
   }, [products]);
 
-  const displayedProducts = useMemo(() => {
-    return publishedProducts.filter((product) => product.isFeatured).slice(0, 20);
+  const featuredProducts = useMemo(() => {
+    return publishedProducts.filter((product) => product.isFeatured);
   }, [publishedProducts]);
+  const displayedProducts = featuredProducts.slice(0, 4);
 
   const visibleCategories = useMemo(() => {
-    return categories.filter((category) => category.isVisible);
+    return categories.filter((category) => category.isVisible).slice(0, 5);
   }, [categories]);
 
   const homeStories = projects.slice(0, 4).map((project) => ({
@@ -52,338 +46,335 @@ export default function ModernHomeHomepage() {
     navigateTo('product', { productId: product.id });
   };
 
+  const showAllFeaturedProducts = () => {
+    setSearchQuery('');
+    navigateTo('featured');
+  };
+
   const whatsappConciergeUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
     'مرحبًا مودرن هوم، أود الاستفسار عن تفاصيل تشكيلة الأثاث المتوفرة لديكم.'
   )}`;
 
+  const brandValues = [
+    {
+      title: 'خامات مختارة بعناية',
+      desc: 'نوازن بين الخامات والتفاصيل لنمنح كل قطعة حضورًا هادئًا يناسب منزلك.',
+    },
+    {
+      title: 'تصميم يشبه العمارة',
+      desc: 'كل قطعة مصممة وفق نسب ومساحات تضمن تناغم الغرفة وتوازنها البصري.',
+    },
+    {
+      title: 'تفاصيل تناسب احتياجك',
+      desc: 'تعرّف على خيارات المقاسات والألوان والخامات المتاحة لكل قطعة قبل الطلب.',
+    },
+  ];
+
   return (
-    <div className="bg-[#FAF7F2] text-[#18232D] pb-20 md:pb-16 selection:bg-[#C8A77D]/25 selection:text-[#17324A]">
-      {/* ─────────────────────────────────────────────────────────────
-          1. HERO SHOWCASE
-          ───────────────────────────────────────────────────────────── */}
-      <section className="relative px-3 pt-3 sm:px-6 sm:pt-4 md:px-8">
-        <div className="relative mx-auto max-w-[1440px] overflow-hidden rounded-[26px] sm:rounded-[36px] bg-[#17324A] text-white shadow-md">
-          {/* Background Photography */}
-          <div className="absolute inset-0">
-            <Image
-              src={HERO_IMAGE}
-              alt="أثاث مودرن هوم"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-[60%_center] brightness-[0.88]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#112334]/95 via-[#17324A]/40 to-[#112334]/30" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#112334]/90 via-[#17324A]/30 to-transparent" />
-          </div>
+    <main className="min-h-screen bg-[#F5F1EB] text-[#17324A]">
+      <section className="relative overflow-hidden border-b border-[#E8DED1] bg-[radial-gradient(circle_at_top,#f9f4ee_0%,#f4efe9_38%,#efe7dc_100%)]">
+        <div className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+          <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="z-10 space-y-6 text-right lg:col-span-6">
+              <div className="flex items-center gap-2 text-xs font-medium tracking-[0.18em] text-[#81786C] sm:text-sm">
+                <span className="h-px w-7 bg-[#C4AD8B]" aria-hidden="true" />
+                <span>مجموعة مودرن هوم</span>
+              </div>
 
-          {/* Hero Content */}
-          <div className="relative z-10 flex min-h-[72svh] sm:min-h-[80svh] flex-col justify-between p-5 sm:p-10 md:p-14">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#E9CBA6]">
-                مودرن هوم للأثاث المنزلي والمكتبي
-              </span>
-              <span className="hidden sm:inline-block text-xs font-light text-white/60">
-                القاهرة الجديدة
-              </span>
-            </div>
-
-            <div className="max-w-xl space-y-3.5 pt-12 sm:space-y-5 sm:pt-16">
-              <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-[1.25] sm:text-5xl lg:text-6xl text-balance">
-                أثاث يُصمم ليدوم.
-                <span className="block mt-1 font-normal text-[#E9CBA6]">
-                  بشخصية فريدة لبيتك.
-                </span>
+              <h1 className="font-[family-name:var(--font-display)] text-3xl leading-[1.08] text-[#17324A] sm:text-4xl md:text-5xl lg:text-[4rem]">
+                أثاث مَدروس..
+                <span className="mt-1 block font-light text-[#625E57]">لمساحات تُشبه هدوءك.</span>
               </h1>
 
-              <p className="text-xs sm:text-sm leading-relaxed text-white/85 max-w-md">
-                قطع معمارية معاصرة للمنازل والمكاتب، من أخشاب الزان الطبيعي والرخام وأقمشة الكتان، تمنح كل مساحة هدوءاً وأناقة استثنائية.
+              <p className="max-w-xl text-base leading-relaxed text-[#625E57] sm:text-lg">
+                نصمم ونختار أثاثًا يجمع بين الخطوط الهندسية الهادئة والوظيفة اليومية، بقطع تناسب المساحات السكنية وبيئات العمل المعاصرة.
               </p>
 
-              <div className="flex gap-2.5 pt-1 sm:items-center">
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
                 <button
                   type="button"
                   onClick={() => navigateTo('shop')}
-                  className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full bg-[#F7F3EC] px-6 text-xs sm:text-sm font-semibold text-[#17324A] shadow transition-transform active:scale-95"
+                  className="group inline-flex items-center justify-center gap-3 rounded-full bg-[#17324A] px-8 py-4 text-sm font-medium text-[#FBF9F4] shadow-[0_10px_20px_rgba(23,50,74,0.14)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#24445E]"
                 >
-                  <span>استكشف المجموعة</span>
-                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>استكشف المجموعة الكاملة</span>
+                  <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => navigateTo('our-story')}
-                  className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-white/20 bg-white/10 px-5 text-xs sm:text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white/20 active:scale-95"
+                  onClick={showAllFeaturedProducts}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#DCCDB8] bg-[#FBF9F4]/80 px-7 py-4 text-sm font-medium text-[#17324A] transition-all duration-200 hover:border-[#C7B292] hover:bg-[#F2E9DE]"
                 >
-                  <span>حكايتنا</span>
+                  <span>اكتشف القطع المختارة</span>
                 </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 border-t border-[#E6DED2] pt-6 text-right sm:gap-4">
+                <div>
+                  <p className="text-base font-bold text-[#17324A] sm:text-lg">تصميم</p>
+                  <p className="mt-0.5 text-[11px] text-[#81786C]">خطوط معمارية هادئة</p>
+                </div>
+                <div>
+                  <p className="text-base font-bold text-[#17324A] sm:text-lg">اختيارات</p>
+                  <p className="mt-0.5 text-[11px] text-[#81786C]">خامات وألوان متنوعة</p>
+                </div>
+                <div>
+                  <p className="text-base font-bold text-[#17324A] sm:text-lg"> الضمان </p>
+                  <p className="mt-0.5 text-[11px] text-[#81786C]">ضمان و صيانه</p>
+                </div>
               </div>
             </div>
 
-            {/* Quick 3-point strip */}
-            <div className="mt-6 border-t border-white/15 pt-4">
-              <div className="grid grid-cols-3 gap-2 text-right text-[11px] sm:text-xs">
-                <div className="flex flex-col">
-                  <span className="text-white/60">جميع الخامات</span>
-                  <span className="font-medium text-white">اجود وافضل الخامات</span>
-                </div>
-                <div className="flex flex-col border-r border-white/15 pr-3">
-                  <span className="text-white/60">التوصيل</span>
-                  <span className="font-medium text-white">لكل المحافظات</span>
-                </div>
-                <div className="flex flex-col border-r border-white/15 pr-3">
-                  <span className="text-white/60">الضمان</span>
-                  <span className="font-medium text-white">ضمان وصيانة</span>
-                </div>
+            <div className="relative lg:col-span-6">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[32px] bg-[#F0EAE1] shadow-[0_22px_48px_rgba(23,50,74,0.12)]">
+                <Image
+                  src={HERO_IMAGE}
+                  alt="أثاث معماري من مودرن هوم"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-center transition-transform duration-700 hover:scale-[1.02]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+
+                {featuredProducts.length > 0 && (
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded-[20px] border border-[#E6DED2] bg-[#FBF9F4]/90 p-4 shadow-sm backdrop-blur-sm">
+                    <div className="text-right">
+                      <p className="text-[10px] text-[#81786C]">مختارات مودرن هوم</p>
+                      <p className="mt-1 text-sm font-semibold text-[#17324A]">
+                        {featuredProducts.length} {featuredProducts.length === 1 ? 'قطعة مختارة' : 'قطع مختارة'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={showAllFeaturedProducts}
+                      className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#F1E9DF] px-3 py-2 text-[11px] font-semibold text-[#A36046]"
+                    >
+                      <span>عرض الكل</span>
+                      <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+                )}
               </div>
+
             </div>
           </div>
         </div>
       </section>
 
       {visibleCategories.length > 0 && (
-        <section className="mx-auto max-w-[1440px] px-4 pt-12 sm:px-6 sm:pt-16 md:px-8" aria-labelledby="home-category-heading">
-          <div className="flex items-end justify-between border-b border-[#E6DED2] pb-4">
-            <div>
-              <span className="text-[11px] font-semibold text-[#A36046]">ابدأ من احتياجك</span>
-              <h2 id="home-category-heading" className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold text-[#17324A] sm:text-2xl md:text-3xl">
-                تسوّق حسب التصنيف
-              </h2>
+        <section id="categories-section" className="border-b border-[#E6DED2] bg-[#FBF9F4] py-16 sm:py-24">
+          <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 flex flex-col gap-4 border-b border-[#E6DED2] pb-6 text-right sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <span className="mb-2 block text-xs font-semibold tracking-[0.22em] text-[#A36046]">استكشف حسب المساحة والغرض</span>
+                <h2 className="font-[family-name:var(--font-display)] text-2xl sm:text-3xl md:text-4xl text-[#17324A]">تصنيفات الأثاث المعماري</h2>
+              </div>
+              <p className="max-w-md text-sm leading-relaxed text-[#81786C]">
+                قطع وظيفية مصممة بنسب متوازنة تلبي متطلبات الحياة اليومية والعمل المنزلي بأعلى درجات الراحة والجودة.
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={() => navigateTo('shop', { categoryId: '' })}
-              className="group inline-flex items-center gap-1 text-xs font-semibold text-[#17324A] hover:text-[#A36046]"
-            >
-              <span>كل المنتجات</span>
-              <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-            </button>
-          </div>
-          <div className="mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 no-scrollbar sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
-            {visibleCategories.map((category) => {
-              const productCount = publishedProducts.filter((product) => product.categoryId === category.id).length;
-              return (
+
+            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-none pb-3 sm:gap-5">
+              {visibleCategories.map((category) => (
                 <button
-                  type="button"
                   key={category.id}
+                  type="button"
                   onClick={() => navigateTo('shop', { categoryId: category.id })}
-                  className="group relative min-h-36 w-[72vw] max-w-[280px] shrink-0 snap-start overflow-hidden bg-[#17324A] text-right text-white sm:min-h-48 sm:w-auto sm:max-w-none"
+                  className="group relative w-[min(76vw,280px)] shrink-0 snap-start overflow-hidden rounded-[26px] bg-[#E6DED2] text-right shadow-[0_12px_26px_rgba(23,50,74,0.06)] transition-all duration-200 hover:-translate-y-1 sm:w-[min(38vw,330px)] lg:w-[min(30vw,360px)]"
                 >
-                  <Image
-                    src={category.image || HERO_IMAGE}
-                    alt=""
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover opacity-75 transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute inset-0 bg-gradient-to-t from-[#112334]/95 via-[#17324A]/20 to-transparent" />
-                  <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
-                    <span>
-                      <span className="block font-[family-name:var(--font-display)] text-base font-semibold sm:text-xl">{category.name}</span>
-                      <span className="mt-1 block text-[10px] text-white/75 sm:text-xs">{productCount} منتج</span>
-                    </span>
-                    <ArrowLeft className="mb-1 h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
-                  </span>
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-[26px]">
+                    <Image
+                      src={category.image || HERO_IMAGE}
+                      alt={category.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/18 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6">
+                      <span className="mb-1 block text-[10px] font-medium text-[#E6DED2]">مجموعة مختارة</span>
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="font-[family-name:var(--font-display)] text-xl sm:text-2xl">
+                          {category.name}
+                        </h3>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/16 text-white backdrop-blur-sm transition-transform duration-200 group-hover:-translate-x-1 sm:h-10 sm:w-10">
+                          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          3. CURATED PRODUCT SHOWCASE
-          ───────────────────────────────────────────────────────────── */}
       {displayedProducts.length > 0 && (
-      <section className="mx-auto max-w-[1440px] px-4 pt-12 sm:px-6 sm:pt-16 md:px-8">
-        <div className="flex items-end justify-between border-b border-[#E6DED2] pb-4">
-          <div>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A36046]">
-              الواجهة المختارة
-            </span>
-            <h2 className="mt-0.5 font-[family-name:var(--font-display)] text-xl font-bold text-[#17324A] sm:text-2xl md:text-3xl">
-              مختارات مودرن هوم
-            </h2>
+        <section id="products-section" className="border-b border-[#E6DED2] bg-[#FBF9F4] py-16 sm:py-24">
+          <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 flex flex-col justify-between gap-6 border-b border-[#E6DED2] pb-6 text-right md:flex-row md:items-end">
+              <div>
+                <span className="mb-2 block text-xs font-semibold tracking-[0.22em] text-[#A36046]">اختيارات فريق مودرن هوم</span>
+                <h2 className="font-[family-name:var(--font-display)] text-2xl text-[#17324A] sm:text-3xl md:text-4xl">مختارات مودرن هوم</h2>
+                <p className="mt-1.5 text-sm text-[#81786C]">{featuredProducts.length} قطعة اختيرت بعناية من التشكيلة</p>
+              </div>
+              <button
+                type="button"
+                onClick={showAllFeaturedProducts}
+                className="inline-flex min-h-11 items-center gap-2 self-start border-b border-[#C8A77D] text-sm font-semibold text-[#17324A] transition-colors hover:text-[#A36046] md:self-auto"
+              >
+                <span>عرض كل المختارات</span>
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-none pb-3 sm:gap-5">
+              {displayedProducts.map((product, index) => {
+                const categoryLabel = categories.find((category) => category.id === product.categoryId)?.name;
+                return (
+                  <div key={product.id} className="w-[min(72vw,280px)] shrink-0 snap-start sm:w-[min(34vw,320px)] lg:w-[min(21vw,290px)]">
+                    <ModernHomeProductCard
+                      product={product}
+                      categoryLabel={categoryLabel}
+                      onSelect={() => handleProductSelect(product)}
+                      compact
+                      ordinal={index + 1}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
+        </section>
+      )}
 
-          <button
-            type="button"
-            onClick={() => navigateTo('shop')}
-            className="group inline-flex items-center gap-1 text-xs font-semibold text-[#17324A] hover:text-[#A36046]"
-          >
-            <span>الكتالوج الشامل</span>
-            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-          </button>
-        </div>
+      <section id="craftsmanship-section" className="border-b border-[#E6DED2] bg-[#FBF9F4] py-16 sm:py-24">
+        <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-12">
+            <div className="order-2 lg:order-1 lg:col-span-6">
+              <div className="relative aspect-[4/3] overflow-hidden bg-[#F0EAE1] shadow-lg">
+                <Image
+                  src="/images/apple_craft_details_1790845954723.jpg"
+                  alt="تفاصيل النحت والتشطيب اليدوي لأثاث مودرن هوم"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-center"
+                />
+              </div>
+              <div className="mt-4 border border-[#E6DED2] bg-white p-5 text-right">
+                <p className="mb-1 text-xs font-semibold text-[#A36046]">دقة التنفيذ المعماري</p>
+                <p className="text-sm leading-relaxed text-[#625E57]">
+                  كل خط وكل زاوية قائمة أو مشطوفة تُحسب بالملليمتر لتضمن انسجام القطعة مع الضوء الطبيعي ومساحة الغرفة دون أي تشويش بصري.
+                </p>
+              </div>
+            </div>
 
-        <div className="mt-6">
-          <div className="flex snap-x snap-mandatory gap-3.5 overflow-x-auto pb-3 no-scrollbar sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:pb-0">
-            {displayedProducts.map((product) => {
-              const primaryImage = product.images[0];
+            <div className="order-1 space-y-6 text-right lg:order-2 lg:col-span-6">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#A36046]">
+                <span className="h-px w-6 bg-[#A36046]" aria-hidden="true" />
+                <span>فلسفة الصنع والخامات</span>
+              </div>
 
-              return (
-                <div
-                  key={product.id}
-                  onClick={() => handleProductSelect(product)}
-                  className="group cursor-pointer flex w-[74vw] max-w-[280px] shrink-0 snap-start flex-col rounded-2xl border border-[#E6DED2]/80 bg-white p-3 shadow-sm transition-all sm:w-auto sm:max-w-none hover:shadow-md"
-                >
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F0EAE1]">
-                    {primaryImage && (
-                      <Image
-                        src={primaryImage}
-                        alt={product.name}
-                        fill
-                        sizes="(max-width: 640px) 74vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    )}
+              <h2 className="font-[family-name:var(--font-display)] text-2xl leading-[1.25] text-[#17324A] sm:text-3xl md:text-4xl">
+                أثاث يدوم لسنوات..
+                <span className="mt-1 block font-light text-[#625E57]">صُنع بأيدي مصرية وعناية فائقة.</span>
+              </h2>
 
-                    <span className="absolute bottom-2 left-2 grid h-7 w-7 place-items-center rounded-full bg-white/90 text-[#17324A] shadow-sm">
-                      <ArrowUpLeft className="h-3.5 w-3.5" aria-hidden="true" />
-                    </span>
-                  </div>
+              <p className="text-sm leading-relaxed text-[#625E57] sm:text-base">
+                في مودرن هوم نؤمن بأن الأثاث الجيد يجمع بين جمال التصميم وراحة الاستخدام. نختار تفاصيل كل قطعة بعناية، ونوازن بين الخامة واللون والنسب لتنسجم مع مساحتك وتفاصيل حياتك اليومية.
+              </p>
 
-                  <div className="flex flex-1 flex-col justify-between pt-2.5">
+              <div className="space-y-4 pt-2">
+                {brandValues.map((item) => (
+                  <div key={item.title} className="flex items-start gap-3.5 text-right">
+                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EEE7DC] text-[#17324A]">
+                      <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                    </div>
                     <div>
-                      <h3 className="font-semibold text-xs sm:text-sm text-[#18232D] group-hover:text-[#17324A] truncate">
-                        {product.name}
-                      </h3>
-                      <p className="mt-0.5 text-[11px] text-[#6D6A64] truncate">
-                        {product.material ? product.material.split('،')[0] : 'أثاث راقي'}
-                      </p>
-                    </div>
-
-                    <div className="mt-3 flex items-center justify-between border-t border-[#F2ECE2] pt-2">
-                      <span className="text-xs font-bold text-[#17324A] tabular-nums">
-                        {formatPrice(product.price)}
-                      </span>
-                      <span className="rounded-lg bg-[#F4EFE6] px-2.5 py-1 text-[11px] font-medium text-[#17324A] group-hover:bg-[#17324A] group-hover:text-white transition-colors">
-                        عرض التفاصيل
-                      </span>
+                      <h4 className="text-sm font-bold text-[#17324A]">{item.title}</h4>
+                      <p className="mt-0.5 text-xs leading-relaxed text-[#81786C]">{item.desc}</p>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
-      )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          4. "في بيوتكم" (CREATIVE REAL CLIENT LIVING SPACES SHOWCASE)
-          Replaces the old space studio with real living home photography
-          ───────────────────────────────────────────────────────────── */}
-      {homeStories.length > 0 && (
-      <section className="mx-auto max-w-[1440px] px-4 pt-12 sm:px-6 sm:pt-16 md:px-8">
-        <div className="flex items-end justify-between border-b border-[#E6DED2] pb-4">
-          <div>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A36046]">
-              واقع نعتز به · تصوير حقيقي
-            </span>
-            <h2 className="mt-0.5 font-[family-name:var(--font-display)] text-xl font-bold text-[#17324A] sm:text-2xl md:text-3xl">
-              في بيوتكم
-            </h2>
-            <p className="mt-1 text-xs sm:text-sm text-[#6D6A64]">
-              لقطات حقيقية شاركنا إياها عملاؤنا بعد استقرار قطع مودرن هوم في منازلهم.
-            </p>
-          </div>
+      {PROJECTS_SHOWCASE_ENABLED && homeStories.length > 0 && (
+        <section id="showrooms-section" className="border-b border-[#E6DED2] bg-[#FBF9F4] py-16 sm:py-24">
+          <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
+            <div className="mb-12 flex flex-col gap-4 border-b border-[#E6DED2] pb-6 text-right sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <span className="mb-2 block text-xs font-semibold tracking-[0.22em] text-[#A36046]">التجربة الواقعية</span>
+                <h2 className="font-[family-name:var(--font-display)] text-2xl text-[#17324A] sm:text-3xl md:text-4xl">في بيوتكم</h2>
+              </div>
+              <p className="max-w-md text-sm leading-relaxed text-[#81786C]">
+                يسعدنا استقبالكم لتفقد الخامات وعينات الأخشاب والأقمشة على الطبيعة، واستشارة مهندسي الديكور لدينا مجاناً.
+              </p>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => navigateTo('projects')}
-            className="group inline-flex items-center gap-1 text-xs font-semibold text-[#17324A] hover:text-[#A36046]"
-          >
-            <span>جميع الصور</span>
-            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden="true" />
-          </button>
-        </div>
-
-        {/* Stories Horizontal Swipe on Mobile, 4-card Grid on Desktop */}
-        <div className="mt-6">
-          <div className="flex snap-x snap-mandatory gap-3.5 overflow-x-auto pb-3 no-scrollbar sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible sm:pb-0">
-            {homeStories.map((story) => (
-              <div
-                key={story.id}
-                onClick={() => navigateTo('projects')}
-                className="group cursor-pointer flex w-[78vw] max-w-[320px] shrink-0 snap-start flex-col rounded-2xl border border-[#E6DED2]/80 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 sm:w-auto sm:max-w-none"
-              >
-                {/* Photo with Location badge */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#F0EAE1]">
-                  {story.image && (
-                    <>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {homeStories.map((story, index) => (
+                <div
+                  key={story.id}
+                  onClick={() => navigateTo('projects')}
+                  className={`group cursor-pointer overflow-hidden border border-[#E6DED2] bg-white ${index === 0 ? 'lg:col-span-2' : ''}`}
+                >
+                  <div className={`relative ${index === 0 ? 'h-[320px] sm:h-[380px]' : 'h-[260px] sm:h-[320px]'}`}>
+                    {story.image && (
                       <Image
                         src={story.image}
                         alt={story.title}
                         fill
-                        sizes="(max-width: 640px) 78vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
-                    </>
-                  )}
-
-                  {story.location && <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-md border border-white/10">
-                    <MapPin className="h-2.5 w-2.5 text-[#E9CBA6]" aria-hidden="true" />
-                    <span>{story.location}</span>
-                  </span>}
-                </div>
-
-                {/* Caption Details */}
-                <div className="flex flex-1 flex-col justify-between pt-3">
-                  <div>
-                    <h3 className="font-bold text-sm text-[#18232D] group-hover:text-[#17324A] truncate">
-                      {story.title}
-                    </h3>
-                    {story.pieces && <p className="mt-0.5 text-[11px] text-[#6D6A64] line-clamp-1">{story.pieces}</p>}
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    {story.location && (
+                      <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/25 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+                        <MapPin className="h-3 w-3 text-[#E9CBA6]" aria-hidden="true" />
+                        {story.location}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between border-t border-[#F2ECE2] pt-2 text-[11px]">
-                    <span className="text-[#81786C]">تصوير منزلي</span>
-                    <span className="font-medium text-[#A36046] group-hover:underline flex items-center gap-0.5">
-                      <span>عرض المساحة</span>
-                      <ArrowLeft className="h-3 w-3" aria-hidden="true" />
-                    </span>
+                  <div className="space-y-3 p-4 sm:p-5">
+                    <h3 className="font-[family-name:var(--font-display)] text-2xl text-[#17324A]">{story.title}</h3>
+                    {story.pieces && <p className="text-sm text-[#625E57]">{story.pieces}</p>}
+                    <div className="flex items-center justify-between border-t border-[#E6DED2] pt-3 text-xs text-[#17324A]">
+                      <span>مشروع حقيقي</span>
+                      <span className="inline-flex items-center gap-1 font-medium text-[#A36046]">
+                        <span>عرض المساحة</span>
+                        <ArrowLeft className="h-3 w-3" aria-hidden="true" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          5. VIP CONCIERGE BANNER
-          ───────────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-[1440px] px-3 pt-10 sm:px-6 sm:pt-14 md:px-8">
-        <div className="rounded-2xl sm:rounded-3xl bg-[#17324A] text-white p-5 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-md">
-          <div className="space-y-1">
-            <span className="inline-flex items-center gap-1.5 text-[11px] text-[#E9CBA6]">
-              <Phone className="h-3 w-3" aria-hidden="true" />
-              <span>استشارة مجانية</span>
-            </span>
-            <h2 className="font-[family-name:var(--font-display)] text-base sm:text-xl font-bold">
-              هل تبدأ في تأثيث منزلك؟
-            </h2>
-            <p className="text-xs text-white/75 max-w-md">
-              تحدث مباشرة مع فريق التصميم لمساعدتك في اختيار القطع المناسبة لمساحتك.
-            </p>
-          </div>
-
-          <div className="flex gap-2">
-            <a
-              href={whatsappConciergeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 text-xs font-bold text-white shadow active:scale-95 transition-transform"
-            >
-              <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              <span>محادثة واتساب فورية</span>
-            </a>
-          </div>
+      <section className="mx-auto mb-6 w-full max-w-[1500px] px-4 pt-8 sm:mb-8 sm:px-8 lg:px-12">
+        <div className="flex flex-col gap-3 rounded-[24px] border border-[#E6DED2] bg-[#F7F3EC] p-4 shadow-[0_8px_18px_rgba(23,50,74,0.04)] sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
+          <h2 className="text-right font-[family-name:var(--font-display)] text-lg font-semibold text-[#17324A]">تحدث معنا</h2>
+          <a
+            href={whatsappConciergeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_18px_rgba(37,211,102,0.25)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#20b65a] sm:w-auto"
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+            <span>واتساب</span>
+          </a>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

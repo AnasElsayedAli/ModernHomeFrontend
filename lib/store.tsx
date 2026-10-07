@@ -204,6 +204,7 @@ function mapBackendCartItem(item: BackendCartItem, products: Product[] = []): Ca
 export type AppView =
   | 'home'
   | 'shop'
+  | 'featured'
   | 'product'
   | 'custom-design'
   | 'imported'
@@ -224,7 +225,7 @@ export type AppView =
   | 'admin';
 
 const APP_VIEWS = new Set<AppView>([
-  'home', 'shop', 'product', 'custom-design', 'imported', 'b2b', 'our-story', 'events', 'projects',
+  'home', 'shop', 'featured', 'product', 'custom-design', 'imported', 'b2b', 'our-story', 'events', 'projects',
   'cart', 'checkout', 'confirmation', 'account', 'shipping', 'returns', 'faq', 'contact',
   'privacy', 'terms', 'admin',
 ]);
@@ -244,6 +245,8 @@ function parseAppLocation(url: URL): { view: AppView; productId: string | null; 
       ? 'home'
       : legacyCatalogRoute
         ? 'shop'
+      : requestedView === 'projects'
+        ? 'home'
       : isAppView(requestedView)
         ? requestedView
         : 'home';
@@ -543,7 +546,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const url = new URL(window.location.href);
       const requestedView = url.searchParams.get('route');
       const location = parseAppLocation(url);
-      if (requestedView === 'custom-design' || requestedView === 'imported') {
+      if (requestedView === 'projects') {
+        url.searchParams.delete('route');
+        window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+      } else if (requestedView === 'custom-design' || requestedView === 'imported') {
         url.searchParams.set('route', 'shop');
         window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
       }
@@ -567,7 +573,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       view: AppView,
       options?: { productId?: string; categoryId?: string }
     ) => {
-      const resolvedView = view === 'custom-design' || view === 'imported' ? 'shop' : view;
+      const resolvedView = view === 'projects'
+        ? 'home'
+        : view === 'custom-design' || view === 'imported'
+          ? 'shop'
+          : view;
       const categoryId = resolvedView === 'shop'
         ? options?.categoryId ?? ''
         : options?.categoryId ?? selectedCategoryIdRef.current;

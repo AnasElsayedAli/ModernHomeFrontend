@@ -98,9 +98,6 @@ export default function OurStoryView() {
             <button type="button" onClick={() => navigateTo('shop')} className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-[#17324A] transition-colors hover:text-[#A36046]">
               <span>استكشف المجموعة</span><ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </button>
-            <button type="button" onClick={() => navigateTo('projects')} className="inline-flex min-h-10 items-center text-sm font-semibold text-[#625E57] transition-colors hover:text-[#A36046]">
-              مشروعات مودرن هوم
-            </button>
           </div>
         </div>
       </section>

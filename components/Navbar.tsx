@@ -35,7 +35,6 @@ export default function Navbar() {
     { label: 'المنتجات', view: 'shop' },
     { label: 'تصنيع حسب الطلب', view: 'custom-design' },
     { label: 'مشروعات الأعمال', view: 'b2b' },
-    { label: 'المشروعات', view: 'projects' },
     { label: 'الفعاليات', view: 'events' },
     { label: 'عن مودرن هوم', view: 'our-story' },
   ];

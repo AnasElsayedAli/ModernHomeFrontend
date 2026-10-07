@@ -3,7 +3,7 @@
 import React from 'react';
 import { useToccoStore, AppView } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
-import ToccoLogo from './ToccoLogo';
+import { ToccoMark } from './ToccoLogo';
 import { ArrowUpLeft, Facebook, Instagram, Mail, MessageCircle, Music2, Phone } from 'lucide-react';
 
 export default function Footer() {
@@ -20,12 +20,18 @@ export default function Footer() {
   const instagramHandles = settings.contact.instagramHandles.filter((handle) => !/tocco/i.test(handle));
 
   return (
-    <footer id="main-site-footer" dir="rtl" className="border-t border-white/15 bg-[#17324A] pb-24 pt-12 text-[#F7F3EC] sm:pb-12 sm:pt-16">
+    <footer id="main-site-footer" dir="rtl" className="border-t border-[#24445E] bg-[#17324A] pb-24 pt-12 text-[#FBF9F4] sm:pb-12 sm:pt-16">
       <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
         <div className="grid grid-cols-1 gap-10 pb-10 lg:grid-cols-12 lg:gap-14 lg:pb-14">
           <div className="space-y-5 lg:col-span-5">
-            <ToccoLogo size="md" showSubtitle theme="light" />
-            <p className="max-w-md text-sm leading-8 text-white/70">
+            <div className="flex items-center gap-3">
+              <ToccoMark size={42} />
+              <span className="flex flex-col gap-1">
+                <span className="font-[family-name:var(--font-display)] text-xl text-white">مودرن هوم</span>
+                <span className="text-[10px] text-[#E9CBA6]">للأثاث والديكور العصري</span>
+              </span>
+            </div>
+            <p className="max-w-md text-sm leading-8 text-[#DED5C9]">
               أثاث وديكور عصري بلمسة مصرية أصيلة، وقطع تُصنع بعناية لتناسب تفاصيل بيتك وحياتك اليومية.
             </p>
             <a
@@ -43,7 +49,7 @@ export default function Footer() {
           <div className="grid grid-cols-2 gap-8 lg:col-span-7 lg:grid-cols-3">
             <div className="space-y-4">
               <h2 className="text-xs font-semibold text-[#E9CBA6]">اكتشف</h2>
-              <ul className="space-y-3 text-sm text-white/75">
+              <ul className="space-y-3 text-sm text-[#E6DED2]">
                 {([
                   ['shop', 'المنتجات والتصنيفات'],
                   ['our-story', 'حكايتنا'],
@@ -57,7 +63,7 @@ export default function Footer() {
 
             <div className="space-y-4">
               <h2 className="text-xs font-semibold text-[#E9CBA6]">المساعدة</h2>
-              <ul className="space-y-3 text-sm text-white/75">
+              <ul className="space-y-3 text-sm text-[#E6DED2]">
                 {([
                   ['shipping', 'الشحن والتوصيل'],
                   ['returns', 'الاستبدال والاسترجاع'],
@@ -73,7 +79,7 @@ export default function Footer() {
 
             <div className="col-span-2 space-y-4 sm:col-span-1">
               <h2 className="text-xs font-semibold text-[#E9CBA6]">تواصلوا معنا</h2>
-              <div className="space-y-3 text-sm text-white/75">
+              <div className="space-y-3 text-sm text-[#E6DED2]">
                 {settings.contact.phone && (
                   <a href={`tel:${settings.contact.phone}`} className="flex items-center gap-2.5 hover:text-white">
                     <Phone className="h-4 w-4 shrink-0 text-[#E9CBA6]" aria-hidden="true" />
@@ -105,7 +111,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-white/15 pt-5 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 border-t border-[#24445E] pt-5 text-xs text-[#DED5C9] sm:flex-row sm:items-center sm:justify-between">
           <p>© {currentYear} مودرن هوم. جميع الحقوق محفوظة.</p>
           <span>للأثاث والديكور العصري · القاهرة، مصر</span>
         </div>

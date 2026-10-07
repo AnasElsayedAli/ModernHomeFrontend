@@ -43,7 +43,7 @@ function ToccoApp() {
   } = useToccoStore();
   const { user, isLoading } = useAuth();
   const [isStoreDataAlertDismissed, setIsStoreDataAlertDismissed] = React.useState(false);
-  const failedDataLoads = Object.entries(storeDataErrors).filter(([, message]) => message);
+  const failedDataLoads = Object.entries(storeDataErrors).filter(([key, message]) => key !== 'projects' && message);
   const failedDataSignature = failedDataLoads.map(([key, message]) => `${key}:${message}`).join('|');
 
   useEffect(() => {
@@ -152,6 +152,8 @@ function ToccoApp() {
 
         {activeView === 'shop' && <ShopCatalog />}
 
+        {activeView === 'featured' && <ShopCatalog featuredOnly />}
+
         {activeView === 'product' && <ProductDetailView />}
 
         {activeView === 'b2b' && <B2BView />}
@@ -203,10 +205,10 @@ function ToccoApp() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="تواصل مع مودرن هوم على واتساب"
-            className="group flex items-center justify-center border border-white/20 bg-[#17324A] p-3 text-white shadow-xl transition-all hover:bg-[#24445E] active:scale-95"
+            className="group flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-[#17324A] text-white shadow-[0_12px_26px_rgba(23,50,74,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#24445E] active:scale-95"
             title="تواصل مع مودرن هوم على واتساب"
           >
-            <MessageCircle className="w-5 h-5 text-[#25D366]" aria-hidden="true" />
+            <MessageCircle className="h-5 w-5 text-[#25D366]" aria-hidden="true" />
           </a>
         </aside>
       )}

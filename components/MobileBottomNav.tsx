@@ -61,7 +61,7 @@ export default function MobileBottomNav() {
       id="mobile-bottom-navigation-bar"
       aria-label="التنقل الرئيسي"
       dir="rtl"
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#D8CEBF] bg-[#FBF9F4]/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(23,50,74,0.07)] backdrop-blur-lg md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E6DED2] bg-[#FBF9F4]/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(28,25,23,0.07)] backdrop-blur-lg md:hidden"
     >
       <div className="mx-auto flex h-[62px] max-w-lg items-center justify-around px-2">
         {tabs.map((tab) => {

@@ -777,7 +777,7 @@ export default function AdminDashboard() {
             { key: 'colors', label: `الألوان (${colors.length})`, icon: Palette },
             { key: 'users', label: 'المستخدمون والصلاحيات', icon: Users },
             { key: 'settings', label: 'إعدادات المتجر والمقدم', icon: Settings },
-          ].map((t) => {
+          ].filter((tab) => tab.key !== 'projects').map((t) => {
             const Icon = t.icon;
             const isCurrent = activeTab === t.key;
             return (
