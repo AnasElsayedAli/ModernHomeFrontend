@@ -38,6 +38,12 @@ import {
 } from 'lucide-react';
 
 
+const normalizeEmailInput = (value: string) => value
+  .normalize('NFKC')
+  .replace(/[٫۔。｡]/g, '.')
+  .replace(/[\u061C\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '')
+  .trim();
+
 export default function AccountView() {
   const { orders, submitPaymentProof, settings, navigateTo } = useToccoStore();
   const {
@@ -187,7 +193,7 @@ export default function AccountView() {
     setAuthLoading(true);
     try {
       await login({
-        email: loginEmail,
+        email: normalizeEmailInput(loginEmail),
         password: loginPassword,
       });
       setLogoutNeedsRetry(false);
@@ -217,7 +223,7 @@ export default function AccountView() {
       await register({
         first_name: regFirstName,
         last_name: regLastName,
-        email: regEmail,
+        email: normalizeEmailInput(regEmail),
         phone: normalizedPhone,
         password: regPassword,
       });
@@ -554,7 +560,7 @@ export default function AccountView() {
                       type="email"
                       required
                       value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
+                      onChange={(e) => setLoginEmail(normalizeEmailInput(e.target.value))}
                       placeholder="name@example.com"
                       className={`w-full text-xs px-3.5 py-3 rounded-lg bg-[#FAF8F5] border text-[#1C1A19] focus:outline-none focus:border-[#1C1A19] ${
                         authFieldErrors.email ? 'border-red-400' : 'border-[#D8CEBF]'
@@ -652,7 +658,7 @@ export default function AccountView() {
                       type="email"
                       required
                       value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
+                      onChange={(e) => setRegEmail(normalizeEmailInput(e.target.value))}
                       placeholder="name@example.com"
                       className={`w-full text-xs px-3 py-2.5 rounded-lg bg-[#FAF8F5] border text-[#1C1A19] focus:outline-none focus:border-[#1C1A19] ${
                         authFieldErrors.email ? 'border-red-400' : 'border-[#D8CEBF]'
