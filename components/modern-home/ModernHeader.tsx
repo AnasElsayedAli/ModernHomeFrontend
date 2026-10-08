@@ -9,7 +9,6 @@ import { useAccessibleDialog } from '@/hooks/use-accessible-dialog';
 
 const links: { label: string; view: AppView }[] = [
   { label: 'جميع المنتجات', view: 'shop' },
-  { label: 'التصنيفات', view: 'shop' },
   { label: 'حكايتنا', view: 'our-story' },
 ];
 
@@ -106,7 +105,7 @@ export default function ModernHeader() {
               type="button"
               onClick={() => setIsCartDrawerOpen(true)}
               aria-label={`حقيبتك، ${cartItemsCount} قطع`}
-              className="flex h-10 items-center gap-2 rounded-none px-2 text-xs text-[#625E57] transition-colors hover:bg-[#F4EFE6] hover:text-[#17324A]"
+              className="grid h-10 w-10 place-items-center rounded-none text-[#625E57] transition-colors hover:bg-[#F4EFE6] hover:text-[#17324A]"
             >
               <div className="relative">
                 <ShoppingBag className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -116,7 +115,6 @@ export default function ModernHeader() {
                   </span>
                 )}
               </div>
-              <span className="hidden text-[11px] font-medium sm:inline">السلة</span>
             </button>
 
             {(user?.role === 'ADMIN' || user?.role === 'MODERATOR') && (
