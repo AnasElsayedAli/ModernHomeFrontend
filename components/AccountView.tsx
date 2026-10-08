@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useToccoStore } from '@/lib/store';
 import { toWhatsAppNumber } from '@/lib/utils';
 import { useAuth } from '@/lib/context/AuthContext';
+import { EGYPTIAN_PHONE_ERROR, normalizeEgyptianPhone } from '@/lib/utils';
 import { Order, OrderStatus, PaymentStatus } from '@/types';
 import { Address } from '@/types/auth';
 import { orderService } from '@/lib/api/services/orderService';
@@ -134,7 +135,7 @@ export default function AccountView() {
   };
 
   const fetchMyOrders = React.useCallback(async () => {
-    if (!user) return;
+    if (isAuthLoading || !user) return;
     setIsOrdersLoading(true);
     setOrdersError(null);
     try {
@@ -148,10 +149,10 @@ export default function AccountView() {
     } finally {
       setIsOrdersLoading(false);
     }
-  }, [user]);
+  }, [isAuthLoading, user]);
 
   useEffect(() => {
-    if (!user) return;
+    if (isAuthLoading || !user) return;
     let active = true;
     const timer = window.setTimeout(() => {
       setIsOrdersLoading(true);
@@ -176,7 +177,7 @@ export default function AccountView() {
       active = false;
       window.clearTimeout(timer);
     };
-  }, [user]);
+  }, [isAuthLoading, user]);
 
   // Handle Login Submit
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -205,13 +206,19 @@ export default function AccountView() {
     e.preventDefault();
     setAuthError(null);
     setAuthFieldErrors({});
+    const normalizedPhone = normalizeEgyptianPhone(regPhone);
+    if (!normalizedPhone) {
+      setAuthFieldErrors({ phone: [EGYPTIAN_PHONE_ERROR] });
+      return;
+    }
+
     setAuthLoading(true);
     try {
       await register({
         first_name: regFirstName,
         last_name: regLastName,
         email: regEmail,
-        phone: regPhone,
+        phone: normalizedPhone,
         password: regPassword,
       });
       setLogoutNeedsRetry(false);

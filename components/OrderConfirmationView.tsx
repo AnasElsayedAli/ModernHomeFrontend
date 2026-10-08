@@ -50,7 +50,9 @@ export default function OrderConfirmationView() {
       : 'pending_deposit'
     : rawOrder.paymentStatus;
   const customerName = isBackend
-    ? rawOrder.shipping_address?.title || 'عميلنا العزيز'
+    ? rawOrder.user
+      ? rawOrder.shipping_address?.title || 'عميلنا العزيز'
+      : rawOrder.customer_name || 'عميلنا العزيز'
     : rawOrder.customer.fullName;
   const customerStreet = isBackend
     ? `${rawOrder.shipping_address?.building_number ? `مبنى ${rawOrder.shipping_address.building_number}، ` : ''}${rawOrder.shipping_address?.street || ''}`

@@ -76,6 +76,7 @@ export interface CartItem {
   originalSubtotal?: number;
   discountAmount?: number;
   offerName?: string;
+  offerType?: 'PERCENTAGE' | 'BUNDLE' | 'FREE_SHIPPING';
 }
 
 export type OrderStatus =

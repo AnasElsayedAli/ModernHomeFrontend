@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useToccoStore } from '@/lib/store';
-import { toWhatsAppNumber } from '@/lib/utils';
+import { EGYPTIAN_PHONE_ERROR, normalizeEgyptianPhone, toWhatsAppNumber } from '@/lib/utils';
 import CategoriesManagement from '@/components/CategoriesManagement';
 import UserManagement from '@/components/UserManagement';
 import CloudinaryImageUploader from '@/components/CloudinaryImageUploader';
@@ -21,6 +21,7 @@ import {
 } from '@/types';
 import {
   Layers,
+  Archive,
   Package,
   FolderTree,
   Image as ImageIcon,
@@ -109,6 +110,24 @@ const toDateTimeInputValue = (value: string | null) => (value ? value.slice(0, 1
 
 const toBackendDateTime = (value: string) => (value ? new Date(value).toISOString() : null);
 
+function getOfferLifecycleStatus(offer: BackendOffer, now: number): 'active' | 'scheduled' | 'expired' | 'paused' {
+  if (!offer.is_active) return 'paused';
+  if (now <= 0) return 'active';
+
+  const startsAt = offer.starts_at ? new Date(offer.starts_at).getTime() : null;
+  const endsAt = offer.ends_at ? new Date(offer.ends_at).getTime() : null;
+  if (startsAt !== null && startsAt > now) return 'scheduled';
+  if (endsAt !== null && endsAt <= now) return 'expired';
+  return 'active';
+}
+
+const OFFER_LIFECYCLE_PRESENTATION = {
+  active: { label: 'نشط', className: 'bg-[#EAF4EA] text-[#2F6B3F]' },
+  scheduled: { label: 'مجدول', className: 'bg-[#E8F0F5] text-[#31566F]' },
+  expired: { label: 'منتهي', className: 'bg-[#F7E8E2] text-[#9B4B32]' },
+  paused: { label: 'متوقف مؤقتًا', className: 'bg-[#EFEBE3] text-[#736B63]' },
+} as const;
+
 const getOfferListedValue = (offerProducts: OfferDraft['products'], catalogProducts: Product[]) =>
   offerProducts.reduce((total, item) => {
     const product = catalogProducts.find((candidate) => candidate.id === item.product_id);
@@ -149,6 +168,7 @@ export default function AdminDashboard() {
     navigateTo,
     reloadStoreData,
   } = useToccoStore();
+  const hasLoadedAdminCatalog = useRef(false);
 
   const [depositPercentageDraft, setDepositPercentageDraft] = useState({
     source: settings.depositPercentage,
@@ -162,6 +182,7 @@ export default function AdminDashboard() {
     source: settings.paymentMethods.mobileWallet.number,
     value: settings.paymentMethods.mobileWallet.number,
   });
+  const [mobileWalletPhoneError, setMobileWalletPhoneError] = useState<string | null>(null);
 
   const depositPercentageValue =
     depositPercentageDraft.source === settings.depositPercentage
@@ -231,6 +252,7 @@ export default function AdminDashboard() {
   const [isCollaborationsLoading, setIsCollaborationsLoading] = useState(true);
   const [isColorsLoading, setIsColorsLoading] = useState(true);
   const [offersError, setOffersError] = useState<string | null>(null);
+  const [offerStatusNow, setOfferStatusNow] = useState(0);
   const [collaborationsError, setCollaborationsError] = useState<string | null>(null);
   const [colorsError, setColorsError] = useState<string | null>(null);
   const [editingOffer, setEditingOffer] = useState<OfferDraft | null>(null);
@@ -245,16 +267,31 @@ export default function AdminDashboard() {
   const [pendingDelete, setPendingDelete] = useState<{
     title: string;
     description: string;
+    confirmLabel: string;
+    variant: 'danger' | 'warning';
+    icon: 'delete' | 'archive';
     onConfirm: () => void | Promise<void>;
   } | null>(null);
+  const [pendingDeleteError, setPendingDeleteError] = useState<string | null>(null);
   const [isDeleteProcessing, setIsDeleteProcessing] = useState(false);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [dashboardSuccess, setDashboardSuccess] = useState<string | null>(null);
   const [isArchivedProductsOpen, setIsArchivedProductsOpen] = useState(false);
   const [archivedProducts, setArchivedProducts] = useState<BackendProduct[]>([]);
   const [isArchivedProductsLoading, setIsArchivedProductsLoading] = useState(false);
   const [archivedProductsError, setArchivedProductsError] = useState<string | null>(null);
   const [archivedProductsSuccess, setArchivedProductsSuccess] = useState<string | null>(null);
   const [restoringProductId, setRestoringProductId] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    const updateClock = () => setOfferStatusNow(Date.now());
+    const initialUpdate = window.setTimeout(updateClock, 0);
+    const interval = window.setInterval(updateClock, 30_000);
+    return () => {
+      window.clearTimeout(initialUpdate);
+      window.clearInterval(interval);
+    };
+  }, []);
 
   const loadArchivedProducts = async () => {
     setIsArchivedProductsLoading(true);
@@ -274,7 +311,7 @@ export default function AdminDashboard() {
     try {
       const result = await productService.restoreProduct(product.id);
       setArchivedProducts((current) => current.filter((item) => item.id !== product.id));
-      await reloadStoreData();
+      await reloadStoreData(true);
       setArchivedProductsSuccess(`تمت استعادة المنتج «${product.name}».`);
     } catch (err) {
       const normalized = normalizeApiError(err);
@@ -289,19 +326,30 @@ export default function AdminDashboard() {
   const requestDeleteConfirmation = (
     title: string,
     description: string,
-    onConfirm: () => void | Promise<void>
+    onConfirm: () => void | Promise<void>,
+    options: { confirmLabel?: string; variant?: 'danger' | 'warning'; icon?: 'delete' | 'archive' } = {}
   ) => {
-    setPendingDelete({ title, description, onConfirm });
+    setPendingDeleteError(null);
+    setPendingDelete({
+      title,
+      description,
+      onConfirm,
+      confirmLabel: options.confirmLabel || 'حذف',
+      variant: options.variant || 'danger',
+      icon: options.icon || 'delete',
+    });
   };
 
   const handlePendingDelete = async () => {
     if (!pendingDelete || isDeleteProcessing) return;
     setIsDeleteProcessing(true);
+    setPendingDeleteError(null);
     try {
       await pendingDelete.onConfirm();
       setPendingDelete(null);
+      setPendingDeleteError(null);
     } catch (err) {
-      setDashboardError(normalizeApiError(err).message);
+      setPendingDeleteError(normalizeApiError(err).message);
     } finally {
       setIsDeleteProcessing(false);
     }
@@ -309,10 +357,24 @@ export default function AdminDashboard() {
 
   const handleDeleteProduct = async (productId: string) => {
     setDashboardError(null);
+    setDashboardSuccess(null);
     try {
       await deleteProduct(productId);
+      setDashboardSuccess('تمت أرشفة المنتج بنجاح. يمكنك استعادته من قائمة المنتجات المؤرشفة.');
+      if (isArchivedProductsOpen) void loadArchivedProducts();
     } catch (err) {
-      setDashboardError(normalizeApiError(err).message);
+      throw err;
+    }
+  };
+
+  const handleHardDeleteArchivedProduct = async (product: BackendProduct) => {
+    setArchivedProductsError(null);
+    try {
+      await productService.hardDeleteProduct(product.id);
+      setArchivedProducts((current) => current.filter((item) => item.id !== product.id));
+      setArchivedProductsSuccess(`تم حذف المنتج «${product.name}» نهائيًا، مع الحفاظ على بياناته في الطلبات السابقة.`);
+    } catch (err) {
+      throw err;
     }
   };
 
@@ -370,6 +432,12 @@ export default function AdminDashboard() {
       active = false;
     };
   }, []);
+
+  React.useEffect(() => {
+    if (isCatalogLoading || hasLoadedAdminCatalog.current) return;
+    hasLoadedAdminCatalog.current = true;
+    void reloadStoreData(true);
+  }, [isCatalogLoading, reloadStoreData]);
 
   const fetchBackendOrders = React.useCallback(async (search?: string) => {
     setIsOrdersLoading(true);
@@ -501,7 +569,7 @@ export default function AdminDashboard() {
       await offerService.deleteOffer(offer.id);
       setOffers((prev) => prev.filter((item) => item.id !== offer.id));
     } catch (err) {
-      setOffersError(normalizeApiError(err).message);
+      throw err;
     } finally {
       setDeletingOfferId(null);
     }
@@ -538,7 +606,7 @@ export default function AdminDashboard() {
       await collaborationService.deleteCollaboration(collaboration.id);
       setCollaborations((prev) => prev.filter((item) => item.id !== collaboration.id));
     } catch (err) {
-      setCollaborationsError(normalizeApiError(err).message);
+      throw err;
     } finally {
       setDeletingCollaborationId(null);
     }
@@ -582,7 +650,7 @@ export default function AdminDashboard() {
       await colorService.deleteColor(color.id);
       setColors((prev) => prev.filter((item) => item.id !== color.id));
     } catch (err) {
-      setColorsError(normalizeApiError(err).message);
+      throw err;
     } finally {
       setDeletingColorId(null);
     }
@@ -731,6 +799,14 @@ export default function AdminDashboard() {
   return (
     <div id="admin-studio-dashboard" dir="rtl" className="min-h-screen bg-[#F7F3EC] pb-24 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {dashboardSuccess && (
+          <div role="status" className="flex items-start justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+            <span>{dashboardSuccess}</span>
+            <button type="button" onClick={() => setDashboardSuccess(null)} aria-label="إغلاق التنبيه" className="text-emerald-700 hover:text-emerald-950">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
         {dashboardError && (
           <div className="flex items-start justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
             <span>{dashboardError}</span>
@@ -875,15 +951,31 @@ export default function AdminDashboard() {
                             <p className="text-[10px] text-[#6D6A64]">رقم {product.id} · {formatCurrency(product.price)}</p>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => void handleRestoreProduct(product)}
-                          disabled={restoringProductId !== null}
-                          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-[#BFD7C4] bg-[#EEF5EE] px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#28633D] disabled:cursor-wait disabled:opacity-50"
-                        >
-                          {restoringProductId === product.id && <Loader2 className="h-3 w-3 animate-spin" />}
-                          استعادة المنتج
-                        </button>
+                        <div className="flex shrink-0 flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => void handleRestoreProduct(product)}
+                            disabled={restoringProductId !== null}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#BFD7C4] bg-[#EEF5EE] px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#28633D] disabled:cursor-wait disabled:opacity-50"
+                          >
+                            {restoringProductId === product.id && <Loader2 className="h-3 w-3 animate-spin" />}
+                            استعادة المنتج
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => requestDeleteConfirmation(
+                              `حذف نهائي: «${product.name}»`,
+                              'سيُحذف المنتج نهائيًا من الكتالوج. ستُحذف عناصره من السلال، مع الاحتفاظ باسم المنتج وسعره في الطلبات السابقة.',
+                              () => handleHardDeleteArchivedProduct(product),
+                              { confirmLabel: 'حذف نهائي' }
+                            )}
+                            disabled={restoringProductId !== null}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-rose-200 px-3 py-2 text-[10px] font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3 w-3" aria-hidden="true" />
+                            حذف نهائي
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -973,14 +1065,15 @@ export default function AdminDashboard() {
                             </button>
                             <button
                               onClick={() => requestDeleteConfirmation(
-                                `حذف المنتج: «${p.name}»`,
-                                'سيؤدي هذا الإجراء إلى حذف المنتج نهائيًا من الكتالوج، ولا يمكن التراجع عنه.',
-                                () => { void handleDeleteProduct(p.id); }
+                                `أرشفة المنتج: «${p.name}»`,
+                                'سيتم إخفاء المنتج من المتجر ونقله إلى قائمة المنتجات المؤرشفة، ويمكن استعادته لاحقًا.',
+                                () => handleDeleteProduct(p.id),
+                                { confirmLabel: 'أرشفة', variant: 'warning', icon: 'archive' }
                               )}
-                              className="p-1.5 text-[#B85D38] hover:text-red-700"
-                              title="حذف المنتج"
+                              className="p-1.5 text-[#B85D38] hover:text-amber-800"
+                              title="أرشفة المنتج"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Archive className="w-4 h-4" />
                             </button>
                           </td>
                         </tr>
@@ -1212,7 +1305,7 @@ export default function AdminDashboard() {
                 {backendOrders.map((ord) => {
                   const deposit = Number(ord.deposit_amount);
                   const isUpdating = updatingOrderId === ord.id;
-                  const clientWhatsAppNumber = toWhatsAppNumber(ord.user?.phone);
+                  const clientWhatsAppNumber = toWhatsAppNumber(ord.user?.phone || ord.customer_phone);
                   const whatsappUrl = `https://wa.me/${clientWhatsAppNumber}?text=${encodeURIComponent(
                     `مرحبًا، معك فريق مودرن هوم بخصوص الطلب رقم ${ord.order_number}.`
                   )}`;
@@ -1257,8 +1350,16 @@ export default function AdminDashboard() {
                           <span className="font-semibold text-[#17324A] block">العنوان والمستلم:</span>
                           <p className="font-medium text-[#1C1A19]">{ord.shipping_address?.title || 'سكن خاص'}</p>
                           <p className="text-[#736B63]">
-                            {ord.user ? `${ord.user.first_name} ${ord.user.last_name}`.trim() || ord.user.email : 'عميل غير معروف'}
+                            {ord.user
+                              ? `${ord.user.first_name} ${ord.user.last_name}`.trim() || ord.user.email
+                              : ord.customer_name || 'عميل غير معروف'}
                           </p>
+                          {(ord.user?.email || ord.customer_email) && (
+                            <p className="text-[#736B63]">{ord.user?.email || ord.customer_email}</p>
+                          )}
+                          {(ord.user?.phone || ord.customer_phone) && (
+                            <p className="text-[#736B63]">{ord.user?.phone || ord.customer_phone}</p>
+                          )}
                         </div>
 
                         <div>
@@ -1567,7 +1668,10 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {offers.map((offer) => (
+                {offers.map((offer) => {
+                  const lifecycleStatus = getOfferLifecycleStatus(offer, offerStatusNow);
+                  const lifecyclePresentation = OFFER_LIFECYCLE_PRESENTATION[lifecycleStatus];
+                  return (
                   <div key={offer.id} className="rounded-2xl bg-white border border-[#EAE4DC] shadow-sm p-5 space-y-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
@@ -1575,8 +1679,8 @@ export default function AdminDashboard() {
                           <span className="text-[10px] uppercase tracking-widest text-[#B85D38] font-semibold">
                             {formatOfferType(offer.offer_type)}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${offer.is_active ? 'bg-[#EAF4EA] text-[#2F6B3F]' : 'bg-[#EFEBE3] text-[#736B63]'}`}>
-                            {offer.is_active ? 'نشط' : 'متوقف مؤقتًا'}
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${lifecyclePresentation.className}`}>
+                            {lifecyclePresentation.label}
                           </span>
                         </div>
                         <h4 className="text-base font-semibold text-[#1C1A19]">{offer.name}</h4>
@@ -1595,7 +1699,7 @@ export default function AdminDashboard() {
                           onClick={() => requestDeleteConfirmation(
                             `حذف العرض: «${offer.name}»`,
                             'سيؤدي هذا الإجراء إلى حذف العرض نهائيًا، ولا يمكن التراجع عنه.',
-                            () => { void handleDeleteOffer(offer); }
+                            () => handleDeleteOffer(offer)
                           )}
                           disabled={deletingOfferId === offer.id}
                           className="p-2 rounded-full text-[#B85D38] hover:bg-[#FFF5F0] disabled:opacity-60"
@@ -1629,7 +1733,8 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1693,7 +1798,7 @@ export default function AdminDashboard() {
                           onClick={() => requestDeleteConfirmation(
                             `حذف الشراكة: «${collaboration.title}»`,
                             'سيؤدي هذا الإجراء إلى حذف الشراكة نهائيًا، ولا يمكن التراجع عنه.',
-                            () => { void handleDeleteCollaboration(collaboration); }
+                            () => handleDeleteCollaboration(collaboration)
                           )}
                           disabled={deletingCollaborationId === collaboration.id}
                           className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs uppercase tracking-wider text-[#B85D38] hover:bg-[#FFF5F0] disabled:opacity-60"
@@ -1771,7 +1876,7 @@ export default function AdminDashboard() {
                         onClick={() => requestDeleteConfirmation(
                           `حذف اللون: «${color.name}»`,
                           'سيؤدي هذا الإجراء إلى حذف اللون نهائيًا، ولا يمكن التراجع عنه.',
-                          () => { void handleDeleteColor(color); }
+                          () => handleDeleteColor(color)
                         )}
                         disabled={deletingColorId === color.id}
                         className="p-1.5 text-[#B85D38] hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-60"
@@ -1866,27 +1971,40 @@ export default function AdminDashboard() {
               <div className="space-y-2 text-xs">
                 <label className="block font-medium text-[#17324A]">المحفظة الإلكترونية (فودافون، أورنج، إي آند، وي)</label>
                 <input
-                  type="text"
+                  type="tel"
                   value={mobileWalletValue}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    setMobileWalletPhoneError(null);
                     setMobileWalletDraft({
                       source: settings.paymentMethods.mobileWallet.number,
                       value: e.target.value,
-                    })
-                  }
-                  onBlur={() =>
+                    });
+                  }}
+                  onBlur={() => {
+                    const enteredValue = mobileWalletValue.trim();
+                    const normalizedPhone = enteredValue ? normalizeEgyptianPhone(enteredValue) : '';
+                    if (enteredValue && !normalizedPhone) {
+                      setMobileWalletPhoneError(EGYPTIAN_PHONE_ERROR);
+                      return;
+                    }
+                    setMobileWalletPhoneError(null);
+                    setMobileWalletDraft({
+                      source: settings.paymentMethods.mobileWallet.number,
+                      value: normalizedPhone || '',
+                    });
                     updateSettings({
                       paymentMethods: {
                         ...settings.paymentMethods,
                         mobileWallet: {
                           ...settings.paymentMethods.mobileWallet,
-                          number: mobileWalletValue,
+                          number: normalizedPhone || '',
                         },
                       },
-                    })
-                  }
+                    });
+                  }}
                   className="w-full p-2.5 rounded-lg border border-[#D8CEBF] font-mono"
                 />
+                {mobileWalletPhoneError && <p role="alert" className="text-rose-700">{mobileWalletPhoneError}</p>}
               </div>
 
             </div>
@@ -3042,11 +3160,22 @@ export default function AdminDashboard() {
           isOpen={Boolean(pendingDelete)}
           title={pendingDelete?.title || 'تأكيد الحذف'}
           description={pendingDelete?.description || ''}
-          confirmLabel="حذف"
+          confirmLabel={pendingDelete?.confirmLabel || 'حذف'}
+          variant={pendingDelete?.variant || 'danger'}
+          icon={pendingDelete?.icon || 'delete'}
           isLoading={isDeleteProcessing}
-          onCancel={() => setPendingDelete(null)}
+          onCancel={() => {
+            setPendingDelete(null);
+            setPendingDeleteError(null);
+          }}
           onConfirm={handlePendingDelete}
-        />
+        >
+          {pendingDeleteError && (
+            <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-rose-900">
+              {pendingDeleteError}
+            </div>
+          )}
+        </ConfirmDialog>
       </div>
     </div>
   );

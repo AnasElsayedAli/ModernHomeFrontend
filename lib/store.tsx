@@ -187,7 +187,7 @@ function mapBackendCartItem(item: BackendCartItem, products: Product[] = []): Ca
     id: String(item.id),
     productId: String(item.product_id),
     productName: item.product_name,
-    productImage: product?.images[0] || '',
+    productImage: item.product_image || product?.images[0] || '',
     unitPrice: Number(item.product_price),
     selectedFinish: item.selected_finish || product?.finishes[0] || 'MATTE',
     selectedColor: item.color_id
@@ -198,6 +198,7 @@ function mapBackendCartItem(item: BackendCartItem, products: Product[] = []): Ca
     originalSubtotal: item.original_subtotal !== undefined ? Number(item.original_subtotal) : undefined,
     discountAmount: item.discount_amount !== undefined ? Number(item.discount_amount) : undefined,
     offerName: item.offer?.name,
+    offerType: item.offer?.offer_type,
   };
 }
 
@@ -287,6 +288,7 @@ interface StoreContextType {
 
   // Data
   products: Product[];
+  catalogProductCount: number;
   categories: Category[];
   subcategories: BackendSubcategory[];
   orders: Order[];
@@ -299,7 +301,7 @@ interface StoreContextType {
   isEventsLoading: boolean;
   isProjectsLoading: boolean;
   storeDataErrors: StoreDataErrors;
-  reloadStoreData: () => Promise<void>;
+  reloadStoreData: (loadAllProducts?: boolean) => Promise<void>;
   reloadDashboardSettings: () => Promise<void>;
   cart: CartItem[];
   user: CustomerUser | null;
@@ -314,6 +316,8 @@ interface StoreContextType {
   syncGuestCart: () => Promise<boolean>;
   isGuestCartSyncing: boolean;
   cartSyncError: string | null;
+  cartPricingRefreshError: string | null;
+  refreshBackendCart: () => Promise<void>;
   forgetAuthenticatedCart: () => void;
   clearCartAfterOrder: () => void;
   cartSubtotal: number;
@@ -336,9 +340,11 @@ interface StoreContextType {
   toggleProductFeatured: (productId: string) => Promise<void>;
   saveCategory: (category: Category) => void;
   deleteCategory: (categoryId: string) => void;
+  removeCategoryFromStore: (categoryId: string) => void;
+  removeSubcategoryFromStore: (subcategoryId: string) => void;
 
   saveEvent: (event: EventItem) => void;
-  deleteEvent: (eventId: string) => void;
+  deleteEvent: (eventId: string) => Promise<void>;
 
   saveProject: (project: ProjectItem) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
@@ -375,6 +381,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   // Entities
   const [products, setProducts] = useState<Product[]>([]);
+  const [catalogProductCount, setCatalogProductCount] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<BackendSubcategory[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -385,8 +392,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<StoreSettings>(EMPTY_SETTINGS);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [hasBackendCart, setHasBackendCart] = useState(false);
+  const hasBackendCartRef = useRef(false);
+  const setBackendCartAvailable = useCallback((available: boolean) => {
+    hasBackendCartRef.current = available;
+    setHasBackendCart(available);
+  }, []);
   const [isGuestCartSyncing, setIsGuestCartSyncing] = useState(false);
   const [cartSyncError, setCartSyncError] = useState<string | null>(null);
+  const [cartPricingRefreshError, setCartPricingRefreshError] = useState<string | null>(null);
   const guestCartSyncPromise = useRef<Promise<boolean> | null>(null);
   const [cartPricing, setCartPricing] = useState({
     originalTotal: 0,
@@ -443,10 +456,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const reloadStoreData = useCallback(async () => {
+  const reloadStoreData = useCallback(async (loadAllProducts = false) => {
     const requestVersion = ++storeDataLoadVersion.current;
     const isCurrentRequest = () => requestVersion === storeDataLoadVersion.current;
-    let mappedCatalogProducts: Product[] = [];
     const setLoadError = (key: StoreDataKey, error: unknown) => {
       if (!isCurrentRequest()) return;
       setStoreDataErrors((current) => ({
@@ -462,14 +474,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     const catalogLoad = (async () => {
       try {
-        const [backendProducts, backendCategories, backendSubcategories] = await Promise.all([
-          productService.getProducts(),
+        const [productResponse, backendCategories, backendSubcategories] = await Promise.all([
+          loadAllProducts
+            ? productService.getProducts({ ordering: 'featured' })
+            : productService.getProductPage({ page: 1, page_size: 100, ordering: 'featured' }),
           categoryService.getCategories(),
           subcategoryService.getSubcategories(),
         ]);
         if (!isCurrentRequest()) return;
 
-        mappedCatalogProducts = backendProducts.map((product) => mapBackendProduct(product, backendSubcategories));
+        const backendProducts = Array.isArray(productResponse)
+          ? productResponse
+          : productResponse.results;
+        setCatalogProductCount(Array.isArray(productResponse) ? backendProducts.length : productResponse.count);
+        const mappedCatalogProducts = backendProducts.map((product) => mapBackendProduct(product, backendSubcategories));
         setSubcategories(backendSubcategories);
         setProducts(mappedCatalogProducts);
         setCategories(backendCategories.map(mapBackendCategory));
@@ -477,32 +495,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setLoadError('catalog', err);
       } finally {
         if (isCurrentRequest()) setIsCatalogLoading(false);
-      }
-
-      if (!isCurrentRequest()) return;
-      try {
-        const backendCart = await cartService.getCart();
-        if (!isCurrentRequest()) return;
-        setHasBackendCart(true);
-        setCart([
-          ...backendCart.items.map((item) => mapBackendCartItem(item, mappedCatalogProducts)),
-          ...getGuestCart(),
-        ]);
-        setCartPricing({
-          originalTotal: Number(backendCart.original_total),
-          discountTotal: Number(backendCart.discount_amount),
-          total: Number(backendCart.total_price),
-          freeShipping: backendCart.free_shipping,
-        });
-      } catch (err) {
-        if (!isCurrentRequest()) return;
-        if (err instanceof ApiError && err.status === 401) {
-          setHasBackendCart(false);
-          setCart(getGuestCart());
-          setCartPricing({ originalTotal: 0, discountTotal: 0, total: 0, freeShipping: false });
-        } else {
-          setLoadError('cart', err);
-        }
       }
     })();
 
@@ -540,6 +532,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       storeDataLoadVersion.current += 1;
     };
   }, [reloadStoreData]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setCart((current) => current.length > 0 ? current : getGuestCart());
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const syncFromLocation = () => {
@@ -622,8 +621,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   // Cart logic
   const refreshCart = useCallback(async () => {
+    setCartPricingRefreshError(null);
     const backendCart = await cartService.getCart();
-    setHasBackendCart(true);
+    setBackendCartAvailable(true);
     setCart([
       ...backendCart.items.map((item) => mapBackendCartItem(item, products)),
       ...getGuestCart(),
@@ -634,11 +634,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       total: Number(backendCart.total_price),
       freeShipping: backendCart.free_shipping,
     });
-  }, [products]);
+  }, [products, setBackendCartAvailable]);
 
   const addToCart = useCallback(async (itemData: Omit<CartItem, 'id'>) => {
     if (guestCartSyncPromise.current) {
       await guestCartSyncPromise.current;
+    }
+
+    if (!hasBackendCartRef.current) {
+      setCart(addGuestCartItem(itemData));
+      setIsCartDrawerOpen(true);
+      return;
     }
 
     const productId = Number(itemData.productId);
@@ -659,7 +665,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       // Not signed in: keep the item in a local guest cart instead of losing it.
       // It gets pushed to the real backend cart once the user signs in (syncGuestCart).
       if (err instanceof ApiError && err.status === 401) {
-        setHasBackendCart(false);
+        setBackendCartAvailable(false);
         setCartPricing({ originalTotal: 0, discountTotal: 0, total: 0, freeShipping: false });
         setCart(addGuestCartItem(itemData));
       } else {
@@ -668,7 +674,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
 
     setIsCartDrawerOpen(true);
-  }, [refreshCart]);
+  }, [refreshCart, setBackendCartAvailable]);
 
   const removeFromCart = useCallback(async (cartItemId: string) => {
     if (isGuestCartItemId(cartItemId)) {
@@ -680,7 +686,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     await cartService.removeItem(Number(cartItemId));
-    await refreshCart();
+    setCart((current) => current.filter((item) => item.id !== cartItemId));
+    void refreshCart().catch(() => {
+      setCartPricingRefreshError('تم حذف القطعة، لكن تعذر تحديث إجماليات السلة. أعد المحاولة.');
+    });
   }, [refreshCart]);
 
   const updateCartQuantity = useCallback(async (cartItemId: string, quantity: number) => {
@@ -694,33 +703,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
     if (quantity <= 0) {
       await cartService.removeItem(Number(cartItemId));
+      setCart((current) => current.filter((item) => item.id !== cartItemId));
+      void refreshCart().catch(() => {
+        setCartPricingRefreshError('تم حذف القطعة، لكن تعذر تحديث إجماليات السلة. أعد المحاولة.');
+      });
     } else {
       await cartService.updateItem(Number(cartItemId), { quantity });
+      await refreshCart();
     }
-    await refreshCart();
   }, [refreshCart]);
 
   const clearCart = useCallback(async () => {
-    if (hasBackendCart) await cartService.clearCart();
+    if (hasBackendCartRef.current) await cartService.clearCart();
     clearGuestCart();
     setCart([]);
     setCartPricing({ originalTotal: 0, discountTotal: 0, total: 0, freeShipping: false });
-  }, [hasBackendCart]);
+  }, []);
 
   const clearCartAfterOrder = useCallback(() => {
     clearGuestCart();
     setCart([]);
     setCartPricing({ originalTotal: 0, discountTotal: 0, total: 0, freeShipping: false });
-    setHasBackendCart(true);
+    setBackendCartAvailable(true);
     setCartSyncError(null);
-  }, []);
+  }, [setBackendCartAvailable]);
 
   const forgetAuthenticatedCart = useCallback(() => {
-    setHasBackendCart(false);
+    setBackendCartAvailable(false);
     setCart(getGuestCart());
     setCartPricing({ originalTotal: 0, discountTotal: 0, total: 0, freeShipping: false });
     setCartSyncError(null);
-  }, []);
+  }, [setBackendCartAvailable]);
 
   // Keep failed items locally and only remove an item after a backend cart read confirms
   // that the synchronization pass completed against the authenticated cart.
@@ -730,6 +743,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const syncPromise = (async () => {
       const guestItems = getGuestCart();
       if (guestItems.length === 0) {
+        const backendCart = await cartService.getCart();
+        const remainingGuestItems = getGuestCart();
+        setBackendCartAvailable(true);
+        setCart([
+          ...backendCart.items.map((item) => mapBackendCartItem(item, products)),
+          ...remainingGuestItems,
+        ]);
+        setCartPricing({
+          originalTotal: Number(backendCart.original_total),
+          discountTotal: Number(backendCart.discount_amount),
+          total: Number(backendCart.total_price),
+          freeShipping: backendCart.free_shipping,
+        });
         setCartSyncError(null);
         return true;
       }
@@ -759,7 +785,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         );
 
         if (outcome.authenticationFailed) {
-          setHasBackendCart(false);
+          setBackendCartAvailable(false);
           setCart(getGuestCart());
           setCartPricing({ originalTotal: 0, discountTotal: 0, total: 0, freeShipping: false });
           setCartSyncError('Your bag is still saved on this device. Sign in again, then retry the transfer.');
@@ -771,7 +797,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const backendItems = backendCart.items.map((item) => mapBackendCartItem(item, products));
         const remainingGuestItems = removeGuestCartItems(outcome.syncedItemIds);
 
-        setHasBackendCart(true);
+        setBackendCartAvailable(true);
         setCart([...backendItems, ...remainingGuestItems]);
         setCartPricing({
           originalTotal: Number(backendCart.original_total),
@@ -788,7 +814,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setCartSyncError(null);
         return true;
       } catch (err) {
-        setHasBackendCart(false);
+        setBackendCartAvailable(false);
         setCart(getGuestCart());
         setCartPricing({ originalTotal: 0, discountTotal: 0, total: 0, freeShipping: false });
         setCartSyncError(normalizeApiError(err).message);
@@ -808,7 +834,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
     );
     return syncPromise;
-  }, [products]);
+  }, [products, setBackendCartAvailable]);
 
   // Cart calculations
   // The backend total includes offer pricing; unsynced local items are added separately.
@@ -978,6 +1004,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (!Number.isInteger(numericId)) throw new Error('This category is unavailable. Please refresh the page and try again.');
     await categoryService.deleteCategory(numericId);
     setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+  }, []);
+
+  const removeCategoryFromStore = useCallback((categoryId: string) => {
+    setCategories((prev) => prev.filter((category) => category.id !== categoryId));
+  }, []);
+
+  const removeSubcategoryFromStore = useCallback((subcategoryId: string) => {
+    setSubcategories((prev) => prev.filter((subcategory) => String(subcategory.id) !== subcategoryId));
   }, []);
 
   // Admin CRUD for Events
@@ -1182,6 +1216,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         navigateTo,
         setSearchQuery,
         products,
+        catalogProductCount,
         categories,
         subcategories,
         orders,
@@ -1207,6 +1242,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         syncGuestCart,
         isGuestCartSyncing,
         cartSyncError,
+        cartPricingRefreshError,
+        refreshBackendCart: refreshCart,
         forgetAuthenticatedCart,
         clearCartAfterOrder,
         cartSubtotal,
@@ -1225,6 +1262,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         toggleProductFeatured,
         saveCategory,
         deleteCategory,
+        removeCategoryFromStore,
+        removeSubcategoryFromStore,
         saveEvent,
         deleteEvent,
         saveProject,

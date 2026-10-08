@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/context/AuthContext';
 import { useToccoStore } from '@/lib/store';
 import { normalizeApiError } from '@/lib/api/errors';
+import { EGYPTIAN_PHONE_ERROR, normalizeEgyptianPhone } from '@/lib/utils';
 import { customDesignService } from '@/lib/api/services/customDesignService';
 import { uploadDirectToCloudinary } from '@/lib/api/cloudinary';
 import { toWhatsAppNumber } from '@/lib/utils';
@@ -85,6 +86,12 @@ export default function CustomDesignRequestForm({ requestType }: CustomDesignReq
       return;
     }
 
+    const normalizedPhone = normalizeEgyptianPhone(contactPhone);
+    if (!normalizedPhone) {
+      setError(EGYPTIAN_PHONE_ERROR);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload: CustomDesignRequestCreate = {
@@ -93,7 +100,7 @@ export default function CustomDesignRequestForm({ requestType }: CustomDesignReq
         dimensions,
         quantity: Number(quantity),
         description: description.trim(),
-        contact_phone: contactPhone.trim(),
+        contact_phone: normalizedPhone,
         company_name: isBusiness ? companyName.trim() : '',
         project_location: projectLocation.trim(),
         target_delivery_date: targetDeliveryDate || null,

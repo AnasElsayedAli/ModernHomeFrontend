@@ -40,7 +40,12 @@ import {
 type ManagementTab = 'categories' | 'subcategories' | 'deleted';
 
 export default function CategoriesManagement() {
-  const { categories: storeCategories, saveCategory: syncStoreCategory, deleteCategory: syncDeleteStoreCategory } = useToccoStore();
+  const {
+    categories: storeCategories,
+    saveCategory: syncStoreCategory,
+    removeCategoryFromStore,
+    removeSubcategoryFromStore,
+  } = useToccoStore();
 
   // State
   const [activeTab, setActiveTab] = useState<ManagementTab>('categories');
@@ -102,6 +107,7 @@ export default function CategoriesManagement() {
     hasSubcategories?: boolean;
     subcategoriesCount?: number;
   } | null>(null);
+  const [deleteDialogError, setDeleteDialogError] = useState<string | null>(null);
 
   // Reload function. Pass the current search text to filter categories/subcategories
   // server-side via `?search=`; deleted lists are always fetched in full.
@@ -348,13 +354,14 @@ export default function CategoriesManagement() {
   // ==========================================
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
+    setDeleteDialogError(null);
 
     if (
       itemToDelete.type === 'category' &&
       itemToDelete.mode === 'hard' &&
       itemToDelete.hasSubcategories
     ) {
-      notifyError(
+      setDeleteDialogError(
         `لا يمكن حذف التصنيف "${itemToDelete.name}" نهائيًا لاحتوائه على ${itemToDelete.subcategoriesCount || 'قسم فرعي واحد أو أكثر'}. احذف الأقسام الفرعية أو أعد ربطها أولًا.`
       );
       return;
@@ -363,33 +370,84 @@ export default function CategoriesManagement() {
     setActionLoading(true);
 
     try {
-      if (itemToDelete.type === 'category') {
-        if (itemToDelete.mode === 'soft') {
-          await categoryService.deleteCategory(itemToDelete.id);
-          notifySuccess(`تم نقل التصنيف «${itemToDelete.name}» إلى الأرشيف، ويمكن استعادته لاحقًا.`);
-        } else {
-          await categoryService.hardDeleteCategory(itemToDelete.id);
-          notifySuccess(`تم حذف التصنيف "${itemToDelete.name}" نهائيًا.`);
+      const removeFromServer = async () => {
+        if (itemToDelete.type === 'category') {
+          if (itemToDelete.mode === 'soft') {
+            await categoryService.deleteCategory(itemToDelete.id);
+          } else {
+            await categoryService.hardDeleteCategory(itemToDelete.id);
+          }
+          return;
         }
-      } else {
+
         if (itemToDelete.mode === 'soft') {
           await subcategoryService.deleteSubcategory(itemToDelete.id);
-          notifySuccess(`تم نقل القسم الفرعي «${itemToDelete.name}» إلى الأرشيف، ويمكن استعادته لاحقًا.`);
         } else {
           await subcategoryService.hardDeleteSubcategory(itemToDelete.id);
+        }
+      };
+
+      const confirmServerRemoval = async () => {
+        if (itemToDelete.type === 'category') {
+          const [activeItems, archivedItems] = await Promise.all([
+            categoryService.getCategories(),
+            categoryService.getDeletedCategories(),
+          ]);
+          const isActive = activeItems.some((item) => item.id === itemToDelete.id);
+          const isArchived = archivedItems.some((item) => item.id === itemToDelete.id);
+          return itemToDelete.mode === 'soft' ? !isActive && isArchived : !isActive && !isArchived;
+        }
+
+        const [activeItems, archivedItems] = await Promise.all([
+          subcategoryService.getSubcategories(),
+          subcategoryService.getDeletedSubcategories(),
+        ]);
+        const isActive = activeItems.some((item) => item.id === itemToDelete.id);
+        const isArchived = archivedItems.some((item) => item.id === itemToDelete.id);
+        return itemToDelete.mode === 'soft' ? !isActive && isArchived : !isActive && !isArchived;
+      };
+
+      try {
+        await removeFromServer();
+      } catch (error) {
+        const status = normalizeApiError(error).status;
+        if (status !== undefined && status >= 400 && status < 500) throw error;
+        if (!await confirmServerRemoval()) throw error;
+      }
+
+      if (itemToDelete.type === 'category') {
+        if (itemToDelete.mode === 'soft') {
+          const category = activeCategories.find((item) => item.id === itemToDelete.id);
+          setActiveCategories((current) => current.filter((item) => item.id !== itemToDelete.id));
+          if (category) {
+            setDeletedCategories((current) => [category, ...current.filter((item) => item.id !== itemToDelete.id)]);
+          }
+          notifySuccess(`تم نقل التصنيف «${itemToDelete.name}» إلى الأرشيف، ويمكن استعادته لاحقًا.`);
+        } else {
+          setActiveCategories((current) => current.filter((item) => item.id !== itemToDelete.id));
+          setDeletedCategories((current) => current.filter((item) => item.id !== itemToDelete.id));
+          notifySuccess(`تم حذف التصنيف "${itemToDelete.name}" نهائيًا.`);
+        }
+        removeCategoryFromStore(String(itemToDelete.id));
+      } else {
+        if (itemToDelete.mode === 'soft') {
+          const subcategory = activeSubcategories.find((item) => item.id === itemToDelete.id);
+          setActiveSubcategories((current) => current.filter((item) => item.id !== itemToDelete.id));
+          if (subcategory) {
+            setDeletedSubcategories((current) => [subcategory, ...current.filter((item) => item.id !== itemToDelete.id)]);
+          }
+          notifySuccess(`تم نقل القسم الفرعي «${itemToDelete.name}» إلى الأرشيف، ويمكن استعادته لاحقًا.`);
+        } else {
+          setActiveSubcategories((current) => current.filter((item) => item.id !== itemToDelete.id));
+          setDeletedSubcategories((current) => current.filter((item) => item.id !== itemToDelete.id));
           notifySuccess(`تم حذف القسم الفرعي "${itemToDelete.name}" نهائيًا.`);
         }
+        removeSubcategoryFromStore(String(itemToDelete.id));
       }
 
       setItemToDelete(null);
-      await loadData(searchQuery.trim());
     } catch (err: any) {
-      const norm = normalizeApiError(err);
-      const isCategoryHardDelete = itemToDelete.type === 'category' && itemToDelete.mode === 'hard';
-      const message = isCategoryHardDelete && norm.message === 'حدث خطأ غير متوقع. حاول مرة أخرى.'
-        ? `لا يمكن حذف التصنيف "${itemToDelete.name}" نهائيًا لارتباطه بأقسام فرعية أو عناصر أخرى. أزل الارتباطات أو أعد تعيينها ثم حاول مرة أخرى.`
-        : norm.message;
-      notifyError(message);
+      setDeleteDialogError(normalizeApiError(err).message);
     } finally {
       setActionLoading(false);
     }
@@ -1295,9 +1353,18 @@ export default function CategoriesManagement() {
         icon={itemToDelete?.mode === 'hard' ? 'delete' : 'archive'}
         confirmDisabled={Boolean(itemToDelete?.type === 'category' && itemToDelete.mode === 'hard' && itemToDelete.hasSubcategories)}
         isLoading={actionLoading}
-        onCancel={() => setItemToDelete(null)}
+        onCancel={() => {
+          setItemToDelete(null);
+          setDeleteDialogError(null);
+        }}
         onConfirm={handleConfirmDelete}
       >
+        {deleteDialogError && (
+          <div role="alert" className="flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-rose-900">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-700" aria-hidden="true" />
+            <p>{deleteDialogError}</p>
+          </div>
+        )}
         {itemToDelete?.mode === 'hard' && itemToDelete.type === 'category' && itemToDelete.hasSubcategories && (
           <div className="space-y-2 text-rose-900 bg-rose-50 p-3.5 rounded-xl border border-rose-200">
             <p className="font-semibold text-rose-950">لا يمكن حذف هذا التصنيف الآن.</p>

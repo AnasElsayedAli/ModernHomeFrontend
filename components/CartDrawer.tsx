@@ -21,6 +21,8 @@ export default function CartDrawer() {
     cartFreeShipping,
     isGuestCartSyncing,
     cartSyncError,
+    cartPricingRefreshError,
+    refreshBackendCart,
     syncGuestCart,
     navigateTo,
     settings,
@@ -110,6 +112,14 @@ export default function CartDrawer() {
                 )}
                 {cartActionError && (
                   <p role="alert" className="border border-rose-300 bg-rose-50 px-3 py-2.5 text-xs text-rose-900">{cartActionError}</p>
+                )}
+                {cartPricingRefreshError && (
+                  <div role="status" className="flex items-start justify-between gap-3 border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs text-amber-900">
+                    <p>{cartPricingRefreshError}</p>
+                    <button type="button" onClick={() => void refreshBackendCart()} className="shrink-0 font-semibold underline underline-offset-2">
+                      إعادة المحاولة
+                    </button>
+                  </div>
                 )}
                 {isCartActionPending && <p role="status" className="text-xs text-[#6D6A64]">جارٍ تحديث السلة...</p>}
 
@@ -203,7 +213,7 @@ export default function CartDrawer() {
                               </div>
                             </div>
                           </div>
-                          {item.offerName && <span className="inline-block border-r-2 border-[#A36046] bg-[#F0E7DA] px-2 py-1 text-xs text-[#785132]">{item.offerName}</span>}
+                          {item.offerName && item.offerType !== 'BUNDLE' && <span className="inline-block border-r-2 border-[#A36046] bg-[#F0E7DA] px-2 py-1 text-xs text-[#785132]">{item.offerName}</span>}
                         </article>
                       );
                     })}

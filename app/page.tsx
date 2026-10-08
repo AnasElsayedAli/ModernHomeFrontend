@@ -59,13 +59,15 @@ function ToccoApp() {
   // Push any locally-held guest cart items into the real backend cart once a user signs in.
   const wasAuthenticated = React.useRef(false);
   useEffect(() => {
+    if (isLoading) return;
+
     if (user && !wasAuthenticated.current) {
       void syncGuestCart();
     } else if (!user && wasAuthenticated.current) {
       forgetAuthenticatedCart();
     }
     wasAuthenticated.current = Boolean(user);
-  }, [user, syncGuestCart, forgetAuthenticatedCart]);
+  }, [forgetAuthenticatedCart, isLoading, syncGuestCart, user]);
 
   useEffect(() => {
     if (!isLoading && user) {

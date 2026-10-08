@@ -6,7 +6,7 @@
 export interface BackendCartOffer {
   id: number;
   name: string;
-  offer_type: string;
+  offer_type: 'PERCENTAGE' | 'BUNDLE' | 'FREE_SHIPPING';
   percentage?: string;
   bundle_price?: string;
 }
@@ -15,6 +15,7 @@ export interface BackendCartItem {
   id: number;
   product_id: number;
   product_name: string;
+  product_image?: string;
   product_price: string | number;
   color_id: number | null;
   color_name: string | null;

@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useToccoStore } from '@/lib/store';
+import React, { useState, useMemo, useEffect } from 'react';
+import { mapBackendProduct, useToccoStore } from '@/lib/store';
+import { productService } from '@/lib/api/services/productService';
 import { normalizeApiError } from '@/lib/api/errors';
 import { toWhatsAppNumber } from '@/lib/utils';
-import { ProductFinish, ProductColor, ProductSize } from '@/types';
+import { Product, ProductFinish, ProductColor, ProductSize } from '@/types';
 import Image from '@/components/SafeImage';
 import {
   ArrowLeft,
@@ -20,6 +21,16 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useModernHomeContent } from './modern-home/useModernHomeContent';
+import ModernHomeProductCard from './ModernHomeProductCard';
+
+function pickRandomProducts(products: Product[], excludedProductId: string): Product[] {
+  const candidates = products.filter((candidate) => candidate.id !== excludedProductId);
+  for (let index = candidates.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [candidates[index], candidates[randomIndex]] = [candidates[randomIndex], candidates[index]];
+  }
+  return candidates.slice(0, 4);
+}
 
 export default function ProductDetailView() {
   const {
@@ -36,10 +47,95 @@ export default function ProductDetailView() {
   } = useToccoStore();
   const { categories } = useModernHomeContent();
 
-  const product = useMemo(() => {
+  const storeProduct = useMemo(() => {
     if (!selectedProductId) return null;
     return getProductById(selectedProductId) || null;
   }, [selectedProductId, getProductById]);
+  const [remoteProduct, setRemoteProduct] = useState<{ id: string; product: Product } | null>(null);
+  const [remoteProductError, setRemoteProductError] = useState<{ id: string; message: string } | null>(null);
+  const [productRetryVersion, setProductRetryVersion] = useState(0);
+  const directProduct = remoteProduct?.id === selectedProductId ? remoteProduct.product : null;
+  const product = storeProduct || directProduct;
+
+  useEffect(() => {
+    if (isCatalogLoading || !selectedProductId || getProductById(selectedProductId)) return;
+    const productId = Number(selectedProductId);
+    if (!Number.isSafeInteger(productId)) return;
+
+    let active = true;
+    productService.getProduct(productId)
+      .then((backendProduct) => {
+        if (active) {
+          setRemoteProduct({
+            id: selectedProductId,
+            product: mapBackendProduct(backendProduct, subcategories),
+          });
+          setRemoteProductError(null);
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setRemoteProductError({
+            id: selectedProductId,
+            message: normalizeApiError(error).message,
+          });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [getProductById, isCatalogLoading, productRetryVersion, selectedProductId, subcategories]);
+
+  const currentProductError = remoteProductError?.id === selectedProductId ? remoteProductError : null;
+  const isDirectProductLoading = Boolean(
+    selectedProductId
+    && !storeProduct
+    && !directProduct
+    && !currentProductError
+    && Number.isSafeInteger(Number(selectedProductId))
+  );
+  const [recommendedState, setRecommendedState] = useState<{ productId: string; products: Product[] } | null>(null);
+
+  useEffect(() => {
+    if (!product) return;
+
+    let active = true;
+    const loadRecommendations = async () => {
+      const categoryResponse = await productService.getProductPage({
+        page: 1,
+        page_size: 100,
+        ordering: 'featured',
+        ...(product.categoryId ? { category_id: product.categoryId } : {}),
+      });
+      let alternatives = categoryResponse.results.map((item) => mapBackendProduct(item, subcategories));
+      if (!alternatives.some((item) => item.id !== product.id)) {
+        const catalogResponse = await productService.getProductPage({
+          page: 1,
+          page_size: 100,
+          ordering: 'featured',
+        });
+        alternatives = catalogResponse.results.map((item) => mapBackendProduct(item, subcategories));
+      }
+      if (active) {
+        setRecommendedState({
+          productId: product.id,
+          products: pickRandomProducts(alternatives, product.id),
+        });
+      }
+    };
+
+    loadRecommendations().catch(() => {
+      if (active) setRecommendedState({ productId: product.id, products: [] });
+    });
+    return () => {
+      active = false;
+    };
+  }, [product, subcategories]);
+
+  const recommendedProducts = recommendedState?.productId === product?.id
+    ? recommendedState?.products ?? []
+    : [];
 
   // Active state for configurable attributes
   const [selectedImageIdx, setSelectedImageIdx] = useState(0);
@@ -59,11 +155,23 @@ export default function ProductDetailView() {
 
   // If no product selected, offer redirect to shop
   if (!product) {
-    if (isCatalogLoading) {
+    if (isCatalogLoading || isDirectProductLoading) {
       return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 pt-28 text-center" role="status" aria-live="polite">
           <Loader2 className="h-6 w-6 animate-spin text-[#643D26]" aria-hidden="true" />
           <p className="text-sm text-[#6D6A64]">جارٍ تحميل تفاصيل القطعة...</p>
+        </div>
+      );
+    }
+
+    if (currentProductError) {
+      return (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 pt-28 text-center" role="alert">
+          <p className="text-sm text-[#17324A]">تعذر تحميل تفاصيل القطعة</p>
+          <p className="max-w-md text-xs text-[#6D6A64]">{currentProductError.message}</p>
+          <button type="button" onClick={() => setProductRetryVersion((version) => version + 1)} className="bg-[#17324A] px-5 py-2.5 text-sm font-medium text-white">
+            إعادة المحاولة
+          </button>
         </div>
       );
     }
@@ -93,6 +201,16 @@ export default function ProductDetailView() {
     );
   }
 
+  const activeFinish = product.finishes.includes(selectedFinish)
+    ? selectedFinish
+    : product.finishes[0] || selectedFinish;
+  const activeColor = product.colors.find((color) => color.id === selectedColor.id)
+    || product.colors[0]
+    || selectedColor;
+  const activeSize = selectedSize && product.sizes?.some((size) => size.id === selectedSize.id)
+    ? selectedSize
+    : product.sizes?.[0];
+
   const category = categories.find((c) => c.id === product.categoryId)
     || storeCategories.find((c) => c.id === product.categoryId);
   const productSubcategories = subcategories.filter((subcategory) =>
@@ -100,16 +218,16 @@ export default function ProductDetailView() {
   );
 
   // Base price + size price delta
-  const unitPrice = (product.price || 0) + (selectedSize?.priceDelta || 0);
+  const unitPrice = (product.price || 0) + (activeSize?.priceDelta || 0);
   const depositRatio = settings.depositPercentage / 100;
   const depositDue = Math.round(unitPrice * depositRatio);
   const remainingDue = unitPrice - depositDue;
 
   // WhatsApp Enquiry URL with contextual product prefill
   const whatsappPrefill = `مرحبًا مودرن هوم، أستفسر عن "${product.name}".
-التشطيب: ${selectedFinish === 'MATTE' ? 'مطفأ' : 'لامع'}
-اللون: ${selectedColor.name}
-${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions})` : ''}
+التشطيب: ${activeFinish === 'MATTE' ? 'مطفأ' : 'لامع'}
+اللون: ${activeColor.name}
+${activeSize ? `المقاس: ${activeSize.name} (${activeSize.dimensions})` : ''}
 أرجو إرسال تفاصيل السعر والتنفيذ.`;
 
   const whatsappUrl = `https://wa.me/${toWhatsAppNumber(settings.contact.whatsapp)}?text=${encodeURIComponent(
@@ -125,9 +243,9 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
         productName: product.name,
         productImage: product.images[0],
         unitPrice,
-        selectedFinish,
-        selectedColor,
-        selectedSize,
+        selectedFinish: activeFinish,
+        selectedColor: activeColor,
+        selectedSize: activeSize,
         quantity,
       });
 
@@ -252,7 +370,7 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
             {product.finishes.length > 0 && (
               <fieldset className="space-y-3">
                 <legend className="text-sm font-semibold text-[#17324A]">
-                  التشطيب <span className="font-normal text-[#6D6A64]">· {selectedFinish === 'MATTE' ? 'مطفأ' : 'لامع'}</span>
+                  التشطيب <span className="font-normal text-[#6D6A64]">· {activeFinish === 'MATTE' ? 'مطفأ' : 'لامع'}</span>
                 </legend>
                 <div className="flex flex-wrap gap-2">
                   {product.finishes.map((finish) => (
@@ -260,8 +378,8 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
                       key={finish}
                       type="button"
                       onClick={() => setSelectedFinish(finish)}
-                      aria-pressed={selectedFinish === finish}
-                      className={`min-h-10 border px-4 text-sm transition-colors ${selectedFinish === finish ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#D9CEBF] bg-white text-[#42515C] hover:border-[#17324A]'}`}
+                      aria-pressed={activeFinish === finish}
+                      className={`min-h-10 border px-4 text-sm transition-colors ${activeFinish === finish ? 'border-[#17324A] bg-[#17324A] text-white' : 'border-[#D9CEBF] bg-white text-[#42515C] hover:border-[#17324A]'}`}
                     >
                       {finish === 'MATTE' ? 'مطفأ' : 'لامع'}
                     </button>
@@ -273,7 +391,7 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
             {product.colors.length > 0 && (
               <fieldset className="space-y-3">
                 <legend className="text-sm font-semibold text-[#17324A]">
-                  اللون <span className="font-normal text-[#6D6A64]">· {selectedColor.name}</span>
+                  اللون <span className="font-normal text-[#6D6A64]">· {activeColor.name}</span>
                 </legend>
                 <div className="flex flex-wrap items-center gap-2">
                   {product.colors.map((color) => (
@@ -282,9 +400,9 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
                       type="button"
                       onClick={() => setSelectedColor(color)}
                       aria-label={`اختيار اللون ${color.name}`}
-                      aria-pressed={selectedColor.id === color.id}
+                      aria-pressed={activeColor.id === color.id}
                       title={color.name}
-                      className={`grid h-10 w-10 place-items-center rounded-full border-2 ${selectedColor.id === color.id ? 'border-[#17324A]' : 'border-transparent'}`}
+                      className={`grid h-10 w-10 place-items-center rounded-full border-2 ${activeColor.id === color.id ? 'border-[#17324A]' : 'border-transparent'}`}
                     >
                       <span className="h-7 w-7 rounded-full border border-black/15" style={{ backgroundColor: color.hex }} />
                     </button>
@@ -302,8 +420,8 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
                       key={size.id}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      aria-pressed={selectedSize?.id === size.id}
-                      className={`flex w-full items-center justify-between gap-4 border px-4 py-3 text-right ${selectedSize?.id === size.id ? 'border-[#17324A] bg-[#F0E7DA]' : 'border-[#D9CEBF] bg-white hover:border-[#17324A]'}`}
+                      aria-pressed={activeSize?.id === size.id}
+                      className={`flex w-full items-center justify-between gap-4 border px-4 py-3 text-right ${activeSize?.id === size.id ? 'border-[#17324A] bg-[#F0E7DA]' : 'border-[#D9CEBF] bg-white hover:border-[#17324A]'}`}
                     >
                       <span>
                         <span className="block text-sm font-semibold text-[#17324A]">{size.name}</span>
@@ -387,6 +505,32 @@ ${selectedSize ? `المقاس: ${selectedSize.name} (${selectedSize.dimensions}
             </div>
           </section>
         </div>
+
+        {recommendedProducts.length > 0 && (
+          <section className="mt-12 border-t border-[#E6DED2] pt-8 sm:mt-16" aria-labelledby="related-products-heading">
+            <h2 id="related-products-heading" className="mb-5 font-[family-name:var(--font-display)] text-xl font-semibold text-[#17324A] sm:text-2xl">
+              أيضا قد ينال إعجابك
+            </h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5">
+              {recommendedProducts.map((recommendedProduct) => {
+                const subcategoryName = subcategories.find((subcategory) =>
+                  recommendedProduct.subcategoryIds.includes(String(subcategory.id))
+                )?.name;
+                const categoryName = subcategoryName
+                  || categories.find((item) => item.id === recommendedProduct.categoryId)?.name;
+                return (
+                  <ModernHomeProductCard
+                    key={recommendedProduct.id}
+                    product={recommendedProduct}
+                    categoryLabel={categoryName}
+                    onSelect={() => navigateTo('product', { productId: recommendedProduct.id })}
+                    compact
+                  />
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

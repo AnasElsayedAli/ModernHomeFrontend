@@ -7,6 +7,8 @@ import { PaymentMethod } from '@/types';
 import { orderService } from '@/lib/api/services/orderService';
 import { cartService } from '@/lib/api/services/cartService';
 import { normalizeApiError } from '@/lib/api/errors';
+import { EGYPTIAN_PHONE_ERROR, normalizeEgyptianPhone } from '@/lib/utils';
+import type { BackendOrder } from '@/types/order';
 import Image from '@/components/SafeImage';
 import {
   ShieldCheck,
@@ -20,7 +22,6 @@ import {
   MessageCircle,
   Loader2,
   AlertCircle,
-  MapPin,
   Plus,
 } from 'lucide-react';
 
@@ -74,6 +75,9 @@ export default function CheckoutView() {
   const [apartmentNumber, setApartmentNumber] = useState(
     () => defaultAddr?.apartment_number || '1'
   );
+  const [guestName, setGuestName] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
   const [orderNote, setOrderNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('instapay');
 
@@ -110,53 +114,93 @@ export default function CheckoutView() {
     setApiError(null);
     setApiFieldErrors({});
 
-    if (!authUser) {
-      setApiError('سجّل الدخول لإتمام الطلب.');
+    if (isAuthLoading) return;
+
+    const normalizedGuestPhone = authUser ? null : normalizeEgyptianPhone(guestPhone);
+    if (!authUser && !guestName.trim()) {
+      setApiError('أدخل اسم العميل لإتمام الطلب.');
+      return;
+    }
+    if (!authUser && !normalizedGuestPhone) {
+      setApiError(EGYPTIAN_PHONE_ERROR);
+      return;
+    }
+    if (!authUser && (!city.trim() || !street.trim())) {
+      setApiError('أدخل المدينة والشارع لإتمام الطلب.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const guestCartSynced = await syncGuestCart();
-      if (!guestCartSynced) {
-        setApiError('تعذر نقل بعض المنتجات إلى حسابك. أعد المحاولة قبل تأكيد الطلب.');
-        return;
-      }
+      let createdOrder: BackendOrder;
 
-      const backendCart = await cartService.getCart();
-      if (!Array.isArray(backendCart.items) || backendCart.items.length === 0) {
-        setApiError('سلة حسابك فارغة. راجع السلة ثم حاول مرة أخرى.');
-        return;
-      }
-
-      let targetAddressId: number;
-
-      if (selectedAddressId === 'new' || authAddresses.length === 0) {
-        if (!city.trim() || !street.trim()) {
-          setApiError('أدخل المدينة وعنوان الشارع للتوصيل.');
-          setIsSubmitting(false);
+      if (authUser) {
+        const guestCartSynced = await syncGuestCart();
+        if (!guestCartSynced) {
+          setApiError('تعذر نقل بعض المنتجات إلى حسابك. أعد المحاولة قبل تأكيد الطلب.');
           return;
         }
 
-        const newAddr = await createAddress({
-          title: addressTitle.trim() || 'عنوان التوصيل',
-          country: 'Egypt',
-          city: city.trim(),
-          street: street.trim(),
-          building_number: buildingNumber.trim() || '1',
-          apartment_number: apartmentNumber.trim() || '1',
-          is_default: authAddresses.length === 0,
-        });
-        targetAddressId = newAddr.id;
-      } else {
-        targetAddressId = Number(selectedAddressId);
-      }
+        const backendCart = await cartService.getCart();
+        if (!Array.isArray(backendCart.items) || backendCart.items.length === 0) {
+          setApiError('سلة حسابك فارغة. راجع السلة ثم حاول مرة أخرى.');
+          return;
+        }
 
-      // Create backend order (API expects { address_id })
-      const createdOrder = await orderService.createOrder({
-        address_id: targetAddressId,
-        customer_notes: orderNote.trim(),
-      });
+        let targetAddressId: number;
+        if (selectedAddressId === 'new' || authAddresses.length === 0) {
+          const newAddr = await createAddress({
+            title: addressTitle.trim() || 'عنوان التوصيل',
+            country: 'Egypt',
+            city: city.trim(),
+            street: street.trim(),
+            building_number: buildingNumber.trim() || '1',
+            apartment_number: apartmentNumber.trim() || '1',
+            is_default: authAddresses.length === 0,
+          });
+          targetAddressId = newAddr.id;
+        } else {
+          targetAddressId = Number(selectedAddressId);
+        }
+
+        createdOrder = await orderService.createOrder({
+          address_id: targetAddressId,
+          customer_notes: orderNote.trim(),
+        });
+      } else {
+        const items = cart.map((item) => {
+          const productId = Number(item.productId);
+          const colorId = item.selectedColor.id ? Number(item.selectedColor.id) : null;
+          if (!Number.isInteger(productId) || productId < 1) {
+            throw new Error(`تعذر التحقق من المنتج «${item.productName}». أعد تحميل السلة.`);
+          }
+          if (colorId !== null && (!Number.isInteger(colorId) || colorId < 1)) {
+            throw new Error(`تعذر التحقق من لون «${item.productName}». أعد اختيار اللون.`);
+          }
+          return {
+            product_id: productId,
+            selected_color_id: colorId,
+            selected_finish: item.selectedFinish || null,
+            quantity: item.quantity,
+          };
+        });
+
+        createdOrder = await orderService.createOrder({
+          customer_name: guestName.trim(),
+          customer_phone: normalizedGuestPhone!,
+          customer_email: guestEmail.trim(),
+          shipping_address: {
+            title: addressTitle.trim() || 'عنوان التوصيل',
+            country: 'Egypt',
+            city: city.trim(),
+            street: street.trim(),
+            building_number: buildingNumber.trim(),
+            apartment_number: apartmentNumber.trim(),
+          },
+          items,
+          customer_notes: orderNote.trim(),
+        });
+      }
 
       const remainingCartItems = [...cart];
       const orderWithFinishes = {
@@ -229,21 +273,13 @@ export default function CheckoutView() {
               </div>
               <div className="space-y-1">
                 <h2 className="text-sm font-semibold text-[#17324A]">
-                  سجّل الدخول لمتابعة الطلب
+                  أكمل الطلب كضيف
                 </h2>
                 <p className="max-w-2xl text-sm leading-7 text-[#6D6A64]">
-                  بيانات التوصيل والطلب مرتبطة بحسابك. سجّل الدخول أو أنشئ حسابًا لإتمام الطلب.
+                  أدخل بيانات التواصل وعنوان التوصيل، ولا تحتاج إلى إنشاء حساب.
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => navigateTo('account')}
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 bg-[#17324A] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#24445E]"
-            >
-              تسجيل الدخول أو إنشاء حساب
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
           </div>
         )}
 
@@ -296,13 +332,52 @@ export default function CheckoutView() {
                   </div>
                 </>
               ) : (
-                <div className="flex items-start gap-3 rounded-lg border border-[#EAE4DC] bg-white p-4">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#643D26]" />
-                  <p className="text-xs leading-relaxed text-[#736B63]">
-                    {isAuthLoading
-                      ? 'جارٍ تحميل بيانات حسابك...'
-                      : 'سجّل الدخول لعرض بيانات الاسم والهاتف والبريد الإلكتروني.'}
-                  </p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="guest-customer-name" className="block text-[11px] font-medium text-[#1C1A19] sm:text-xs">
+                      الاسم بالكامل *
+                    </label>
+                    <input
+                      id="guest-customer-name"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      maxLength={120}
+                      value={guestName}
+                      onChange={(event) => setGuestName(event.target.value)}
+                      className="w-full rounded-lg border border-[#D8CEBF] bg-white px-3.5 py-3 text-xs text-[#1C1A19] focus:border-[#643D26] focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="guest-customer-phone" className="block text-[11px] font-medium text-[#1C1A19] sm:text-xs">
+                      رقم الهاتف *
+                    </label>
+                    <input
+                      id="guest-customer-phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      required
+                      value={guestPhone}
+                      onChange={(event) => setGuestPhone(event.target.value)}
+                      placeholder="01xxxxxxxxx"
+                      dir="ltr"
+                      className="w-full rounded-lg border border-[#D8CEBF] bg-white px-3.5 py-3 text-left text-xs text-[#1C1A19] focus:border-[#643D26] focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label htmlFor="guest-customer-email" className="block text-[11px] font-medium text-[#1C1A19] sm:text-xs">
+                      البريد الإلكتروني (اختياري)
+                    </label>
+                    <input
+                      id="guest-customer-email"
+                      type="email"
+                      autoComplete="email"
+                      value={guestEmail}
+                      onChange={(event) => setGuestEmail(event.target.value)}
+                      className="w-full rounded-lg border border-[#D8CEBF] bg-white px-3.5 py-3 text-xs text-[#1C1A19] focus:border-[#643D26] focus:outline-none"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -327,16 +402,8 @@ export default function CheckoutView() {
                 ٢. عنوان التوصيل
               </h3>
 
-              {!authUser ? (
-                <div className="flex items-start gap-3 rounded-lg border border-[#EAE4DC] bg-white p-4">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#643D26]" />
-                  <p className="text-xs leading-relaxed text-[#736B63]">
-                    سجّل الدخول لإضافة عنوان التوصيل ومتابعة الطلب.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {authAddresses.length > 0 && (
+              <>
+                  {authUser && authAddresses.length > 0 && (
                     <div className="space-y-2.5">
                       <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
                         اختر عنوان التوصيل
@@ -389,7 +456,7 @@ export default function CheckoutView() {
                     </div>
                   )}
 
-                  {(selectedAddressId === 'new' || authAddresses.length === 0) && (
+                  {(!authUser || selectedAddressId === 'new' || authAddresses.length === 0) && (
                     <div className="space-y-3 pt-2">
                       <div className="space-y-1.5">
                         <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-medium text-[#1C1A19]">
@@ -478,8 +545,7 @@ export default function CheckoutView() {
                       className="w-full text-xs p-3 rounded-lg bg-white border border-[#D8CEBF] text-[#1C1A19] focus:outline-none"
                     />
                   </div>
-                </>
-              )}
+              </>
             </div>
 
             {/* Payment Method Selector */}
@@ -724,36 +790,24 @@ export default function CheckoutView() {
               )}
 
               {/* Place Order CTA */}
-              {authUser ? (
-                <button
-                  id="place-order-submit-btn"
-                  type="submit"
-                  disabled={isSubmitting || isGuestCartSyncing}
-                  className="flex min-h-12 w-full items-center justify-center gap-2 bg-[#17324A] px-4 py-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>جارٍ تأكيد الطلب...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>تأكيد الطلب ومتابعة المقدم</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => navigateTo('account')}
-                  disabled={isAuthLoading}
-                  className="flex min-h-12 w-full items-center justify-center gap-2 bg-[#17324A] px-4 py-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
-                >
-                  {isAuthLoading ? 'جارٍ التحقق من الحساب...' : 'سجّل الدخول لمتابعة الطلب'}
-                  {!isAuthLoading && <ArrowRight className="w-4 h-4" />}
-                </button>
-              )}
+              <button
+                id="place-order-submit-btn"
+                type="submit"
+                disabled={isSubmitting || isAuthLoading || isGuestCartSyncing}
+                className="flex min-h-12 w-full items-center justify-center gap-2 bg-[#17324A] px-4 py-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#24445E] disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>جارٍ تأكيد الطلب...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>تأكيد الطلب ومتابعة المقدم</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </form>

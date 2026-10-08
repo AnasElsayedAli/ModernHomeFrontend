@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/context/AuthContext';
 import { userService } from '@/lib/api/services/userService';
 import { UserRole, UserManagementUser } from '@/types/auth';
 import { normalizeApiError } from '@/lib/api/errors';
-import { RefreshCw, AlertCircle } from 'lucide-react';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { RefreshCw, AlertCircle, KeyRound, Trash2 } from 'lucide-react';
 
 export default function UserManagement() {
   const { user } = useAuth();
@@ -16,6 +17,15 @@ export default function UserManagement() {
   const [roleChangeLoadingId, setRoleChangeLoadingId] = useState<number | null>(null);
   const [statusChangeLoadingId, setStatusChangeLoadingId] = useState<number | null>(null);
   const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userToDelete, setUserToDelete] = useState<UserManagementUser | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
+  const [userToSetPassword, setUserToSetPassword] = useState<UserManagementUser | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [settingPasswordUserId, setSettingPasswordUserId] = useState<number | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   const loadUsers = useCallback(async (search?: string) => {
     try {
@@ -71,6 +81,48 @@ export default function UserManagement() {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeletingUserId(userToDelete.id);
+    setDeleteError(null);
+    try {
+      await userService.deleteManagedUser(userToDelete.id);
+      setUserList((current) => current.filter((item) => item.id !== userToDelete.id));
+      setActionSuccess(`تم حذف حساب «${userToDelete.first_name} ${userToDelete.last_name}».`);
+      setUserToDelete(null);
+    } catch (error) {
+      setDeleteError(normalizeApiError(error).message);
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
+  const handleSetUserPassword = async () => {
+    if (!userToSetPassword) return;
+    if (newPassword.length < 8) {
+      setPasswordError('يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('كلمتا المرور غير متطابقتين.');
+      return;
+    }
+
+    setSettingPasswordUserId(userToSetPassword.id);
+    setPasswordError(null);
+    try {
+      await userService.setManagedUserPassword(userToSetPassword.id, newPassword);
+      setActionSuccess(`تم تغيير كلمة مرور «${userToSetPassword.first_name} ${userToSetPassword.last_name}».`);
+      setUserToSetPassword(null);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      setPasswordError(normalizeApiError(error).message);
+    } finally {
+      setSettingPasswordUserId(null);
+    }
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -105,6 +157,13 @@ export default function UserManagement() {
         </div>
       )}
 
+      {actionSuccess && (
+        <div role="status" className="flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+          <span>{actionSuccess}</span>
+          <button type="button" onClick={() => setActionSuccess(null)} aria-label="إغلاق التنبيه" className="text-emerald-800">×</button>
+        </div>
+      )}
+
       {usersLoading ? (
         <div className="py-12 text-center text-xs uppercase tracking-wider text-[#736B63]">
           <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#643D26]" />
@@ -126,6 +185,7 @@ export default function UserManagement() {
                   <th className="py-3 px-4">الحالة</th>
                   <th className="py-3 px-4">الصلاحية</th>
                   <th className="py-3 px-4">تاريخ التسجيل</th>
+                  <th className="py-3 px-4">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#FAF8F5]">
@@ -200,6 +260,40 @@ export default function UserManagement() {
                         year: 'numeric',
                       })}
                     </td>
+                    <td className="py-3.5 px-4">
+                      {user?.role === 'ADMIN' && u.id !== user.id && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUserToSetPassword(u);
+                              setNewPassword('');
+                              setConfirmPassword('');
+                              setPasswordError(null);
+                            }}
+                            disabled={settingPasswordUserId === u.id || deletingUserId === u.id}
+                            aria-label={`تغيير كلمة مرور ${u.first_name} ${u.last_name}`}
+                            title="تغيير كلمة المرور"
+                            className="grid h-8 w-8 place-items-center rounded-full border border-[#D8CEBF] text-[#524B45] hover:bg-[#EFEBE3] disabled:opacity-50"
+                          >
+                            <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUserToDelete(u);
+                              setDeleteError(null);
+                            }}
+                            disabled={deletingUserId === u.id || settingPasswordUserId === u.id}
+                            aria-label={`حذف ${u.first_name} ${u.last_name}`}
+                            title="حذف المستخدم"
+                            className="grid h-8 w-8 place-items-center rounded-full border border-rose-200 text-rose-700 hover:bg-rose-50 disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -207,6 +301,67 @@ export default function UserManagement() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(userToDelete)}
+        title={`حذف حساب: ${userToDelete?.first_name || ''} ${userToDelete?.last_name || ''}`}
+        description="سيتم حذف الحساب نهائيًا. إذا كانت للمستخدم طلبات محفوظة، سيرفض الخادم الحذف مع توضيح السبب."
+        confirmLabel="حذف المستخدم"
+        isLoading={deletingUserId !== null}
+        onCancel={() => {
+          setUserToDelete(null);
+          setDeleteError(null);
+        }}
+        onConfirm={handleDeleteUser}
+      >
+        {deleteError && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-rose-900">{deleteError}</p>}
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        isOpen={Boolean(userToSetPassword)}
+        title={`تغيير كلمة مرور: ${userToSetPassword?.first_name || ''} ${userToSetPassword?.last_name || ''}`}
+        description="سيتم تعيين كلمة مرور جديدة وإبطال جلسات المستخدم الحالية."
+        confirmLabel="تغيير كلمة المرور"
+        confirmDisabled={!newPassword || !confirmPassword}
+        isLoading={settingPasswordUserId !== null}
+        onCancel={() => {
+          setUserToSetPassword(null);
+          setNewPassword('');
+          setConfirmPassword('');
+          setPasswordError(null);
+        }}
+        onConfirm={handleSetUserPassword}
+      >
+        <label className="block space-y-1.5">
+          <span>كلمة المرور الجديدة</span>
+          <input
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            value={newPassword}
+            onChange={(event) => {
+              setNewPassword(event.target.value);
+              setPasswordError(null);
+            }}
+            className="w-full rounded-lg border border-[#D8CEBF] bg-white px-3 py-2 text-sm text-[#1C1A19] outline-none focus:border-[#643D26]"
+          />
+        </label>
+        <label className="block space-y-1.5">
+          <span>تأكيد كلمة المرور</span>
+          <input
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            value={confirmPassword}
+            onChange={(event) => {
+              setConfirmPassword(event.target.value);
+              setPasswordError(null);
+            }}
+            className="w-full rounded-lg border border-[#D8CEBF] bg-white px-3 py-2 text-sm text-[#1C1A19] outline-none focus:border-[#643D26]"
+          />
+        </label>
+        {passwordError && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-rose-900">{passwordError}</p>}
+      </ConfirmDialog>
     </div>
   );
 }

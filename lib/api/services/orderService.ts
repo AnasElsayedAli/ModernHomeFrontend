@@ -46,10 +46,7 @@ export const orderService = {
    * Endpoint: POST /api/orders/
    */
   async createOrder(data: CreateOrderRequest): Promise<BackendOrder> {
-    return apiClient.post<BackendOrder>('/orders/', {
-      address_id: data.address_id,
-      customer_notes: data.customer_notes,
-    });
+    return apiClient.post<BackendOrder>('/orders/', data);
   },
 
   /**

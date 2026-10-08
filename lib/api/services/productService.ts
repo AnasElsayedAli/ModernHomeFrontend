@@ -8,6 +8,13 @@ import {
 
 export const productService = {
   /**
+   * Get one active-product page with its total count and navigation links.
+   */
+  async getProductPage(params: SearchParams = {}): Promise<PaginatedResponse<BackendProduct>> {
+    return apiClient.get<PaginatedResponse<BackendProduct>>('/products/', { params });
+  },
+
+  /**
    * Get all active products, optionally filtered with `?search=`
    * GET /api/products/
    */

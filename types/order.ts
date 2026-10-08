@@ -16,7 +16,7 @@ export interface BackendShippingAddress {
 
 export interface BackendOrderItem {
   id: number;
-  product_id: number;
+  product_id: number | null;
   product_name: string;
   product_price: string;
   color_name: string | null;
@@ -37,8 +37,11 @@ export interface BackendOrderUser {
 export interface BackendOrder {
   id: number;
   order_number: string; // UUID
-  user: BackendOrderUser;
-  address_id: number;
+  user: BackendOrderUser | null;
+  address_id: number | null;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string;
   shipping_address: BackendShippingAddress;
   status: BackendOrderStatus;
   customer_notes: string;
@@ -51,8 +54,21 @@ export interface BackendOrder {
 }
 
 export interface CreateOrderRequest {
-  address_id: number;
+  address_id?: number;
   customer_notes?: string;
+  customer_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
+  shipping_address?: Omit<BackendShippingAddress, 'title' | 'country'> & {
+    title?: string;
+    country?: string;
+  };
+  items?: Array<{
+    product_id: number;
+    selected_color_id?: number | null;
+    selected_finish?: 'MATTE' | 'GLOSSY' | null;
+    quantity: number;
+  }>;
 }
 
 export interface UpdateOrderStatusRequest {

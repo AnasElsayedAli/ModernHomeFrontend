@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { BackendUser, ProfileResponse, ProfileUpdateRequest } from '@/types/auth';
 import { normalizeApiError } from '@/lib/api/errors';
+import { EGYPTIAN_PHONE_ERROR, normalizeEgyptianPhone } from '@/lib/utils';
 import {
   CheckCircle2,
   AlertCircle,
@@ -52,6 +53,12 @@ export default function ProfileSection({
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedPhone = normalizeEgyptianPhone(profilePhone);
+    if (!normalizedPhone) {
+      setProfileMessage({ type: 'error', text: EGYPTIAN_PHONE_ERROR });
+      return;
+    }
+
     setProfileLoading(true);
     setProfileMessage(null);
     try {
@@ -59,9 +66,10 @@ export default function ProfileSection({
         {
           first_name: profileFirstName,
           last_name: profileLastName,
-          phone: profilePhone,
+          phone: normalizedPhone,
         }
       );
+      setProfilePhone(normalizedPhone);
       setProfileMessage({ type: 'success', text: 'تم تحديث بياناتك بنجاح.' });
       setTimeout(() => setProfileMessage(null), 4000);
     } catch (err) {

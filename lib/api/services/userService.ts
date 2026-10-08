@@ -69,4 +69,16 @@ export const userService = {
       is_active: isActive,
     });
   },
+
+  /** Delete another user. Admin only. */
+  async deleteManagedUser(userId: number): Promise<void> {
+    return apiClient.delete<void>(`/user/users/${userId}/delete/`);
+  },
+
+  /** Set another user's password. Admin only. */
+  async setManagedUserPassword(userId: number, newPassword: string): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>(`/user/users/${userId}/password/`, {
+      new_password: newPassword,
+    });
+  },
 };
