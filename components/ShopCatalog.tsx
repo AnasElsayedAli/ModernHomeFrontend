@@ -36,6 +36,10 @@ export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: b
     : subcategories.filter((subcategory) => String(subcategory.category_id) === activeCategoryFilter);
   const hasSearchQuery = Boolean(searchQuery.trim());
   const showCategoryLanding = !featuredOnly && activeCategoryFilter === 'all' && !hasSearchQuery;
+  const showSubcategoryLanding = !featuredOnly
+    && activeCategoryFilter !== 'all'
+    && activeSubcategoryFilter === 'all'
+    && !hasSearchQuery;
   const filterKey = [activeCategoryFilter, activeSubcategoryFilter, sortBy, searchQuery.trim(), featuredOnly].join('|');
   const [requestedPage, setRequestedPage] = useState({ filterKey: '', page: 1 });
   const requestedPageNumber = requestedPage.filterKey === filterKey ? requestedPage.page : 1;
@@ -65,7 +69,7 @@ export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: b
   const isInitialCatalogPage = isDefaultCatalogFilter && currentPage === 1;
 
   useEffect(() => {
-    if (showCategoryLanding || isInitialCatalogPage || isCatalogLoading) return;
+    if (showCategoryLanding || showSubcategoryLanding || isInitialCatalogPage || isCatalogLoading) return;
 
     let active = true;
     const handle = setTimeout(() => {
@@ -114,6 +118,7 @@ export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: b
     pageRetryVersion,
     searchQuery,
     showCategoryLanding,
+    showSubcategoryLanding,
     sortBy,
     subcategories,
   ]);
@@ -135,19 +140,29 @@ export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: b
           <div className="max-w-3xl space-y-2">
             <p className="text-xs font-semibold text-[#A36046]">معرض مودرن هوم</p>
             <h1 className="font-[family-name:var(--font-display)] text-2xl leading-tight text-[#17324A] sm:text-3xl">
-              {featuredOnly ? 'مختارات مودرن هوم' : showCategoryLanding ? 'اختر التصنيف' : selectedCategory?.name || (hasSearchQuery ? 'نتائج البحث' : 'المنتجات')}
+              {featuredOnly
+                ? 'مختارات مودرن هوم'
+                : showCategoryLanding
+                  ? 'اختر التصنيف'
+                  : showSubcategoryLanding
+                    ? 'اختر التصنيف الفرعي'
+                    : selectedCategory?.name || (hasSearchQuery ? 'نتائج البحث' : 'المنتجات')}
             </h1>
             <p className="max-w-xl text-sm leading-6 text-[#625E57]">
               {featuredOnly
                 ? 'قطع اختارها فريق مودرن هوم لتكون من أبرز اختيارات التشكيلة.'
                 : showCategoryLanding
                 ? 'ابدأ باختيار التصنيف لتستعرض المنتجات والتصنيفات الفرعية.'
+                : showSubcategoryLanding
+                  ? 'اختر التصنيف الفرعي لعرض المنتجات المناسبة.'
                 : selectedCategory?.description || 'اكتشف المنتجات واختر التصنيف الفرعي المناسب لك.'}
             </p>
           </div>
           <p className="text-xs text-[#6D6A64]">
             {showCategoryLanding
               ? `${visibleCategories.length} تصنيف`
+              : showSubcategoryLanding
+                ? `${visibleSubcategories.length} تصنيف فرعي`
               : featuredOnly
                 ? `${resultCount} قطعة مختارة`
                 : `${resultCount} منتج`}
@@ -156,7 +171,7 @@ export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: b
       </header>
 
       <div className="mx-auto max-w-[1500px] px-5 sm:px-10 lg:px-14">
-        {!showCategoryLanding && (
+        {!showCategoryLanding && !showSubcategoryLanding && (
           <div className="mt-6 rounded-[22px] border border-[#E9E0D4] bg-[#FBF9F4] p-3 shadow-[0_8px_18px_rgba(23,50,74,0.03)]">
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <div className="relative flex-1">
@@ -310,6 +325,45 @@ export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: b
               })}
             </div>
           )
+        ) : showSubcategoryLanding ? (
+          <section className="pt-8" aria-label="التصنيفات الفرعية">
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { categoryId: '' })}
+              className="mb-5 text-sm font-semibold text-[#17324A] underline decoration-[#C8A77D] underline-offset-4"
+            >
+              العودة لكل التصنيفات
+            </button>
+            {visibleSubcategories.length === 0 ? (
+              <p className="border-y border-[#DED5C9] py-10 text-center text-sm text-[#6D6A64]">
+                لا توجد تصنيفات فرعية متاحة لهذا التصنيف حاليًا.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+                {visibleSubcategories.map((subcategory) => (
+                  <button
+                    type="button"
+                    key={subcategory.id}
+                    onClick={() => setActiveSubcategoryFilter(String(subcategory.id))}
+                    className="group relative aspect-[4/3] overflow-hidden bg-[#17324A] text-right text-white"
+                  >
+                    <Image
+                      src={subcategory.image || selectedCategory?.image || '/images/apple_hero_living_1790845941555.jpg'}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute inset-0 bg-gradient-to-t from-[#112334]/95 via-[#17324A]/15 to-transparent" />
+                    <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
+                      <span className="font-[family-name:var(--font-display)] text-base font-semibold sm:text-xl">{subcategory.name}</span>
+                      <ArrowLeft className="mb-1 h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
         ) : currentPageError && !isLoadedPageCurrent ? (
           <div className="py-16 text-center text-sm text-[#6D6A64]">تعذر تحميل المنتجات. استخدم زر إعادة المحاولة بالأعلى.</div>
         ) : isCurrentPageLoading ? (
@@ -359,12 +413,13 @@ export default function ShopCatalog({ featuredOnly = false }: { featuredOnly?: b
                   )?.name;
                   const categoryLabel = productSubcategory || categories.find((category) => category.id === product.categoryId)?.name;
                   return (
-                    <div key={product.id} className={index % 6 === 0 ? 'col-span-2 md:col-span-6 md:row-span-2' : 'col-span-1 md:col-span-3'}>
+                    <div key={product.id} className={featuredOnly ? 'col-span-2 md:col-span-12' : 'col-span-1 md:col-span-3'}>
                       <ModernHomeProductCard
                         product={product}
                         categoryLabel={categoryLabel}
                         onSelect={() => navigateTo('product', { productId: product.id })}
-                        editorial={index % 6 === 0}
+                        editorial={featuredOnly}
+                        descriptionLimit={featuredOnly ? 40 : undefined}
                         ordinal={index + 1}
                       />
                     </div>

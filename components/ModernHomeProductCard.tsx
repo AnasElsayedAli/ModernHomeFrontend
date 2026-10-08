@@ -9,6 +9,7 @@ interface ModernHomeProductCardProps {
   editorial?: boolean;
   compact?: boolean;
   ordinal?: number;
+  descriptionLimit?: number;
 }
 
 export default function ModernHomeProductCard({
@@ -18,11 +19,15 @@ export default function ModernHomeProductCard({
   editorial = false,
   compact = false,
   ordinal,
+  descriptionLimit,
 }: ModernHomeProductCardProps) {
   const isPriced = Number.isFinite(product.price) && product.price > 0;
   const priceLabel = isPriced
     ? `${new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 }).format(product.price)} جنيه`
     : 'حسب الطلب';
+  const description = product.description && descriptionLimit !== undefined && product.description.length > descriptionLimit
+    ? `${product.description.slice(0, descriptionLimit).trimEnd()}...`
+    : product.description;
 
   return (
     <article
@@ -87,8 +92,8 @@ export default function ModernHomeProductCard({
           </button>
         </h3>
 
-        {!compact && product.description && (
-          <p className="line-clamp-2 text-xs leading-6 text-[#6D6A64]">{product.description}</p>
+        {!compact && description && (
+          <p className="line-clamp-2 text-xs leading-6 text-[#6D6A64]">{description}</p>
         )}
 
         <div className="flex items-center justify-between gap-3 pt-1">
