@@ -37,7 +37,6 @@ import { BackendCategory, BackendSubcategory } from '@/types/category';
 import { BackendCartItem } from '@/types/cart';
 import { eventService } from '@/lib/api/services/eventService';
 import { dashboardService } from '@/lib/api/services/dashboardService';
-import { collaborationService } from '@/lib/api/services/collaborationService';
 import { BackendEvent } from '@/types/event';
 import { BackendCollaboration } from '@/types/collaboration';
 import { spaceProjectService } from '@/lib/api/services/spaceProjectService';
@@ -246,7 +245,7 @@ function parseAppLocation(url: URL): { view: AppView; productId: string | null; 
       ? 'home'
       : legacyCatalogRoute
         ? 'shop'
-      : requestedView === 'projects'
+      : requestedView === 'projects' || requestedView === 'b2b' || requestedView === 'events'
         ? 'home'
       : isAppView(requestedView)
         ? requestedView
@@ -388,7 +387,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [banners, setBanners] = useState<BannerItem[]>([]);
-  const [collaborations, setCollaborations] = useState<BackendCollaboration[]>([]);
+  const [collaborations] = useState<BackendCollaboration[]>([]);
   const [settings, setSettings] = useState<StoreSettings>(EMPTY_SETTINGS);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [hasBackendCart, setHasBackendCart] = useState(false);
@@ -410,7 +409,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<CustomerUser | null>(null);
   const [lastCreatedOrder, setLastCreatedOrder] = useState<(BackendOrder & { clientPaymentMethod?: PaymentMethod }) | Order | null>(null);
   const [isCatalogLoading, setIsCatalogLoading] = useState(true);
-  const [isEventsLoading, setIsEventsLoading] = useState(true);
+  const isEventsLoading = false;
   const [isProjectsLoading, setIsProjectsLoading] = useState(true);
   const [storeDataErrors, setStoreDataErrors] = useState<StoreDataErrors>(EMPTY_STORE_DATA_ERRORS);
   const storeDataLoadVersion = useRef(0);
@@ -469,7 +468,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     setStoreDataErrors(EMPTY_STORE_DATA_ERRORS);
     setIsCatalogLoading(true);
-    setIsEventsLoading(true);
     setIsProjectsLoading(true);
 
     const catalogLoad = (async () => {
@@ -498,21 +496,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
     })();
 
-    const eventsLoad = eventService.getEvents()
-      .then((items) => {
-        if (isCurrentRequest()) setEvents(items.map(mapBackendEvent));
-      })
-      .catch((err) => setLoadError('events', err))
-      .finally(() => {
-        if (isCurrentRequest()) setIsEventsLoading(false);
-      });
-
-    const collaborationsLoad = collaborationService.getCollaborations()
-      .then((items) => {
-        if (isCurrentRequest()) setCollaborations(items);
-      })
-      .catch((err) => setLoadError('collaborations', err));
-
     const projectsLoad = spaceProjectService.getProjects()
       .then((items) => {
         if (isCurrentRequest()) setProjects(items.map(mapBackendSpaceProject));
@@ -522,7 +505,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (isCurrentRequest()) setIsProjectsLoading(false);
       });
 
-    await Promise.all([catalogLoad, eventsLoad, collaborationsLoad, projectsLoad]);
+    await Promise.all([catalogLoad, projectsLoad]);
   }, []);
 
   useEffect(() => {
@@ -551,6 +534,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       } else if (requestedView === 'custom-design' || requestedView === 'imported') {
         url.searchParams.set('route', 'shop');
         window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+      } else if (requestedView === 'b2b' || requestedView === 'events') {
+        url.searchParams.delete('route');
+        window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
       }
       selectedProductIdRef.current = location.productId;
       selectedCategoryIdRef.current = location.categoryId;
@@ -574,6 +560,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     ) => {
       const resolvedView = view === 'projects'
         ? 'home'
+        : view === 'b2b' || view === 'events'
+          ? 'home'
         : view === 'custom-design' || view === 'imported'
           ? 'shop'
           : view;

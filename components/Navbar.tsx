@@ -33,9 +33,6 @@ export default function Navbar() {
   const navLinks: { label: string; view: AppView }[] = [
     { label: 'الرئيسية', view: 'home' },
     { label: 'المنتجات', view: 'shop' },
-    { label: 'تصنيع حسب الطلب', view: 'custom-design' },
-    { label: 'مشروعات الأعمال', view: 'b2b' },
-    { label: 'الفعاليات', view: 'events' },
     { label: 'عن مودرن هوم', view: 'our-story' },
   ];
 
